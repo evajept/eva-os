@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import { osLoad, osSave } from "./storage.js";
 const L={bg:"#ffffff",bgH:"#f7f7f5",bgS:"#f7f7f5",bgCode:"#f7f6f3",tx:"#1a1a1a",txS:"#4a4a4a",txT:"#7a7a7a",bdr:"#e9e9e7",bdrH:"#d3d3d0",blue:"#2eaadc",blueBg:"#d3e5ef",red:"#e03e3e",redBg:"#fbe4e4",green:"#0f7b6c",greenBg:"#dbeddb",yellow:"#dfab01",yellowBg:"#fdecc8",purple:"#6940a5",purpleBg:"#e8deee",orange:"#d9730d",orangeBg:"#fadec9",pink:"#ad1a72",pinkBg:"#f4dfeb",brown:"#9f6b53",brownBg:"#e9e5e3",gold:"#9a7b2e",goldBg:"#faf5e8",bloodRed:"#8b2020",bloodRedBg:"#fdf5f5",ocean:"#2a5a8a",oceanBg:"#f0f5fa",pisces:"#5a3a8a",piscesBg:"#f5f0fa",virgo:"#2a6a3a",virgoBg:"#f0faf2",aries:"#b83a1a",ariesBg:"#fdf2ee",scorpio:"#6a1a2a",scorpioBg:"#faf0f2",aquarius:"#1a5a7a",aquariusBg:"#eef5fa"};
 const D={bg:"#191919",bgH:"#222222",bgS:"#222222",bgCode:"#252525",tx:"#e0e0e0",txS:"#a0a0a0",txT:"#686868",bdr:"#333333",bdrH:"#444444",blue:"#4db8e8",blueBg:"#1a2e3a",red:"#f06060",redBg:"#3a1a1a",green:"#2eb89a",greenBg:"#1a2e28",yellow:"#f0c030",yellowBg:"#3a3018",purple:"#9070d0",purpleBg:"#2a2040",orange:"#f0a040",orangeBg:"#3a2818",pink:"#d060a0",pinkBg:"#3a1a2e",brown:"#c09070",brownBg:"#2e2828",gold:"#d0a840",goldBg:"#2e2818",bloodRed:"#d04040",bloodRedBg:"#2e1818",ocean:"#50a0d0",oceanBg:"#182838",pisces:"#9070c0",piscesBg:"#282040",virgo:"#50b070",virgoBg:"#183020",aries:"#e06040",ariesBg:"#302018",scorpio:"#c05060",scorpioBg:"#2e1820",aquarius:"#40a0c0",aquariusBg:"#182830"};
 const ThemeCtx=({children})=>{const[dark,setDark]=useState(false);useEffect(()=>{(async()=>{try{const r=await window.storage.get("theme-mode");if(r&&r.value==="dark")setDark(true);}catch(e){}})();},[]);const toggle=()=>{const n=!dark;setDark(n);(async()=>{try{await window.storage.set("theme-mode",n?"dark":"light");}catch(e){}})();};return children({dark,toggle,C:dark?D:L});};
@@ -20,6 +19,8 @@ const Cd=({children,bg,accent})=><div style={{padding:"12px 14px",background:bg|
 const HL=({children,color})=><span style={{background:color?undefined:C.yellowBg,color:color||C.tx,padding:"0 3px",borderRadius:2}}>{children}</span>;
 function ABar({value}){return(<div style={{display:"flex",alignItems:"center",gap:5}}><div style={{flex:1,height:5,background:C.bgS,borderRadius:3,overflow:"hidden"}}><div style={{width:`${(value/10)*100}%`,height:"100%",background:value>=8?C.green:value>=6?C.orange:C.red,borderRadius:3}}/></div><span style={{fontSize:12,fontWeight:600,color:value>=8?C.green:value>=6?C.orange:C.red,fontFamily:F.mono,minWidth:16,textAlign:"right"}}>{value}</span></div>);}
 function Collapse({title,icon,color,open:dO,children}){const[o,setO]=useState(dO||false);return(<div style={{marginBottom:6}}><div onClick={()=>setO(!o)} style={{padding:"12px 0",cursor:"pointer",display:"flex",alignItems:"center",gap:10}}><span style={{fontSize:15,width:22,textAlign:"center",flexShrink:0}}>{icon}</span><span style={{fontFamily:F.sans,fontSize:15,fontWeight:600,color:C.tx,flex:1}}>{title}</span><span style={{fontSize:11,color:C.txT,transform:o?"rotate(90deg)":"rotate(0)",transition:"transform 0.15s"}}>&#9654;</span></div>{o&&<div style={{paddingTop:8}}>{children}</div>}</div>);}
+const osLoad=async(key,fb)=>{try{const r=await window.storage.get(key);return r?JSON.parse(r.value):fb;}catch{return fb;}};
+const osSave=async(key,val)=>{try{await window.storage.set(key,JSON.stringify(val));}catch{}};
 const osTa=({value,onChange,placeholder,rows})=><textarea value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} rows={rows||3} style={{border:`1px solid ${C.bdr}`,borderRadius:4,padding:"10px 12px",fontSize:14,color:C.tx,background:C.bgS,outline:"none",fontFamily:F.sans,width:"100%",boxSizing:"border-box",resize:"vertical",lineHeight:1.6}}/>;
 const osBtn=({children,onClick,variant,style:sx,disabled})=>{const s={primary:{background:C.green,color:"#fff"},ghost:{background:"transparent",color:C.green,border:`1px solid ${C.green}`},danger:{background:C.red,color:"#fff"}};return(<button onClick={onClick} disabled={disabled} style={{padding:"9px 18px",borderRadius:4,border:"none",cursor:disabled?"not-allowed":"pointer",fontSize:13,fontWeight:600,fontFamily:F.sans,opacity:disabled?0.6:1,...(s[variant||"primary"]||s.primary),...sx}}>{children}</button>);};
 const MONTHS_LIST=["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -575,26 +576,31 @@ function HealthOfficerTab() {
     const ym = today.toISOString().slice(0, 7);
     const day = today.getDate();
     try {
-      const r = await window.storage.get("habits2_" + ym);
-      if (r && r.value) {
-        const raw = JSON.parse(r.value);
-        // Extract last 7 days
-        const startDay = Math.max(1, day - 6);
-        const summary = {};
-        for (let d = startDay; d <= day; d++) {
-          const dayData = {};
-          HABIT_SECTIONS.forEach(section => {
-            section.items.forEach(item => {
-              const k = `${d}_${item.id}`;
-              if (raw[k] !== undefined) {
-                dayData[item.label] = item.type === "check" ? (raw[k] ? "done" : "skipped") : raw[k];
-              }
-            });
+      let raw = await osLoad("habits2_" + ym, {});
+      // If March 2026, merge seed data (same as HabitsTab)
+      if (ym === "2026-03" && MARCH_SEED) {
+        const merged = { ...MARCH_SEED };
+        Object.keys(raw).forEach(k => { if (raw[k] !== undefined && raw[k] !== false && raw[k] !== "-") merged[k] = raw[k]; });
+        raw = merged;
+      }
+      if (Object.keys(raw).length === 0) return null;
+      // Extract last 7 days
+      const startDay = Math.max(1, day - 6);
+      const summary = {};
+      for (let d = startDay; d <= day; d++) {
+        const dayData = {};
+        HABIT_SECTIONS.forEach(section => {
+          section.items.forEach(item => {
+            const k = `${d}_${item.id}`;
+            if (raw[k] !== undefined) {
+              dayData[item.label] = item.type === "check" ? (raw[k] ? "done" : "skipped") : raw[k];
+            }
           });
-          summary["Day " + d] = dayData;
-        }
-        setHabitData(summary);
-        return summary;
+        });
+        if (Object.keys(dayData).length > 0) summary["Day " + d] = dayData;
+      }
+      setHabitData(summary);
+      return Object.keys(summary).length > 0 ? summary : null;
       }
     } catch (e) {}
     return null;
