@@ -570,6 +570,43 @@ function HealthOfficerTab() {
   const [retryCount, setRetryCount] = useState(0);
   const [alerts, setAlerts] = useState([]);
   const [trends, setTrends] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+
+  // Load saved analysis history on mount
+  useEffect(() => {
+    (async () => {
+      const saved = await osLoad("health-officer-history", []);
+      setHistory(saved);
+      // Show most recent analysis if exists
+      if (saved.length > 0) {
+        const latest = saved[0];
+        setAnalysis(latest.analysis);
+        setAlerts(latest.alerts || []);
+        setRawJSON(latest.rawJSON || null);
+      }
+      setLoaded(true);
+    })();
+  }, []);
+
+  // Save history when it changes
+  useEffect(() => {
+    if (!loaded) return;
+    osSave("health-officer-history", history);
+  }, [history, loaded]);
+
+  const deleteHistoryEntry = (idx) => {
+    setHistory(p => {
+      const next = p.filter((_, i) => i !== idx);
+      // If deleting the currently displayed one, clear display
+      if (idx === 0 && analysis) {
+        setAnalysis(next.length > 0 ? next[0].analysis : null);
+        setAlerts(next.length > 0 ? next[0].alerts || [] : []);
+        setRawJSON(next.length > 0 ? next[0].rawJSON || null : null);
+      }
+      return next;
+    });
+  };
 
   // Step 6: Tool use - read ALL data from storage, calculate trends
   const loadAllData = async () => {
@@ -744,6 +781,16 @@ Respond ONLY with a JSON object (no markdown, no backticks), with this exact str
       setAnalysis(parsed);
       setError(null);
       setRetryCount(attempt - 1);
+
+      // Save to history
+      const entry = {
+        timestamp: new Date().toISOString(),
+        analysis: parsed,
+        alerts: alerts,
+        rawJSON: clean,
+      };
+      setHistory(p => [entry, ...p].slice(0, 20)); // keep last 20
+
       return parsed;
 
     } catch (err) {
@@ -890,6 +937,26 @@ Respond ONLY with a JSON object (no markdown, no backticks), with this exact str
             </pre>
           )}
         </div>
+      </div>
+    )}
+
+    {/* Analysis history */}
+    {history.length > 0 && (
+      <div style={{ marginTop: 24 }}>
+        <div style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8 }}>Previous analyses</div>
+        {history.map((h, i) => {
+          const d = new Date(h.timestamp);
+          const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) + " " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+          const isActive = analysis && h.analysis.overall_score === analysis.overall_score && h.timestamp === history[0]?.timestamp && i === 0;
+          return (
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: `1px solid ${C.bdr}` }}>
+              <span onClick={() => { setAnalysis(h.analysis); setAlerts(h.alerts || []); setRawJSON(h.rawJSON || null); }} style={{ fontSize: 13, color: C.blue, cursor: "pointer", flex: 1 }}>{label}</span>
+              <span style={{ fontSize: 14, fontWeight: 600, color: h.analysis.overall_score >= 8 ? C.green : h.analysis.overall_score >= 5 ? C.orange : C.red }}>{h.analysis.overall_score}/10</span>
+              <span style={{ fontSize: 11, color: C.txT }}>{h.analysis.sleep_avg || "-"}h sleep</span>
+              <span onClick={() => deleteHistoryEntry(i)} style={{ fontSize: 11, color: C.txT, cursor: "pointer", padding: "2px 6px" }}>x</span>
+            </div>
+          );
+        })}
       </div>
     )}
 
