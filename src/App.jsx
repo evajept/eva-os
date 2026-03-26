@@ -568,40 +568,130 @@ function HealthOfficerTab() {
   const [showRaw, setShowRaw] = useState(false);
   const [habitData, setHabitData] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [alerts, setAlerts] = useState([]);
+  const [trends, setTrends] = useState(null);
 
-  // Load last 7 days of habit data from storage
-  const loadHabitData = async () => {
+  // Step 6: Tool use - read ALL data from storage, calculate trends
+  const loadAllData = async () => {
     const today = new Date();
     const ym = today.toISOString().slice(0, 7);
     const day = today.getDate();
-    try {
-      let raw = await osLoad("habits2_" + ym, {});
-      // If March 2026, merge seed data (same as HabitsTab)
-      if (ym === "2026-03" && MARCH_SEED) {
-        const merged = { ...MARCH_SEED };
-        Object.keys(raw).forEach(k => { if (raw[k] !== undefined && raw[k] !== false && raw[k] !== "-") merged[k] = raw[k]; });
-        raw = merged;
-      }
-      if (Object.keys(raw).length === 0) return null;
-      // Extract last 7 days
-      const startDay = Math.max(1, day - 6);
-      const summary = {};
-      for (let d = startDay; d <= day; d++) {
-        const dayData = {};
-        HABIT_SECTIONS.forEach(section => {
-          section.items.forEach(item => {
-            const k = `${d}_${item.id}`;
-            if (raw[k] !== undefined) {
-              dayData[item.label] = item.type === "check" ? (raw[k] ? "done" : "skipped") : raw[k];
-            }
-          });
+
+    // Load habits
+    let raw = await osLoad("habits2_" + ym, {});
+    if (ym === "2026-03" && MARCH_SEED) {
+      const merged = { ...MARCH_SEED };
+      Object.keys(raw).forEach(k => { if (raw[k] !== undefined && raw[k] !== false && raw[k] !== "-") merged[k] = raw[k]; });
+      raw = merged;
+    }
+    if (Object.keys(raw).length === 0) return null;
+
+    // Load metrics (blood work, body measurements)
+    const metrics = await osLoad("metrics_v1", { entries: [], bodyEntries: [], conditions: {} });
+
+    // Extract last 7 days of habits
+    const startDay = Math.max(1, day - 6);
+    const days7 = {};
+    for (let d = startDay; d <= day; d++) {
+      const dayData = {};
+      HABIT_SECTIONS.forEach(section => {
+        section.items.forEach(item => {
+          const k = `${d}_${item.id}`;
+          if (raw[k] !== undefined) {
+            dayData[item.label] = item.type === "check" ? (raw[k] ? "done" : "skipped") : raw[k];
+          }
         });
-        if (Object.keys(dayData).length > 0) summary["Day " + d] = dayData;
+      });
+      if (Object.keys(dayData).length > 0) days7["Day " + d] = dayData;
+    }
+
+    // Extract previous 7 days for trend comparison
+    const prevStart = Math.max(1, startDay - 7);
+    const prevEnd = startDay - 1;
+    const daysPrev = {};
+    for (let d = prevStart; d <= prevEnd; d++) {
+      const dayData = {};
+      HABIT_SECTIONS.forEach(section => {
+        section.items.forEach(item => {
+          const k = `${d}_${item.id}`;
+          if (raw[k] !== undefined) {
+            dayData[item.label] = item.type === "check" ? (raw[k] ? "done" : "skipped") : raw[k];
+          }
+        });
+      });
+      if (Object.keys(dayData).length > 0) daysPrev["Day " + d] = dayData;
+    }
+
+    // Calculate trends locally
+    const calcAvg = (data, label) => {
+      let sum = 0, count = 0;
+      Object.values(data).forEach(d => {
+        const v = parseFloat((d[label] || "").replace("+", ""));
+        if (!isNaN(v)) { sum += v; count++; }
+      });
+      return count > 0 ? (sum / count).toFixed(1) : null;
+    };
+
+    const countDone = (data, label) => {
+      let done = 0, total = 0;
+      Object.values(data).forEach(d => {
+        if (d[label] !== undefined) { total++; if (d[label] === "done") done++; }
+      });
+      return total > 0 ? Math.round((done / total) * 100) : null;
+    };
+
+    const sleepThis = calcAvg(days7, "Sleep");
+    const sleepPrev = calcAvg(daysPrev, "Sleep");
+    const waterThis = calcAvg(days7, "Water (L)");
+    const waterPrev = calcAvg(daysPrev, "Water (L)");
+
+    const suppNames = ["Selenomethionine", "D3 + K2", "Magnesium", "Myo-inositol", "Berberine"];
+    const suppThis = suppNames.map(s => countDone(days7, s)).filter(v => v !== null);
+    const suppAvgThis = suppThis.length > 0 ? Math.round(suppThis.reduce((a, b) => a + b, 0) / suppThis.length) : null;
+
+    const workThis = countDone(days7, "Work");
+    const workPrev = countDone(daysPrev, "Work");
+
+    const trendData = {
+      sleep: { current: sleepThis, previous: sleepPrev, trend: sleepThis && sleepPrev ? (parseFloat(sleepThis) > parseFloat(sleepPrev) ? "improving" : parseFloat(sleepThis) < parseFloat(sleepPrev) ? "declining" : "stable") : "no data" },
+      water: { current: waterThis, previous: waterPrev, trend: waterThis && waterPrev ? (parseFloat(waterThis) > parseFloat(waterPrev) ? "improving" : parseFloat(waterThis) < parseFloat(waterPrev) ? "declining" : "stable") : "no data" },
+      supplements: { current: suppAvgThis ? suppAvgThis + "%" : null },
+      work: { current: workThis ? workThis + "%" : null, previous: workPrev ? workPrev + "%" : null },
+      berberine: countDone(days7, "Berberine"),
+    };
+    setTrends(trendData);
+
+    // Step 7: Proactive alerts - rule-based checks
+    const newAlerts = [];
+    if (sleepThis && parseFloat(sleepThis) < 6) newAlerts.push({ type: "danger", text: "Sleep average below 6 hours - recovery is compromised" });
+    if (waterThis && parseFloat(waterThis) < 1.5) newAlerts.push({ type: "warning", text: "Water intake below 1.5L - increase hydration immediately" });
+    if (trendData.berberine !== null && trendData.berberine < 50) {
+      const latestGlucose = metrics.entries?.[0]?.values?.glucose;
+      if (latestGlucose && latestGlucose > 100) {
+        newAlerts.push({ type: "danger", text: "Berberine compliance under 50% AND glucose above 100 - this is the exact pattern to avoid" });
+      } else {
+        newAlerts.push({ type: "warning", text: "Berberine compliance under 50% - glucose management at risk" });
       }
-      setHabitData(summary);
-      return Object.keys(summary).length > 0 ? summary : null;
-    } catch (e) {}
-    return null;
+    }
+    if (suppAvgThis !== null && suppAvgThis < 30) newAlerts.push({ type: "warning", text: "Overall supplement compliance below 30% - protocol is not active" });
+    if (sleepThis && sleepPrev && parseFloat(sleepThis) < parseFloat(sleepPrev) - 0.5) newAlerts.push({ type: "warning", text: "Sleep trending down from last week (" + sleepPrev + "h to " + sleepThis + "h)" });
+    if (workThis && workThis > 90 && sleepThis && parseFloat(sleepThis) < 7) newAlerts.push({ type: "warning", text: "High work intensity (" + workThis + "%) with low sleep - burnout risk" });
+    setAlerts(newAlerts);
+
+    // Build enriched context for API
+    const enriched = {
+      this_week: days7,
+      trends: trendData,
+      latest_blood_work: metrics.entries?.[0] ? { date: metrics.entries[0].date, values: metrics.entries[0].values } : null,
+      latest_body: metrics.bodyEntries?.[0] ? { date: metrics.bodyEntries[0].date, values: metrics.bodyEntries[0].values } : null,
+      conditions: metrics.conditions || {},
+      proactive_alerts: newAlerts.map(a => a.text),
+      // Step 8: Cross-agent context
+      career_context: workThis ? "Work intensity this week: " + workThis + "%" + (workPrev ? " (last week: " + workPrev + "%)" : "") : null,
+    };
+
+    setHabitData(enriched);
+    return enriched;
   };
 
   // Call Claude API with retry logic
@@ -613,38 +703,40 @@ function HealthOfficerTab() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
+          max_tokens: 1500,
           messages: [{
             role: "user",
-            content: `You are Evalynn's Health Officer - a sharp, direct health analyst. Analyze this habit tracker data from the last 7 days. No em-dashes in your response.
+            content: `You are Evalynn's Health Officer - a sharp, direct health analyst who tracks trends and gives proactive warnings. No em-dashes in your response.
 
-Habit data:
+Here is the full health context for this week:
+
 ${JSON.stringify(data, null, 2)}
+
+The "trends" object shows this week vs last week comparisons. The "proactive_alerts" are rule-based warnings already detected. The "career_context" shows work intensity for cross-referencing with health data.
 
 Respond ONLY with a JSON object (no markdown, no backticks), with this exact structure:
 {
   "overall_score": <number 1-10>,
   "sleep_avg": <number or null>,
+  "sleep_trend": "<improving/declining/stable>",
   "water_avg": <number or null>,
-  "supplement_compliance": <percentage string>,
+  "supplement_compliance": "<percentage string>",
   "top_pattern": "<one sentence - the most important pattern you see>",
-  "concern": "<one sentence - the biggest concern, or 'None' if all good>",
+  "concern": "<one sentence - the biggest concern, or 'None'>",
   "recommendation": "<one specific actionable recommendation>",
   "wins": ["<win 1>", "<win 2>"],
-  "flags": ["<flag 1 if any>"]
+  "flags": ["<flag 1>"],
+  "weekly_summary": "<2-3 sentence overall summary of the week, referencing trends and any cross-agent insights about work-health balance>",
+  "trend_insight": "<one sentence about how this week compares to last week>"
 }`
           }]
         })
       });
 
-      if (!response.ok) {
-        throw new Error(`API returned ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`API returned ${response.status}`);
 
       const result = await response.json();
       const text = result.content?.find(b => b.type === "text")?.text || "";
-
-      // Parse JSON - strip any accidental backticks
       const clean = text.replace(/```json/g, "").replace(/```/g, "").trim();
       const parsed = JSON.parse(clean);
 
@@ -656,7 +748,6 @@ Respond ONLY with a JSON object (no markdown, no backticks), with this exact str
 
     } catch (err) {
       if (attempt < maxRetries) {
-        // Retry with exponential backoff
         setError(`Attempt ${attempt} failed. Retrying... (${err.message})`);
         await new Promise(r => setTimeout(r, 1000 * attempt));
         return callAPI(data, attempt + 1);
@@ -675,9 +766,11 @@ Respond ONLY with a JSON object (no markdown, no backticks), with this exact str
     setAnalysis(null);
     setRawJSON(null);
     setRetryCount(0);
+    setAlerts([]);
+    setTrends(null);
 
-    const data = await loadHabitData();
-    if (!data || Object.keys(data).length === 0) {
+    const data = await loadAllData();
+    if (!data || !data.this_week || Object.keys(data.this_week).length === 0) {
       setError("No habit data found for this month. Log some habits first, then come back.");
       setLoading(false);
       return;
@@ -688,14 +781,29 @@ Respond ONLY with a JSON object (no markdown, no backticks), with this exact str
   };
 
   const scoreColor = (s) => s >= 8 ? C.green : s >= 5 ? C.orange : C.red;
+  const trendArrow = (t) => t === "improving" ? "\u2191" : t === "declining" ? "\u2193" : "\u2192";
+  const trendColor = (t) => t === "improving" ? C.green : t === "declining" ? C.red : C.txT;
 
   return (<div>
-    <Ps style={{ marginBottom: 16 }}>Your Health Officer reads your habit data, spots patterns, and gives you one clear recommendation.</Ps>
+    <Ps style={{ marginBottom: 16 }}>Your Health Officer reads habits, metrics, and blood work. It calculates trends, checks for dangerous patterns, and gives you a weekly summary with cross-agent insights.</Ps>
 
     <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 20 }}>
       {osBtn({ children: loading ? "Analyzing..." : "Run health analysis", onClick: runAnalysis, disabled: loading })}
       {retryCount > 0 && <span style={{ fontSize: 11, color: C.txT }}>Succeeded after {retryCount} retries</span>}
     </div>
+
+    {/* Step 7: Proactive alerts */}
+    {alerts.length > 0 && (
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ fontSize: 10, fontWeight: 600, color: C.red, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>Proactive alerts</div>
+        {alerts.map((a, i) => (
+          <div key={i} style={{ padding: "8px 12px", marginBottom: 4, borderRadius: 4, fontSize: 13, background: a.type === "danger" ? C.redBg : C.yellowBg, color: a.type === "danger" ? C.red : "#856d0a", display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ fontSize: 14, flexShrink: 0 }}>{a.type === "danger" ? "\u26A0" : "\u25CF"}</span>
+            {a.text}
+          </div>
+        ))}
+      </div>
+    )}
 
     {error && (
       <div style={{ padding: "12px 16px", background: C.redBg, borderRadius: 4, marginBottom: 16, fontSize: 13, color: C.red }}>
@@ -705,7 +813,7 @@ Respond ONLY with a JSON object (no markdown, no backticks), with this exact str
 
     {analysis && (
       <div>
-        {/* Score cards */}
+        {/* Score cards with trends */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
           <div style={{ background: C.bgS, borderRadius: 4, padding: "10px 12px" }}>
             <div style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 3 }}>Overall</div>
@@ -713,7 +821,10 @@ Respond ONLY with a JSON object (no markdown, no backticks), with this exact str
           </div>
           <div style={{ background: C.bgS, borderRadius: 4, padding: "10px 12px" }}>
             <div style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 3 }}>Sleep avg</div>
-            <div style={{ fontSize: 22, fontWeight: 500, color: analysis.sleep_avg >= 7 ? C.green : C.orange }}>{analysis.sleep_avg || "-"}h</div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+              <span style={{ fontSize: 22, fontWeight: 500, color: analysis.sleep_avg >= 7 ? C.green : C.orange }}>{analysis.sleep_avg || "-"}h</span>
+              {analysis.sleep_trend && <span style={{ fontSize: 14, color: trendColor(analysis.sleep_trend) }}>{trendArrow(analysis.sleep_trend)}</span>}
+            </div>
           </div>
           <div style={{ background: C.bgS, borderRadius: 4, padding: "10px 12px" }}>
             <div style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 3 }}>Water avg</div>
@@ -724,6 +835,17 @@ Respond ONLY with a JSON object (no markdown, no backticks), with this exact str
             <div style={{ fontSize: 22, fontWeight: 500, color: C.tx }}>{analysis.supplement_compliance || "-"}</div>
           </div>
         </div>
+
+        {/* Step 9: Weekly summary */}
+        {analysis.weekly_summary && (
+          <div style={{ padding: "12px 16px", background: C.blueBg, borderRadius: 4, marginBottom: 16 }}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: C.blue, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 4 }}>Weekly summary</div>
+            <div style={{ fontSize: 14, color: C.tx, lineHeight: 1.6 }}>{analysis.weekly_summary}</div>
+            {analysis.trend_insight && (
+              <div style={{ fontSize: 12, color: C.txS, marginTop: 6, fontStyle: "italic" }}>{analysis.trend_insight}</div>
+            )}
+          </div>
+        )}
 
         {/* Pattern + Concern + Recommendation */}
         <div style={{ marginBottom: 16 }}>
@@ -771,14 +893,15 @@ Respond ONLY with a JSON object (no markdown, no backticks), with this exact str
       </div>
     )}
 
-    {/* What this teaches */}
+    {/* CCA skills */}
     <div style={{ marginTop: 24, padding: "12px 16px", background: C.bgS, borderRadius: 4 }}>
       <div style={{ fontSize: 11, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>CCA skills practiced</div>
       <div style={{ fontSize: 12, color: C.txS, lineHeight: 1.6 }}>
-        API streaming (s3) - sending messages to Claude API and receiving responses.
-        Structured output (s3) - requesting JSON format, parsing the response.
-        Error handling (s4) - retry logic with exponential backoff, graceful error display.
-        Prompt engineering (s1) - crafting the system prompt, specifying exact JSON schema.
+        Tool use (s6) - reading multiple data sources from Supabase, calculating trends locally.
+        Proactive alerts (s9) - rule-based pattern detection before API call.
+        Cross-agent (s9) - work intensity context fed into health analysis.
+        Weekly summary (s3) - structured output with trend comparisons.
+        Error handling (s4) - retry with exponential backoff.
       </div>
     </div>
   </div>);
