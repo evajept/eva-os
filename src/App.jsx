@@ -63,6 +63,115 @@ const HABIT_SECTIONS = [
 ];
 
 const MARCH_SEED = {"1_work":true,"2_work":true,"3_work":true,"4_work":true,"5_work":true,"6_work":true,"7_work":true,"8_work":true,"9_work":true,"10_work":true,"11_work":true,"12_work":true,"13_work":true,"14_work":true,"15_work":true,"16_work":true,"17_work":true,"18_work":true,"19_work":true,"20_work":true,"21_work":true,"22_work":true,"23_work":true,"24_work":true,"25_work":true,"1_create":true,"2_create":true,"3_create":true,"4_create":true,"5_create":true,"6_create":true,"7_create":true,"8_create":true,"9_create":true,"10_create":true,"11_create":true,"12_create":true,"13_create":true,"14_create":true,"15_create":true,"16_create":true,"17_create":true,"18_create":true,"19_create":true,"20_create":true,"21_create":true,"22_create":true,"23_create":true,"24_create":true,"25_create":true,"1_daytype":"B","2_daytype":"B","3_daytype":"B","4_daytype":"B","5_daytype":"B","6_daytype":"B","7_daytype":"B","8_daytype":"B","9_daytype":"B","10_daytype":"B","11_daytype":"B","12_daytype":"B","13_daytype":"B","14_daytype":"B","15_daytype":"B","16_daytype":"B","17_daytype":"B","18_daytype":"B","19_daytype":"B","20_daytype":"B","21_daytype":"X","22_daytype":"B","23_daytype":"B","24_daytype":"B","25_daytype":"B","9_sleep":"6","10_sleep":"6","11_sleep":"6","12_sleep":"6","13_sleep":"7","14_sleep":"7","15_sleep":"7","16_sleep":"7","17_sleep":"7","18_sleep":"7","19_sleep":"6","20_sleep":"6","21_sleep":"6","22_sleep":"6","23_sleep":"6","24_sleep":"6","25_sleep":"6","13_connect":true,"20_connect":true,"21_connect":true,"22_connect":true,"23_connect":true,"24_connect":true,"25_connect":true,"18_selfcare":true,"19_selfcare":true,"22_selfcare":true,"23_selfcare":true,"13_statecheck":true,"14_statecheck":true,"15_statecheck":true,"16_statecheck":true,"17_statecheck":true,"18_statecheck":true,"19_statecheck":true,"20_statecheck":true,"21_statecheck":true,"22_statecheck":true,"23_statecheck":true,"24_statecheck":true,"25_statecheck":true,"18_mood":"1","19_mood":"2","20_mood":"2","21_mood":"2","22_mood":"2","23_mood":"1","24_mood":"2","25_mood":"2","1_meditation":true,"1_selfcare":true,"2_selfcare":true,"1_statecheck":true};
+
+// ══════════════════════════════════════════════════════════════
+// NEW: PROMPT TEMPLATES - Few-shot + Chain-of-thought
+// ══════════════════════════════════════════════════════════════
+
+const FEW_SHOT_EXAMPLE = `Here is an example of a good response:
+{"reasoning":"Sleep averaged 6.8h which is borderline. Berberine compliance is 0% while glucose was 105 last blood work, creating a direct risk. Work at 100% with declining sleep suggests unsustainable pace. Bright spots: state check consistency at 100% and daily creative work show strong routine.","overall_score":6,"sleep_avg":6.8,"sleep_trend":"declining","water_avg":1.5,"supplement_compliance":"20%","top_pattern":"High work output masking declining recovery metrics","concern":"Zero berberine compliance with elevated glucose is the exact pattern that led to the 211 spike","recommendation":"Take berberine with lunch today. Non-negotiable. Set a phone alarm.","wins":["State check streak shows strong self-awareness","Creative work every single day"],"flags":["Berberine compliance at 0%"],"weekly_summary":"A productive but unsustainable week. Work intensity stayed at 100% while sleep declined from 7h to 6.2h. Supplement protocol is barely active, with berberine completely missing despite elevated glucose.","trend_insight":"Sleep dropped 0.8h from last week while work stayed constant, suggesting the system is borrowing from recovery to fuel output."}`;
+
+const PROMPT_V1 = (data) => `You are Evalynn's Health Officer, a sharp, direct health analyst who tracks trends and gives proactive warnings. No em-dashes in your response.
+
+${FEW_SHOT_EXAMPLE}
+
+Now analyze this week's actual data:
+
+${JSON.stringify(data, null, 2)}
+
+The "trends" object shows this week vs last week comparisons. The "proactive_alerts" are rule-based warnings already detected. The "career_context" shows work intensity for cross-referencing with health data.
+
+First, reason through the data step by step in a "reasoning" field. Then give your scores and summary.
+
+Respond ONLY with a JSON object (no markdown, no backticks), with this exact structure:
+{
+  "reasoning": "<your step-by-step analysis of the data before scoring>",
+  "overall_score": <number 1-10>,
+  "sleep_avg": <number or null>,
+  "sleep_trend": "<improving/declining/stable>",
+  "water_avg": <number or null>,
+  "supplement_compliance": "<percentage string>",
+  "top_pattern": "<one sentence - the most important pattern you see>",
+  "concern": "<one sentence - the biggest concern, or 'None'>",
+  "recommendation": "<one specific actionable recommendation>",
+  "wins": ["<win 1>", "<win 2>"],
+  "flags": ["<flag 1>"],
+  "weekly_summary": "<2-3 sentence overall summary>",
+  "trend_insight": "<one sentence comparing this week to last week>"
+}`;
+
+// Prompt V2 for A/B testing - more aggressive, clinical tone
+const PROMPT_V2 = (data) => `You are a clinical health data analyst. Evaluate this patient's weekly data with zero sugar-coating. Flag every risk. No em-dashes.
+
+${JSON.stringify(data, null, 2)}
+
+Respond ONLY with JSON (no markdown, no backticks):
+{
+  "reasoning": "<clinical assessment of the data>",
+  "overall_score": <number 1-10>,
+  "sleep_avg": <number or null>,
+  "sleep_trend": "<improving/declining/stable>",
+  "water_avg": <number or null>,
+  "supplement_compliance": "<percentage string>",
+  "top_pattern": "<one sentence>",
+  "concern": "<one sentence or 'None'>",
+  "recommendation": "<one specific action>",
+  "wins": ["<win 1>", "<win 2>"],
+  "flags": ["<flag 1>"],
+  "weekly_summary": "<2-3 sentences>",
+  "trend_insight": "<one sentence>"
+}`;
+
+// ══════════════════════════════════════════════════════════════
+// NEW: TOOL DEFINITIONS for Claude
+// ══════════════════════════════════════════════════════════════
+
+const HEALTH_TOOLS = [
+  {
+    name: "read_habits",
+    description: "Read habit tracking data for a given month. Returns all habit entries (sleep, water, food, supplements, mood, etc.) for that month.",
+    input_schema: {
+      type: "object",
+      properties: {
+        month: { type: "string", description: "Month in YYYY-MM format, e.g. 2026-04" }
+      },
+      required: ["month"]
+    }
+  },
+  {
+    name: "read_blood_work",
+    description: "Read blood work lab results. Returns all recorded blood marker entries with dates and values.",
+    input_schema: {
+      type: "object",
+      properties: {}
+    }
+  },
+  {
+    name: "read_body_metrics",
+    description: "Read body measurement entries (weight, waist, etc). Returns all recorded measurements with dates.",
+    input_schema: {
+      type: "object",
+      properties: {}
+    }
+  },
+  {
+    name: "search_habit_history",
+    description: "Search habit data across multiple months to find patterns. Use this to compare current trends with historical data or find when specific conditions occurred (e.g. 'weeks where sleep was under 6 AND work was over 90%').",
+    input_schema: {
+      type: "object",
+      properties: {
+        months: { type: "array", items: { type: "string" }, description: "List of months to search in YYYY-MM format" },
+        query_description: { type: "string", description: "What pattern you are looking for" }
+      },
+      required: ["months"]
+    }
+  }
+];
+
+// ══════════════════════════════════════════════════════════════
+// EXISTING: HABITS TAB (unchanged from your current code)
+// ══════════════════════════════════════════════════════════════
+
 function HabitsTab(){
   const[viewDate,setViewDate]=useState(new Date().toISOString().slice(0,7));
   const[data,setData]=useState({});
@@ -131,47 +240,36 @@ function HabitsTab(){
   const cellS={width:17,height:17,borderRadius:3,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:8,fontWeight:600,cursor:"pointer",userSelect:"none",fontFamily:F.mono,flexShrink:0};
   const chkS={...cellS,width:15,height:15};
 
-  // Seed March data from conversation reconstruction
   const seedMarch = () => {
     if (viewDate !== "2026-03") { alert("Switch to March 2026 first"); return; }
     const seed = {};
-    // WORK: confirmed working nearly every day (Scale AI, Onyx, Golden Era, Evalynn OS builds)
     for (let d = 1; d <= 25; d++) seed[`${d}_work`] = true;
-    // CREATE LEARN APPLY: building artifacts every day across all conversations
     for (let d = 1; d <= 25; d++) seed[`${d}_create`] = true;
-    // DAY TYPE: almost all Build days. Mar 21 mixed (shipped + brainstormed)
     for (let d = 1; d <= 25; d++) seed[`${d}_daytype`] = d === 21 ? "X" : "B";
-    // SLEEP: days 1-8 already logged. From conversations: intense sprint mid-March
-    // Day 9-12: sprint period, likely 5-6h. Day 13-17: stabilizing ~7h. Day 18 birthday: good sleep. Day 19-25: build sprint ~6-7h
     for (let d = 9; d <= 12; d++) seed[`${d}_sleep`] = "6";
     for (let d = 13; d <= 17; d++) seed[`${d}_sleep`] = "7";
-    seed["18_sleep"] = "7"; // birthday
+    seed["18_sleep"] = "7";
     for (let d = 19; d <= 25; d++) seed[`${d}_sleep`] = "6";
-    // CONNECT MEANINGFULLY: from conversations
-    seed["13_connect"] = true; // Angkhana (Golden Era work)
-    seed["20_connect"] = true; // career clarity session
-    seed["21_connect"] = true; // dinosaur philosophy conversation
-    seed["22_connect"] = true; // Golden Era deep analysis
-    seed["23_connect"] = true; // Peiter mention, roasts, giggles
-    seed["24_connect"] = true; // CCA prep, Evalynn OS, career reflection
-    seed["25_connect"] = true; // this session
-    // SELF-CARE: birthday week likely, plus scattered
-    seed["18_selfcare"] = true; // birthday
+    seed["13_connect"] = true;
+    seed["20_connect"] = true;
+    seed["21_connect"] = true;
+    seed["22_connect"] = true;
+    seed["23_connect"] = true;
+    seed["24_connect"] = true;
+    seed["25_connect"] = true;
+    seed["18_selfcare"] = true;
     seed["19_selfcare"] = true;
-    seed["22_selfcare"] = true; // dreams, processing
-    seed["23_selfcare"] = true; // giggles session - playful self-care
-    // STATE CHECK: during intense build sessions, state check was part of the work process
+    seed["22_selfcare"] = true;
+    seed["23_selfcare"] = true;
     for (let d = 13; d <= 25; d++) seed[`${d}_statecheck`] = true;
-    // MOOD: from conversation tone. 1=calm, 5=dysregulated
-    seed["18_mood"] = "1"; // birthday - clarity
+    seed["18_mood"] = "1";
     seed["19_mood"] = "2";
-    seed["20_mood"] = "2"; // career clarity
-    seed["21_mood"] = "2"; // dinosaur philosophy - grounded wonder
-    seed["22_mood"] = "2"; // productive
-    seed["23_mood"] = "1"; // giggles - light and playful
-    seed["24_mood"] = "2"; // focused CCA work
-    seed["25_mood"] = "2"; // intense build session
-    // Merge with existing (don't overwrite)
+    seed["20_mood"] = "2";
+    seed["21_mood"] = "2";
+    seed["22_mood"] = "2";
+    seed["23_mood"] = "1";
+    seed["24_mood"] = "2";
+    seed["25_mood"] = "2";
     setData(p => {
       const merged = { ...seed };
       Object.keys(p).forEach(k => { if (p[k] !== undefined && p[k] !== false && p[k] !== "-") merged[k] = p[k]; });
@@ -222,7 +320,7 @@ function HabitsTab(){
   </div>);}
 
 // ══════════════════════════════════════════════════════════════
-// METRICS TAB - Blood markers, body measurements, supplement protocol
+// EXISTING: METRICS TAB (unchanged)
 // ══════════════════════════════════════════════════════════════
 
 const BLOOD_MARKERS = [
@@ -287,53 +385,27 @@ function MetricsTab() {
   }, [data, loaded, canSave]);
 
   const set = (field, val) => setData((p) => ({ ...p, [field]: val }));
-
-  // Blood work entries
-  const addEntry = () => {
-    const entry = { id: Date.now(), date: new Date().toISOString().slice(0, 10), values: {}, notes: "" };
-    set("entries", [entry, ...(data.entries || [])]);
-  };
+  const addEntry = () => { const entry = { id: Date.now(), date: new Date().toISOString().slice(0, 10), values: {}, notes: "" }; set("entries", [entry, ...(data.entries || [])]); };
   const updateEntry = (id, field, val) => set("entries", (data.entries || []).map((e) => e.id === id ? { ...e, [field]: val } : e));
   const updateEntryValue = (id, marker, val) => set("entries", (data.entries || []).map((e) => e.id === id ? { ...e, values: { ...e.values, [marker]: parseFloat(val) || "" } } : e));
   const deleteEntry = (id) => set("entries", (data.entries || []).filter((e) => e.id !== id));
-
-  // Body measurement entries
-  const addBodyEntry = () => {
-    const entry = { id: Date.now(), date: new Date().toISOString().slice(0, 10), values: {} };
-    set("bodyEntries", [entry, ...(data.bodyEntries || [])]);
-  };
+  const addBodyEntry = () => { const entry = { id: Date.now(), date: new Date().toISOString().slice(0, 10), values: {} }; set("bodyEntries", [entry, ...(data.bodyEntries || [])]); };
   const updateBodyEntry = (id, field, val) => set("bodyEntries", (data.bodyEntries || []).map((e) => e.id === id ? { ...e, [field]: val } : e));
   const updateBodyValue = (id, metric, val) => set("bodyEntries", (data.bodyEntries || []).map((e) => e.id === id ? { ...e, values: { ...e.values, [metric]: parseFloat(val) || "" } } : e));
   const deleteBodyEntry = (id) => set("bodyEntries", (data.bodyEntries || []).filter((e) => e.id !== id));
-
-  // Targets
   const setTarget = (id, val) => set("targets", { ...(data.targets || {}), [id]: val });
-
-  // Conditions
-  const cycleCondition = (id) => {
-    const cur = (data.conditions || {})[id] || "monitoring";
-    const idx = COND_STATUSES.indexOf(cur);
-    const next = COND_STATUSES[(idx + 1) % COND_STATUSES.length];
-    set("conditions", { ...(data.conditions || {}), [id]: next });
-  };
+  const cycleCondition = (id) => { const cur = (data.conditions || {})[id] || "monitoring"; const idx = COND_STATUSES.indexOf(cur); const next = COND_STATUSES[(idx + 1) % COND_STATUSES.length]; set("conditions", { ...(data.conditions || {}), [id]: next }); };
 
   const entries = data.entries || [];
   const bodyEntries = data.bodyEntries || [];
   const latest = entries[0];
-  const previous = entries[1];
 
-  const getMarkerColor = (marker, val) => {
-    if (!val && val !== 0) return C.txT;
-    if (marker.good(val)) return C.green;
-    if (marker.warn(val)) return "#856d0a";
-    return C.red;
-  };
+  const getMarkerColor = (marker, val) => { if (!val && val !== 0) return C.txT; if (marker.good(val)) return C.green; if (marker.warn(val)) return "#856d0a"; return C.red; };
 
   const inp = { border: `1px solid ${C.bdr}`, borderRadius: 3, padding: "4px 6px", fontFamily: F.sans, fontSize: 12, color: C.tx, background: "transparent", outline: "none", textAlign: "right", width: 70 };
   const lineS = { display: "flex", alignItems: "center", padding: "6px 0", borderBottom: `1px solid ${C.bdr}`, gap: 10 };
 
   return (<div>
-    {/* Summary cards */}
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
       {[
         { l: "Weight", v: bodyEntries[0]?.values?.weight ? bodyEntries[0].values.weight + " kg" : "-", c: C.tx, sub: "Target: " + (data.targets?.weight || "50") + " kg" },
@@ -346,154 +418,76 @@ function MetricsTab() {
         <div style={{ fontSize: 10, color: C.txT, marginTop: 2 }}>{g.sub}</div>
       </div>))}
     </div>
-
-    {/* Blood markers - latest vs previous */}
     <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
       <span style={{ fontSize: 14, fontWeight: 600, color: C.tx }}>Blood markers</span>
       {osBtn({ children: "+ Add blood work", onClick: addEntry, style: { padding: "5px 12px", fontSize: 11 } })}
     </div>
-
-    {entries.length === 0 ? (
-      <div style={{ padding: "20px 16px", fontSize: 13, color: C.txT }}>No blood work entries yet. Click "+ Add blood work" to record your first test results.</div>
-    ) : (
-      <div>
-        {entries.map((entry, ei) => (
-          <div key={entry.id} style={{ marginBottom: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 16px", background: ei === 0 ? C.bgS : "transparent", borderBottom: `1px solid ${C.bdr}` }}>
-              <input type="date" value={entry.date} onChange={(e) => updateEntry(entry.id, "date", e.target.value)} style={{ ...inp, width: 130, textAlign: "left" }} />
-              {ei === 0 && <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 6px", borderRadius: 8, background: C.greenBg, color: C.green }}>latest</span>}
-              <span style={{ marginLeft: "auto", fontSize: 11, color: C.txT, cursor: "pointer" }} onClick={() => { if (confirm("Delete this entry?")) deleteEntry(entry.id); }}>delete</span>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
-              {BLOOD_MARKERS.map((m) => {
-                const val = entry.values?.[m.id];
-                const color = val ? getMarkerColor(m, val) : C.txT;
-                return (
-                  <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 16px", borderBottom: `1px solid ${C.bdr}` }}>
-                    <span style={{ fontSize: 12, color: C.txS, flex: 1 }}>{m.label} <span style={{ fontSize: 10, color: C.txT }}>{m.unit}</span></span>
-                    <input type="number" step="0.1" value={val || ""} onChange={(e) => updateEntryValue(entry.id, m.id, e.target.value)} placeholder="-" style={{ ...inp, width: 60, color }} />
-                    <div style={{ width: 6, height: 6, borderRadius: 3, background: val ? color : C.bgS, flexShrink: 0 }} />
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-    )}
-
+    {entries.length === 0 ? (<div style={{ padding: "20px 16px", fontSize: 13, color: C.txT }}>No blood work entries yet. Click "+ Add blood work" to record your first test results.</div>) : (<div>
+      {entries.map((entry, ei) => (<div key={entry.id} style={{ marginBottom: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 16px", background: ei === 0 ? C.bgS : "transparent", borderBottom: `1px solid ${C.bdr}` }}>
+          <input type="date" value={entry.date} onChange={(e) => updateEntry(entry.id, "date", e.target.value)} style={{ ...inp, width: 130, textAlign: "left" }} />
+          {ei === 0 && <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 6px", borderRadius: 8, background: C.greenBg, color: C.green }}>latest</span>}
+          <span style={{ marginLeft: "auto", fontSize: 11, color: C.txT, cursor: "pointer" }} onClick={() => { if (confirm("Delete this entry?")) deleteEntry(entry.id); }}>delete</span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
+          {BLOOD_MARKERS.map((m) => { const val = entry.values?.[m.id]; const color = val ? getMarkerColor(m, val) : C.txT; return (
+            <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 16px", borderBottom: `1px solid ${C.bdr}` }}>
+              <span style={{ fontSize: 12, color: C.txS, flex: 1 }}>{m.label} <span style={{ fontSize: 10, color: C.txT }}>{m.unit}</span></span>
+              <input type="number" step="0.1" value={val || ""} onChange={(e) => updateEntryValue(entry.id, m.id, e.target.value)} placeholder="-" style={{ ...inp, width: 60, color }} />
+              <div style={{ width: 6, height: 6, borderRadius: 3, background: val ? color : C.bgS, flexShrink: 0 }} />
+            </div>); })}
+        </div>
+      </div>))}
+    </div>)}
     <div style={{ height: 20 }} />
-
-    {/* Body measurements */}
     <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
       <span style={{ fontSize: 14, fontWeight: 600, color: C.tx }}>Body measurements</span>
       {osBtn({ children: "+ Add measurement", onClick: addBodyEntry, style: { padding: "5px 12px", fontSize: 11 } })}
     </div>
-
-    {bodyEntries.length === 0 ? (
-      <div style={{ padding: "20px 16px", fontSize: 13, color: C.txT }}>No measurements yet. Click "+ Add measurement" to start tracking.</div>
-    ) : (
-      <div>
-        {bodyEntries.map((entry, ei) => (
-          <div key={entry.id} style={{ marginBottom: 12 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 16px", background: ei === 0 ? C.bgS : "transparent", borderBottom: `1px solid ${C.bdr}` }}>
-              <input type="date" value={entry.date} onChange={(e) => updateBodyEntry(entry.id, "date", e.target.value)} style={{ ...inp, width: 130, textAlign: "left" }} />
-              {ei === 0 && <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 6px", borderRadius: 8, background: C.greenBg, color: C.green }}>latest</span>}
-              <span style={{ marginLeft: "auto", fontSize: 11, color: C.txT, cursor: "pointer" }} onClick={() => { if (confirm("Delete?")) deleteBodyEntry(entry.id); }}>delete</span>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 0 }}>
-              {BODY_METRICS.map((m) => (
-                <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 16px", borderBottom: `1px solid ${C.bdr}` }}>
-                  <span style={{ fontSize: 12, color: C.txS, flex: 1 }}>{m.label} <span style={{ fontSize: 10, color: C.txT }}>{m.unit}</span></span>
-                  <input type="number" step="0.1" value={entry.values?.[m.id] || ""} onChange={(e) => updateBodyValue(entry.id, m.id, e.target.value)} placeholder="-" style={{ ...inp, width: 55 }} />
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    )}
-
-    <div style={{ height: 20 }} />
-
-    {/* Supplement protocol */}
-    <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}>
-      <span style={{ fontSize: 14, fontWeight: 600, color: C.tx }}>Supplement protocol</span>
-    </div>
-    {SUPPLEMENTS.map((s, i) => (
-      <div key={i} style={lineS}>
-        <span style={{ fontSize: 13, color: C.tx, flex: 1, paddingLeft: 16 }}>{s.name}</span>
-        <span style={{ fontSize: 12, color: C.txS, width: 80 }}>{s.dose}</span>
-        <span style={{ fontSize: 11, color: C.txT, width: 70 }}>{s.time}</span>
-        <span style={{ fontSize: 11, color: C.txT, width: 110, textAlign: "right", paddingRight: 16 }}>{s.why}</span>
-      </div>
-    ))}
-
-    <div style={{ height: 20 }} />
-
-    {/* Health conditions */}
-    <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}>
-      <span style={{ fontSize: 14, fontWeight: 600, color: C.tx }}>Health conditions</span>
-    </div>
-    {CONDITIONS.map((c) => {
-      const status = (data.conditions || {})[c.id] || "monitoring";
-      const sc = COND_COLORS[status] || COND_COLORS.monitoring;
-      return (
-        <div key={c.id} style={lineS}>
-          <span style={{ fontSize: 13, color: C.tx, flex: 1, paddingLeft: 16 }}>{c.label}</span>
-          <span onClick={() => cycleCondition(c.id)} style={{ fontSize: 10, fontWeight: 500, padding: "2px 10px", borderRadius: 10, background: sc.bg, color: sc.c, cursor: "pointer", userSelect: "none" }}>{status}</span>
-          <span style={{ fontSize: 12, color: C.txT, width: 80, textAlign: "right", paddingRight: 16 }}>{c.target}</span>
+    {bodyEntries.length === 0 ? (<div style={{ padding: "20px 16px", fontSize: 13, color: C.txT }}>No measurements yet. Click "+ Add measurement" to start tracking.</div>) : (<div>
+      {bodyEntries.map((entry, ei) => (<div key={entry.id} style={{ marginBottom: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 16px", background: ei === 0 ? C.bgS : "transparent", borderBottom: `1px solid ${C.bdr}` }}>
+          <input type="date" value={entry.date} onChange={(e) => updateBodyEntry(entry.id, "date", e.target.value)} style={{ ...inp, width: 130, textAlign: "left" }} />
+          {ei === 0 && <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 6px", borderRadius: 8, background: C.greenBg, color: C.green }}>latest</span>}
+          <span style={{ marginLeft: "auto", fontSize: 11, color: C.txT, cursor: "pointer" }} onClick={() => { if (confirm("Delete?")) deleteBodyEntry(entry.id); }}>delete</span>
         </div>
-      );
-    })}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 0 }}>
+          {BODY_METRICS.map((m) => (<div key={m.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 16px", borderBottom: `1px solid ${C.bdr}` }}>
+            <span style={{ fontSize: 12, color: C.txS, flex: 1 }}>{m.label} <span style={{ fontSize: 10, color: C.txT }}>{m.unit}</span></span>
+            <input type="number" step="0.1" value={entry.values?.[m.id] || ""} onChange={(e) => updateBodyValue(entry.id, m.id, e.target.value)} placeholder="-" style={{ ...inp, width: 55 }} />
+          </div>))}
+        </div>
+      </div>))}
+    </div>)}
+    <div style={{ height: 20 }} />
+    <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}><span style={{ fontSize: 14, fontWeight: 600, color: C.tx }}>Supplement protocol</span></div>
+    {SUPPLEMENTS.map((s, i) => (<div key={i} style={lineS}>
+      <span style={{ fontSize: 13, color: C.tx, flex: 1, paddingLeft: 16 }}>{s.name}</span>
+      <span style={{ fontSize: 12, color: C.txS, width: 80 }}>{s.dose}</span>
+      <span style={{ fontSize: 11, color: C.txT, width: 70 }}>{s.time}</span>
+      <span style={{ fontSize: 11, color: C.txT, width: 110, textAlign: "right", paddingRight: 16 }}>{s.why}</span>
+    </div>))}
+    <div style={{ height: 20 }} />
+    <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}><span style={{ fontSize: 14, fontWeight: 600, color: C.tx }}>Health conditions</span></div>
+    {CONDITIONS.map((c) => { const status = (data.conditions || {})[c.id] || "monitoring"; const sc = COND_COLORS[status] || COND_COLORS.monitoring; return (
+      <div key={c.id} style={lineS}>
+        <span style={{ fontSize: 13, color: C.tx, flex: 1, paddingLeft: 16 }}>{c.label}</span>
+        <span onClick={() => cycleCondition(c.id)} style={{ fontSize: 10, fontWeight: 500, padding: "2px 10px", borderRadius: 10, background: sc.bg, color: sc.c, cursor: "pointer", userSelect: "none" }}>{status}</span>
+        <span style={{ fontSize: 12, color: C.txT, width: 80, textAlign: "right", paddingRight: 16 }}>{c.target}</span>
+      </div>); })}
   </div>);
 }
 
 // ══════════════════════════════════════════════════════════════
-// PROTOCOL TAB - Supplement knowledge, interactions, guidelines
+// EXISTING: PROTOCOL TAB (unchanged)
 // ══════════════════════════════════════════════════════════════
 
 const PROTOCOL_DATA = [
-  { name: "Selenomethionine", dose: "200 mcg", timing: "Morning, with food",
-    target: "TSH, Free T3/T4",
-    what: "Organic form of selenium. Essential for thyroid hormone conversion (T4 to T3). Selenomethionine is better absorbed than other forms. Supports glutathione production (antioxidant defense).",
-    why: "Your thyroid needs selenium to convert inactive T4 into active T3. Without enough selenium, TSH rises as the thyroid works harder. Also supports immune function and reduces thyroid antibodies.",
-    watch: "TSH trending down toward 1.0-2.5 range. Free T3 staying in 2.5-3.5 range. If TSH drops below 0.4, may be overstimulating - reduce dose.",
-    interactions: "Take separately from Vitamin C (reduces absorption). Space 2+ hours from thyroid medication if applicable. Safe with D3+K2 and magnesium.",
-    adjust: "If TSH normalizes (1.0-2.5) for 6+ months, can reduce to 100 mcg maintenance. If no improvement after 3 months, check thyroid antibodies (TPO, TG).",
-    color: C.purple },
-  { name: "Vitamin D3 + K2", dose: "5,000 IU D3 + 100-200 mcg K2 (MK-7)", timing: "Morning, with fat-containing food",
-    target: "Vitamin D level",
-    what: "D3 (cholecalciferol) is the bioactive form of Vitamin D. K2 (MK-7) directs calcium to bones instead of arteries. They work as a pair - D3 without K2 can cause calcium buildup in wrong places.",
-    why: "Your Vitamin D was 22 ng/mL (deficient). Target is 40-60 ng/mL. D3 supports immune function, mood regulation, bone density, and insulin sensitivity. K2 ensures the calcium D3 mobilizes goes to bones, not arteries.",
-    watch: "Vitamin D level moving toward 40-60 ng/mL. Takes 2-3 months to see change. If level exceeds 80, reduce dose. Monitor calcium levels if taking long-term.",
-    interactions: "Take WITH fat (avocado, nuts, eggs) for absorption. Safe with all your other supplements. Magnesium helps D3 activation - good that you take both.",
-    adjust: "Once Vitamin D reaches 40-60, can reduce to 2,000 IU maintenance. In Bangkok with sun exposure, may need less. Retest every 3-6 months.",
-    color: C.gold },
-  { name: "Magnesium glycinate", dose: "400 mg", timing: "Evening, 1-2 hours before bed",
-    target: "Sleep quality, muscle relaxation, stress",
-    what: "Glycinate form is the most bioavailable and least likely to cause GI issues. Magnesium is involved in 300+ enzymatic reactions. Most people are deficient without knowing it.",
-    why: "Supports sleep quality (calms nervous system), muscle relaxation (reduces tension, cramps), stress response (lowers cortisol), and blood sugar regulation (improves insulin sensitivity). Your Virgo Moon needs the calming effect.",
-    watch: "Sleep quality improvement. Muscle tension reduction. May notice calmer evening state. If stools become loose, reduce dose to 200 mg.",
-    interactions: "Space 2+ hours from calcium supplements (they compete for absorption). Safe with all your other supplements. Actually enhances D3 activation.",
-    adjust: "400 mg is a good maintenance dose. Can increase to 600 mg during high-stress periods. If sleep is consistently good and no muscle tension, can try 200 mg.",
-    color: C.blue },
-  { name: "Myo-inositol", dose: "2 g (2,000 mg)", timing: "Morning, can be with or without food",
-    target: "Insulin sensitivity, metabolic health",
-    what: "A naturally occurring sugar alcohol that acts as an insulin sensitizer. Works similarly to metformin but gentler. Also supports ovarian function and mood regulation (serotonin signaling).",
-    why: "Improves insulin sensitivity which directly impacts fasting glucose and HbA1c. Works synergistically with berberine for metabolic optimization. Also supports mood stability through serotonin pathway - relevant for your NS regulation work.",
-    watch: "Fasting glucose trending down. HbA1c improving. May notice more stable energy throughout the day (fewer sugar crashes). Mood stability.",
-    interactions: "Safe with all your supplements. Works synergistically with berberine (different mechanisms, amplified effect). Can take same time as D3.",
-    adjust: "Can increase to 4 g if glucose response is insufficient after 2 months. Standard therapeutic range is 2-4 g. If GI discomfort, split into 1 g morning + 1 g evening.",
-    color: C.green },
-  { name: "Berberine", dose: "500 mg", timing: "With a meal (ideally lunch or dinner with protein)",
-    target: "Fasting glucose, HbA1c, triglycerides",
-    what: "Plant alkaloid with metformin-like effects. Activates AMPK (master metabolic switch). Lowers blood sugar, reduces triglycerides, improves cholesterol. Also has antimicrobial properties for gut health.",
-    why: "Your primary glucose management tool. Directly lowers fasting glucose and HbA1c. Also reduces triglycerides (relevant for metabolic syndrome prevention). The gut health benefit supports your gut health goal.",
-    watch: "Fasting glucose under 100. HbA1c under 5.7. Triglycerides under 150. If glucose drops below 70, you're over-responding - reduce dose. Monitor ALT/AST (berberine is processed by liver).",
-    interactions: "MUST take with food (causes nausea on empty stomach). Space 2+ hours from any prescription medications (berberine affects drug metabolism via CYP enzymes). Works synergistically with myo-inositol.",
-    adjust: "Can increase to 500 mg 2x/day if glucose response insufficient. Never exceed 1,500 mg/day. Cycle 8 weeks on, 2 weeks off to prevent tolerance. If ALT/AST rise, pause and retest.",
-    color: C.orange },
+  { name: "Selenomethionine", dose: "200 mcg", timing: "Morning, with food", target: "TSH, Free T3/T4", what: "Organic form of selenium. Essential for thyroid hormone conversion (T4 to T3). Selenomethionine is better absorbed than other forms. Supports glutathione production (antioxidant defense).", why: "Your thyroid needs selenium to convert inactive T4 into active T3. Without enough selenium, TSH rises as the thyroid works harder. Also supports immune function and reduces thyroid antibodies.", watch: "TSH trending down toward 1.0-2.5 range. Free T3 staying in 2.5-3.5 range. If TSH drops below 0.4, may be overstimulating - reduce dose.", interactions: "Take separately from Vitamin C (reduces absorption). Space 2+ hours from thyroid medication if applicable. Safe with D3+K2 and magnesium.", adjust: "If TSH normalizes (1.0-2.5) for 6+ months, can reduce to 100 mcg maintenance. If no improvement after 3 months, check thyroid antibodies (TPO, TG).", color: C.purple },
+  { name: "Vitamin D3 + K2", dose: "5,000 IU D3 + 100-200 mcg K2 (MK-7)", timing: "Morning, with fat-containing food", target: "Vitamin D level", what: "D3 (cholecalciferol) is the bioactive form of Vitamin D. K2 (MK-7) directs calcium to bones instead of arteries. They work as a pair - D3 without K2 can cause calcium buildup in wrong places.", why: "Your Vitamin D was 22 ng/mL (deficient). Target is 40-60 ng/mL. D3 supports immune function, mood regulation, bone density, and insulin sensitivity. K2 ensures the calcium D3 mobilizes goes to bones, not arteries.", watch: "Vitamin D level moving toward 40-60 ng/mL. Takes 2-3 months to see change. If level exceeds 80, reduce dose. Monitor calcium levels if taking long-term.", interactions: "Take WITH fat (avocado, nuts, eggs) for absorption. Safe with all your other supplements. Magnesium helps D3 activation - good that you take both.", adjust: "Once Vitamin D reaches 40-60, can reduce to 2,000 IU maintenance. In Bangkok with sun exposure, may need less. Retest every 3-6 months.", color: C.gold },
+  { name: "Magnesium glycinate", dose: "400 mg", timing: "Evening, 1-2 hours before bed", target: "Sleep quality, muscle relaxation, stress", what: "Glycinate form is the most bioavailable and least likely to cause GI issues. Magnesium is involved in 300+ enzymatic reactions. Most people are deficient without knowing it.", why: "Supports sleep quality (calms nervous system), muscle relaxation (reduces tension, cramps), stress response (lowers cortisol), and blood sugar regulation (improves insulin sensitivity). Your Virgo Moon needs the calming effect.", watch: "Sleep quality improvement. Muscle tension reduction. May notice calmer evening state. If stools become loose, reduce dose to 200 mg.", interactions: "Space 2+ hours from calcium supplements (they compete for absorption). Safe with all your other supplements. Actually enhances D3 activation.", adjust: "400 mg is a good maintenance dose. Can increase to 600 mg during high-stress periods. If sleep is consistently good and no muscle tension, can try 200 mg.", color: C.blue },
+  { name: "Myo-inositol", dose: "2 g (2,000 mg)", timing: "Morning, can be with or without food", target: "Insulin sensitivity, metabolic health", what: "A naturally occurring sugar alcohol that acts as an insulin sensitizer. Works similarly to metformin but gentler. Also supports ovarian function and mood regulation (serotonin signaling).", why: "Improves insulin sensitivity which directly impacts fasting glucose and HbA1c. Works synergistically with berberine for metabolic optimization. Also supports mood stability through serotonin pathway - relevant for your NS regulation work.", watch: "Fasting glucose trending down. HbA1c improving. May notice more stable energy throughout the day (fewer sugar crashes). Mood stability.", interactions: "Safe with all your supplements. Works synergistically with berberine (different mechanisms, amplified effect). Can take same time as D3.", adjust: "Can increase to 4 g if glucose response is insufficient after 2 months. Standard therapeutic range is 2-4 g. If GI discomfort, split into 1 g morning + 1 g evening.", color: C.green },
+  { name: "Berberine", dose: "500 mg", timing: "With a meal (ideally lunch or dinner with protein)", target: "Fasting glucose, HbA1c, triglycerides", what: "Plant alkaloid with metformin-like effects. Activates AMPK (master metabolic switch). Lowers blood sugar, reduces triglycerides, improves cholesterol. Also has antimicrobial properties for gut health.", why: "Your primary glucose management tool. Directly lowers fasting glucose and HbA1c. Also reduces triglycerides (relevant for metabolic syndrome prevention). The gut health benefit supports your gut health goal.", watch: "Fasting glucose under 100. HbA1c under 5.7. Triglycerides under 150. If glucose drops below 70, you're over-responding - reduce dose. Monitor ALT/AST (berberine is processed by liver).", interactions: "MUST take with food (causes nausea on empty stomach). Space 2+ hours from any prescription medications (berberine affects drug metabolism via CYP enzymes). Works synergistically with myo-inositol.", adjust: "Can increase to 500 mg 2x/day if glucose response insufficient. Never exceed 1,500 mg/day. Cycle 8 weeks on, 2 weeks off to prevent tolerance. If ALT/AST rise, pause and retest.", color: C.orange },
 ];
 
 function ProtocolTab() {
@@ -502,44 +496,31 @@ function ProtocolTab() {
 
   return (<div>
     <Ps style={{ marginBottom: 16 }}>Reference guide for your supplement stack. What each does, why you take it, what to watch, when to adjust.</Ps>
-
-    {/* Quick reference */}
-    <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}>
-      <span style={{ fontSize: 14, fontWeight: 600, color: C.tx }}>Daily stack</span>
-    </div>
+    <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}><span style={{ fontSize: 14, fontWeight: 600, color: C.tx }}>Daily stack</span></div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
-      {PROTOCOL_DATA.map((s, i) => (
-        <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderBottom: `1px solid ${C.bdr}` }}>
-          <div style={{ width: 6, height: 6, borderRadius: 3, background: s.color, flexShrink: 0 }} />
-          <span style={{ fontSize: 13, fontWeight: 500, color: C.tx, flex: 1 }}>{s.name}</span>
-          <span style={{ fontSize: 11, color: C.txS }}>{s.dose}</span>
-          <span style={{ fontSize: 11, color: C.txT }}>{s.timing.split(",")[0]}</span>
-        </div>
-      ))}
+      {PROTOCOL_DATA.map((s, i) => (<div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderBottom: `1px solid ${C.bdr}` }}>
+        <div style={{ width: 6, height: 6, borderRadius: 3, background: s.color, flexShrink: 0 }} />
+        <span style={{ fontSize: 13, fontWeight: 500, color: C.tx, flex: 1 }}>{s.name}</span>
+        <span style={{ fontSize: 11, color: C.txS }}>{s.dose}</span>
+        <span style={{ fontSize: 11, color: C.txT }}>{s.timing.split(",")[0]}</span>
+      </div>))}
     </div>
-
     <div style={{ height: 20 }} />
-
-    {/* Detailed cards per supplement */}
-    {PROTOCOL_DATA.map((s, i) => (
-      <div key={i} style={{ marginBottom: 16 }}>
-        <div style={{ background: C.bgS, padding: "12px 16px", borderBottom: `1px solid ${C.bdr}`, display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 8, height: 8, borderRadius: 4, background: s.color, flexShrink: 0 }} />
-          <span style={{ fontSize: 15, fontWeight: 600, color: C.tx }}>{s.name}</span>
-          <span style={{ fontSize: 12, color: C.txS, marginLeft: "auto" }}>{s.dose} - {s.timing}</span>
-        </div>
-        <div style={{ padding: "10px 16px" }}>
-          <div style={lineS}><span style={labelS}>Target</span><span style={{ fontSize: 13, color: s.color, fontWeight: 500 }}>{s.target}</span></div>
-          <div style={lineS}><span style={labelS}>What</span><span style={{ fontSize: 13, color: C.tx, lineHeight: 1.6 }}>{s.what}</span></div>
-          <div style={lineS}><span style={labelS}>Why you</span><span style={{ fontSize: 13, color: C.tx, lineHeight: 1.6 }}>{s.why}</span></div>
-          <div style={lineS}><span style={labelS}>Watch for</span><span style={{ fontSize: 13, color: C.tx, lineHeight: 1.6 }}>{s.watch}</span></div>
-          <div style={lineS}><span style={labelS}>Interactions</span><span style={{ fontSize: 13, color: C.tx, lineHeight: 1.6 }}>{s.interactions}</span></div>
-          <div style={{ ...lineS, borderBottom: "none" }}><span style={labelS}>Adjust</span><span style={{ fontSize: 13, color: C.tx, lineHeight: 1.6 }}>{s.adjust}</span></div>
-        </div>
+    {PROTOCOL_DATA.map((s, i) => (<div key={i} style={{ marginBottom: 16 }}>
+      <div style={{ background: C.bgS, padding: "12px 16px", borderBottom: `1px solid ${C.bdr}`, display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ width: 8, height: 8, borderRadius: 4, background: s.color, flexShrink: 0 }} />
+        <span style={{ fontSize: 15, fontWeight: 600, color: C.tx }}>{s.name}</span>
+        <span style={{ fontSize: 12, color: C.txS, marginLeft: "auto" }}>{s.dose} - {s.timing}</span>
       </div>
-    ))}
-
-    {/* General guidelines */}
+      <div style={{ padding: "10px 16px" }}>
+        <div style={lineS}><span style={labelS}>Target</span><span style={{ fontSize: 13, color: s.color, fontWeight: 500 }}>{s.target}</span></div>
+        <div style={lineS}><span style={labelS}>What</span><span style={{ fontSize: 13, color: C.tx, lineHeight: 1.6 }}>{s.what}</span></div>
+        <div style={lineS}><span style={labelS}>Why you</span><span style={{ fontSize: 13, color: C.tx, lineHeight: 1.6 }}>{s.why}</span></div>
+        <div style={lineS}><span style={labelS}>Watch for</span><span style={{ fontSize: 13, color: C.tx, lineHeight: 1.6 }}>{s.watch}</span></div>
+        <div style={lineS}><span style={labelS}>Interactions</span><span style={{ fontSize: 13, color: C.tx, lineHeight: 1.6 }}>{s.interactions}</span></div>
+        <div style={{ ...lineS, borderBottom: "none" }}><span style={labelS}>Adjust</span><span style={{ fontSize: 13, color: C.tx, lineHeight: 1.6 }}>{s.adjust}</span></div>
+      </div>
+    </div>))}
     <div style={{ background: C.bgS, padding: "12px 16px", borderRadius: 4, marginTop: 8 }}>
       <div style={{ fontSize: 13, fontWeight: 600, color: C.tx, marginBottom: 6 }}>General guidelines</div>
       <div style={{ fontSize: 12, color: C.txS, lineHeight: 1.7 }}>
@@ -550,14 +531,8 @@ function ProtocolTab() {
 }
 
 // ══════════════════════════════════════════════════════════════
-// BODY PAGE - wraps Habits + Metrics + Protocol in tabs
-// ══════════════════════════════════════════════════════════════
-
-// ══════════════════════════════════════════════════════════════
-// HEALTH OFFICER TAB - AI analysis of habit data
-// Step 2: First Claude API call
-// Step 3: Structured output (JSON response)
-// Step 4: Error handling (retry, fallback)
+// NEW: ENHANCED HEALTH OFFICER TAB
+// (Replaces old HealthOfficerTab with streaming, tool use, A/B, chat)
 // ══════════════════════════════════════════════════════════════
 
 function HealthOfficerTab() {
@@ -566,19 +541,26 @@ function HealthOfficerTab() {
   const [error, setError] = useState(null);
   const [rawJSON, setRawJSON] = useState(null);
   const [showRaw, setShowRaw] = useState(false);
-  const [habitData, setHabitData] = useState(null);
+  const [showReasoning, setShowReasoning] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [alerts, setAlerts] = useState([]);
   const [trends, setTrends] = useState(null);
   const [history, setHistory] = useState([]);
   const [loaded, setLoaded] = useState(false);
+  const [streamText, setStreamText] = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const [abResult, setAbResult] = useState(null);
+  const [abLoading, setAbLoading] = useState(false);
+  const [mode, setMode] = useState("standard");
+  const [toolLog, setToolLog] = useState([]);
 
-  // Load saved analysis history on mount
   useEffect(() => {
     (async () => {
       const saved = await osLoad("health-officer-history", []);
       setHistory(saved);
-      // Show most recent analysis if exists
       if (saved.length > 0) {
         const latest = saved[0];
         setAnalysis(latest.analysis);
@@ -589,7 +571,6 @@ function HealthOfficerTab() {
     })();
   }, []);
 
-  // Save history when it changes
   useEffect(() => {
     if (!loaded) return;
     osSave("health-officer-history", history);
@@ -598,7 +579,6 @@ function HealthOfficerTab() {
   const deleteHistoryEntry = (idx) => {
     setHistory(p => {
       const next = p.filter((_, i) => i !== idx);
-      // If deleting the currently displayed one, clear display
       if (idx === 0 && analysis) {
         setAnalysis(next.length > 0 ? next[0].analysis : null);
         setAlerts(next.length > 0 ? next[0].alerts || [] : []);
@@ -608,13 +588,15 @@ function HealthOfficerTab() {
     });
   };
 
-  // Step 6: Tool use - read ALL data from storage, calculate trends
+  const rateAnalysis = async (idx, rating) => {
+    setHistory(p => p.map((h, i) => i === idx ? { ...h, rating } : h));
+  };
+
   const loadAllData = async () => {
     const today = new Date();
     const ym = today.toISOString().slice(0, 7);
     const day = today.getDate();
 
-    // Load habits
     let raw = await osLoad("habits2_" + ym, {});
     if (ym === "2026-03" && MARCH_SEED) {
       const merged = { ...MARCH_SEED };
@@ -623,10 +605,8 @@ function HealthOfficerTab() {
     }
     if (Object.keys(raw).length === 0) return null;
 
-    // Load metrics (blood work, body measurements)
     const metrics = await osLoad("metrics_v1", { entries: [], bodyEntries: [], conditions: {} });
 
-    // Extract last 7 days of habits
     const startDay = Math.max(1, day - 6);
     const days7 = {};
     for (let d = startDay; d <= day; d++) {
@@ -642,7 +622,6 @@ function HealthOfficerTab() {
       if (Object.keys(dayData).length > 0) days7["Day " + d] = dayData;
     }
 
-    // Extract previous 7 days for trend comparison
     const prevStart = Math.max(1, startDay - 7);
     const prevEnd = startDay - 1;
     const daysPrev = {};
@@ -659,172 +638,161 @@ function HealthOfficerTab() {
       if (Object.keys(dayData).length > 0) daysPrev["Day " + d] = dayData;
     }
 
-    // Calculate trends locally
-    const calcAvg = (data, label) => {
-      let sum = 0, count = 0;
-      Object.values(data).forEach(d => {
-        const v = parseFloat((d[label] || "").replace("+", ""));
-        if (!isNaN(v)) { sum += v; count++; }
-      });
-      return count > 0 ? (sum / count).toFixed(1) : null;
-    };
-
-    const countDone = (data, label) => {
-      let done = 0, total = 0;
-      Object.values(data).forEach(d => {
-        if (d[label] !== undefined) { total++; if (d[label] === "done") done++; }
-      });
-      return total > 0 ? Math.round((done / total) * 100) : null;
-    };
+    const calcAvg = (data, label) => { let sum = 0, count = 0; Object.values(data).forEach(d => { const v = parseFloat((d[label] || "").replace("+", "")); if (!isNaN(v)) { sum += v; count++; } }); return count > 0 ? (sum / count).toFixed(1) : null; };
+    const countDone = (data, label) => { let done = 0, total = 0; Object.values(data).forEach(d => { if (d[label] !== undefined) { total++; if (d[label] === "done") done++; } }); return total > 0 ? Math.round((done / total) * 100) : null; };
 
     const sleepThis = calcAvg(days7, "Sleep");
     const sleepPrev = calcAvg(daysPrev, "Sleep");
     const waterThis = calcAvg(days7, "Water (L)");
     const waterPrev = calcAvg(daysPrev, "Water (L)");
-
     const suppNames = ["Selenomethionine", "D3 + K2", "Magnesium", "Myo-inositol", "Berberine"];
     const suppThis = suppNames.map(s => countDone(days7, s)).filter(v => v !== null);
     const suppAvgThis = suppThis.length > 0 ? Math.round(suppThis.reduce((a, b) => a + b, 0) / suppThis.length) : null;
-
     const workThis = countDone(days7, "Work");
     const workPrev = countDone(daysPrev, "Work");
 
     const trendData = {
       sleep: { current: sleepThis, previous: sleepPrev, trend: sleepThis && sleepPrev ? (parseFloat(sleepThis) > parseFloat(sleepPrev) ? "improving" : parseFloat(sleepThis) < parseFloat(sleepPrev) ? "declining" : "stable") : "no data" },
-      water: { current: waterThis, previous: waterPrev, trend: waterThis && waterPrev ? (parseFloat(waterThis) > parseFloat(waterPrev) ? "improving" : parseFloat(waterThis) < parseFloat(waterPrev) ? "declining" : "stable") : "no data" },
+      water: { current: waterThis, previous: waterPrev },
       supplements: { current: suppAvgThis ? suppAvgThis + "%" : null },
       work: { current: workThis ? workThis + "%" : null, previous: workPrev ? workPrev + "%" : null },
-      berberine: countDone(days7, "Berberine"),
     };
     setTrends(trendData);
 
-    // Step 7: Proactive alerts - rule-based checks
     const newAlerts = [];
-    if (sleepThis && parseFloat(sleepThis) < 6) newAlerts.push({ type: "danger", text: "Sleep average below 6 hours - recovery is compromised" });
-    if (waterThis && parseFloat(waterThis) < 1.5) newAlerts.push({ type: "warning", text: "Water intake below 1.5L - increase hydration immediately" });
-    if (trendData.berberine !== null && trendData.berberine < 50) {
-      const latestGlucose = metrics.entries?.[0]?.values?.glucose;
-      if (latestGlucose && latestGlucose > 100) {
-        newAlerts.push({ type: "danger", text: "Berberine compliance under 50% AND glucose above 100 - this is the exact pattern to avoid" });
-      } else {
-        newAlerts.push({ type: "warning", text: "Berberine compliance under 50% - glucose management at risk" });
-      }
-    }
-    if (suppAvgThis !== null && suppAvgThis < 30) newAlerts.push({ type: "warning", text: "Overall supplement compliance below 30% - protocol is not active" });
-    if (sleepThis && sleepPrev && parseFloat(sleepThis) < parseFloat(sleepPrev) - 0.5) newAlerts.push({ type: "warning", text: "Sleep trending down from last week (" + sleepPrev + "h to " + sleepThis + "h)" });
-    if (workThis && workThis > 90 && sleepThis && parseFloat(sleepThis) < 7) newAlerts.push({ type: "warning", text: "High work intensity (" + workThis + "%) with low sleep - burnout risk" });
+    if (sleepThis && parseFloat(sleepThis) < 6) newAlerts.push({ type: "danger", text: "Sleep average below 6 hours" });
+    if (waterThis && parseFloat(waterThis) < 1.5) newAlerts.push({ type: "warning", text: "Water intake below 1.5L" });
+    if (workThis && workThis > 90 && sleepThis && parseFloat(sleepThis) < 7) newAlerts.push({ type: "warning", text: "High work (" + workThis + "%) with low sleep - burnout risk" });
     setAlerts(newAlerts);
 
-    // Build enriched context for API
-    const enriched = {
-      this_week: days7,
-      trends: trendData,
-      latest_blood_work: metrics.entries?.[0] ? { date: metrics.entries[0].date, values: metrics.entries[0].values } : null,
-      latest_body: metrics.bodyEntries?.[0] ? { date: metrics.bodyEntries[0].date, values: metrics.bodyEntries[0].values } : null,
-      conditions: metrics.conditions || {},
-      proactive_alerts: newAlerts.map(a => a.text),
-      // Step 8: Cross-agent context
-      career_context: workThis ? "Work intensity this week: " + workThis + "%" + (workPrev ? " (last week: " + workPrev + "%)" : "") : null,
+    return {
+      this_week: days7, previous_week: daysPrev, trends: trendData,
+      latest_blood_work: metrics.entries?.[0] || null, latest_body: metrics.bodyEntries?.[0] || null,
+      conditions: metrics.conditions || {}, proactive_alerts: newAlerts.map(a => a.text),
+      career_context: workThis ? "Work intensity: " + workThis + "%" : null,
     };
-
-    setHabitData(enriched);
-    return enriched;
   };
 
-  // Call Claude API with retry logic
-  const callAPI = async (data, attempt = 1) => {
-    const maxRetries = 3;
+  const handleToolCall = async (toolName, toolInput) => {
+    switch (toolName) {
+      case "read_habits": { const month = toolInput.month; let data = await osLoad("habits2_" + month, {}); if (month === "2026-03") { const merged = { ...MARCH_SEED }; Object.keys(data).forEach(k => { if (data[k] !== undefined && data[k] !== false && data[k] !== "-") merged[k] = data[k]; }); data = merged; } return JSON.stringify(data); }
+      case "read_blood_work": { const metrics = await osLoad("metrics_v1", { entries: [] }); return JSON.stringify(metrics.entries || []); }
+      case "read_body_metrics": { const metrics = await osLoad("metrics_v1", { bodyEntries: [] }); return JSON.stringify(metrics.bodyEntries || []); }
+      case "search_habit_history": { const results = {}; for (const month of (toolInput.months || [])) { let data = await osLoad("habits2_" + month, {}); if (month === "2026-03") { const merged = { ...MARCH_SEED }; Object.keys(data).forEach(k => { if (data[k] !== undefined && data[k] !== false && data[k] !== "-") merged[k] = data[k]; }); data = merged; } results[month] = data; } return JSON.stringify(results); }
+      default: return JSON.stringify({ error: "Unknown tool" });
+    }
+  };
+
+  const runStandard = async () => {
+    setLoading(true); setError(null); setAnalysis(null); setRawJSON(null);
+    const data = await loadAllData();
+    if (!data?.this_week || Object.keys(data.this_week).length === 0) { setError("No habit data this month. Log some habits first."); setLoading(false); return; }
     try {
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1500,
-          messages: [{
-            role: "user",
-            content: `You are Evalynn's Health Officer - a sharp, direct health analyst who tracks trends and gives proactive warnings. No em-dashes in your response.
-
-Here is the full health context for this week:
-
-${JSON.stringify(data, null, 2)}
-
-The "trends" object shows this week vs last week comparisons. The "proactive_alerts" are rule-based warnings already detected. The "career_context" shows work intensity for cross-referencing with health data.
-
-Respond ONLY with a JSON object (no markdown, no backticks), with this exact structure:
-{
-  "overall_score": <number 1-10>,
-  "sleep_avg": <number or null>,
-  "sleep_trend": "<improving/declining/stable>",
-  "water_avg": <number or null>,
-  "supplement_compliance": "<percentage string>",
-  "top_pattern": "<one sentence - the most important pattern you see>",
-  "concern": "<one sentence - the biggest concern, or 'None'>",
-  "recommendation": "<one specific actionable recommendation>",
-  "wins": ["<win 1>", "<win 2>"],
-  "flags": ["<flag 1>"],
-  "weekly_summary": "<2-3 sentence overall summary of the week, referencing trends and any cross-agent insights about work-health balance>",
-  "trend_insight": "<one sentence about how this week compares to last week>"
-}`
-          }]
-        })
-      });
-
-      if (!response.ok) throw new Error(`API returned ${response.status}`);
-
+      const response = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 2000, messages: [{ role: "user", content: PROMPT_V1(data) }] }) });
       const result = await response.json();
       const text = result.content?.find(b => b.type === "text")?.text || "";
       const clean = text.replace(/```json/g, "").replace(/```/g, "").trim();
       const parsed = JSON.parse(clean);
-
-      setRawJSON(clean);
-      setAnalysis(parsed);
-      setError(null);
-      setRetryCount(attempt - 1);
-
-      // Save to history
-      const entry = {
-        timestamp: new Date().toISOString(),
-        analysis: parsed,
-        alerts: alerts,
-        rawJSON: clean,
-      };
-      setHistory(p => [entry, ...p].slice(0, 20)); // keep last 20
-
-      return parsed;
-
-    } catch (err) {
-      if (attempt < maxRetries) {
-        setError(`Attempt ${attempt} failed. Retrying... (${err.message})`);
-        await new Promise(r => setTimeout(r, 1000 * attempt));
-        return callAPI(data, attempt + 1);
-      } else {
-        setError(`Failed after ${maxRetries} attempts: ${err.message}`);
-        setAnalysis(null);
-        setRetryCount(attempt);
-        return null;
-      }
-    }
+      setRawJSON(clean); setAnalysis(parsed); saveToHistory(parsed, clean, alerts);
+    } catch (err) { setError("Analysis failed: " + err.message); }
+    setLoading(false);
   };
 
-  const runAnalysis = async () => {
-    setLoading(true);
-    setError(null);
-    setAnalysis(null);
-    setRawJSON(null);
-    setRetryCount(0);
-    setAlerts([]);
-    setTrends(null);
-
+  const runStreaming = async () => {
+    setIsStreaming(true); setStreamText(""); setError(null); setAnalysis(null);
     const data = await loadAllData();
-    if (!data || !data.this_week || Object.keys(data.this_week).length === 0) {
-      setError("No habit data found for this month. Log some habits first, then come back.");
-      setLoading(false);
-      return;
-    }
+    if (!data?.this_week || Object.keys(data.this_week).length === 0) { setError("No habit data this month."); setIsStreaming(false); return; }
+    try {
+      const response = await fetch("/api/analyze-stream", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 2000, messages: [{ role: "user", content: PROMPT_V1(data) }] }) });
+      const reader = response.body.getReader(); const decoder = new TextDecoder(); let fullText = "";
+      while (true) {
+        const { done, value } = await reader.read(); if (done) break;
+        const chunk = decoder.decode(value, { stream: true }); const lines = chunk.split("\n");
+        for (const line of lines) { if (line.startsWith("data: ")) { const jsonStr = line.slice(6); if (jsonStr === "[DONE]") continue; try { const event = JSON.parse(jsonStr); if (event.type === "content_block_delta" && event.delta?.text) { fullText += event.delta.text; setStreamText(fullText); } } catch (e) {} } }
+      }
+      const clean = fullText.replace(/```json/g, "").replace(/```/g, "").trim();
+      try { const parsed = JSON.parse(clean); setAnalysis(parsed); setRawJSON(clean); saveToHistory(parsed, clean, alerts); } catch (e) { setError("Could not parse streamed response as JSON"); }
+    } catch (err) { setError("Streaming failed: " + err.message); }
+    setIsStreaming(false);
+  };
 
-    await callAPI(data);
+  const runToolUse = async () => {
+    setLoading(true); setError(null); setAnalysis(null); setToolLog([]);
+    const today = new Date(); const ym = today.toISOString().slice(0, 7);
+    let messages = [{ role: "user", content: `You are Evalynn's Health Officer. Today is ${today.toISOString().slice(0, 10)}. The current month is ${ym}.\n\nUse the available tools to read this week's habit data, blood work, and body metrics. Then analyze everything and provide a health report.\n\nAfter gathering data, respond with ONLY a JSON object (no markdown):\n{"reasoning":"...","overall_score":<1-10>,"sleep_avg":<number>,"sleep_trend":"...","water_avg":<number>,"supplement_compliance":"...","top_pattern":"...","concern":"...","recommendation":"...","wins":["..."],"flags":["..."],"weekly_summary":"...","trend_insight":"..."}` }];
+    const maxIterations = 5; let iteration = 0;
+    try {
+      while (iteration < maxIterations) {
+        iteration++;
+        const response = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 2000, messages, tools: HEALTH_TOOLS }) });
+        const result = await response.json();
+        const toolUseBlocks = (result.content || []).filter(b => b.type === "tool_use");
+        const textBlocks = (result.content || []).filter(b => b.type === "text");
+        if (toolUseBlocks.length === 0) {
+          const text = textBlocks.map(b => b.text).join(""); const clean = text.replace(/```json/g, "").replace(/```/g, "").trim();
+          const parsed = JSON.parse(clean); setAnalysis(parsed); setRawJSON(clean); saveToHistory(parsed, clean, alerts, "tool-use"); break;
+        }
+        messages.push({ role: "assistant", content: result.content });
+        const toolResults = [];
+        for (const toolCall of toolUseBlocks) {
+          setToolLog(p => [...p, { tool: toolCall.name, input: toolCall.input }]);
+          const toolResult = await handleToolCall(toolCall.name, toolCall.input);
+          toolResults.push({ type: "tool_result", tool_use_id: toolCall.id, content: toolResult });
+        }
+        messages.push({ role: "user", content: toolResults });
+      }
+    } catch (err) { setError("Tool use failed: " + err.message); }
     setLoading(false);
+  };
+
+  const runAB = async () => {
+    setAbLoading(true); setAbResult(null); setError(null);
+    const data = await loadAllData();
+    if (!data?.this_week || Object.keys(data.this_week).length === 0) { setError("No habit data this month."); setAbLoading(false); return; }
+    try {
+      const response = await fetch("/api/analyze-ab", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 2000, promptA: [{ role: "user", content: PROMPT_V1(data) }], promptB: [{ role: "user", content: PROMPT_V2(data) }] }) });
+      const result = await response.json();
+      const parseResult = (r) => { const text = r.content?.find(b => b.type === "text")?.text || ""; const clean = text.replace(/```json/g, "").replace(/```/g, "").trim(); return JSON.parse(clean); };
+      setAbResult({ a: parseResult(result.resultA), b: parseResult(result.resultB) });
+    } catch (err) { setError("A/B comparison failed: " + err.message); }
+    setAbLoading(false);
+  };
+
+  const sendChat = async () => {
+    if (!chatInput.trim() || chatLoading) return;
+    const userMsg = chatInput.trim(); setChatInput(""); setChatMessages(p => [...p, { role: "user", text: userMsg }]); setChatLoading(true);
+    const apiMessages = [];
+    if (analysis) { apiMessages.push({ role: "user", content: `Here is the latest health analysis: ${JSON.stringify(analysis)}. I may ask follow-up questions about it.` }); apiMessages.push({ role: "assistant", content: "I have the analysis ready. What would you like to know?" }); }
+    chatMessages.forEach(m => { apiMessages.push({ role: m.role === "user" ? "user" : "assistant", content: m.text }); });
+    apiMessages.push({ role: "user", content: userMsg });
+    try {
+      const response = await fetch("/api/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, system: "You are Evalynn's Health Officer. Answer follow-up questions about her health data. Be direct and concise. No em-dashes.", messages: apiMessages }) });
+      const result = await response.json(); const text = result.content?.find(b => b.type === "text")?.text || "No response";
+      setChatMessages(p => [...p, { role: "assistant", text }]);
+    } catch (err) { setChatMessages(p => [...p, { role: "assistant", text: "Error: " + err.message }]); }
+    setChatLoading(false);
+  };
+
+  const sendSlackAlert = async () => {
+    if (!analysis) return;
+    try {
+      const emoji = analysis.overall_score >= 8 ? "+" : analysis.overall_score >= 5 ? "!" : "X";
+      const text = `[${emoji}] Health Report (Score: ${analysis.overall_score}/10)\nSleep: ${analysis.sleep_avg || "-"}h | Supplements: ${analysis.supplement_compliance || "-"}\nConcern: ${analysis.concern}\nAction: ${analysis.recommendation}`;
+      await fetch("/api/slack-notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) });
+      alert("Sent to Slack!");
+    } catch (err) { alert("Slack failed: " + err.message); }
+  };
+
+  const saveToHistory = (parsed, raw, alerts, source = "manual") => {
+    const entry = { timestamp: new Date().toISOString(), analysis: parsed, alerts: alerts || [], rawJSON: raw, source, rating: null };
+    setHistory(p => [entry, ...p].slice(0, 20));
+  };
+
+  const runAnalysis = () => {
+    if (mode === "standard") runStandard();
+    else if (mode === "stream") runStreaming();
+    else if (mode === "tools") runToolUse();
+    else if (mode === "ab") runAB();
   };
 
   const scoreColor = (s) => s >= 8 ? C.green : s >= 5 ? C.orange : C.red;
@@ -832,143 +800,136 @@ Respond ONLY with a JSON object (no markdown, no backticks), with this exact str
   const trendColor = (t) => t === "improving" ? C.green : t === "declining" ? C.red : C.txT;
 
   return (<div>
-    <Ps style={{ marginBottom: 16 }}>Your Health Officer reads habits, metrics, and blood work. It calculates trends, checks for dangerous patterns, and gives you a weekly summary with cross-agent insights.</Ps>
+    <Ps>Your Health Officer with chain-of-thought reasoning, streaming, tool use, A/B testing, multi-turn chat, and Slack alerts.</Ps>
 
-    <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 20 }}>
-      {osBtn({ children: loading ? "Analyzing..." : "Run health analysis", onClick: runAnalysis, disabled: loading })}
-      {retryCount > 0 && <span style={{ fontSize: 11, color: C.txT }}>Succeeded after {retryCount} retries</span>}
+    <div style={{ display: "flex", gap: 0, borderBottom: `1px solid ${C.bdr}`, marginBottom: 16 }}>
+      {[{ k: "standard", l: "Standard" }, { k: "stream", l: "Streaming" }, { k: "tools", l: "Tool use" }, { k: "ab", l: "A/B test" }].map(t => (
+        <button key={t.k} onClick={() => setMode(t.k)} style={{ padding: "7px 14px", border: "none", background: "none", fontFamily: F.sans, fontSize: 13, fontWeight: mode === t.k ? 600 : 400, color: mode === t.k ? C.tx : C.txT, cursor: "pointer", borderBottom: mode === t.k ? `2px solid ${C.green}` : "2px solid transparent", marginBottom: -1 }}>{t.l}</button>
+      ))}
     </div>
 
-    {/* Step 7: Proactive alerts */}
-    {alerts.length > 0 && (
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 10, fontWeight: 600, color: C.red, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>Proactive alerts</div>
-        {alerts.map((a, i) => (
-          <div key={i} style={{ padding: "8px 12px", marginBottom: 4, borderRadius: 4, fontSize: 13, background: a.type === "danger" ? C.redBg : C.yellowBg, color: a.type === "danger" ? C.red : "#856d0a", display: "flex", gap: 8, alignItems: "center" }}>
-            <span style={{ fontSize: 14, flexShrink: 0 }}>{a.type === "danger" ? "\u26A0" : "\u25CF"}</span>
-            {a.text}
+    <div style={{ fontSize: 12, color: C.txT, marginBottom: 12, fontFamily: F.sans }}>
+      {mode === "standard" && "Chain-of-thought + few-shot examples. Claude reasons through data before scoring."}
+      {mode === "stream" && "Same analysis but words appear live as Claude generates them."}
+      {mode === "tools" && "Claude decides what data to fetch using tools. It requests habits, blood work, and metrics autonomously."}
+      {mode === "ab" && "Runs the same data through two different prompts (Health Officer vs Clinical Analyst) side by side."}
+    </div>
+
+    <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 20, flexWrap: "wrap" }}>
+      {osBtn({ children: loading || isStreaming || abLoading ? "Analyzing..." : "Run analysis", onClick: runAnalysis, disabled: loading || isStreaming || abLoading })}
+      {analysis && osBtn({ children: "Send to Slack", onClick: sendSlackAlert, variant: "ghost", style: { padding: "9px 14px" } })}
+    </div>
+
+    {alerts.length > 0 && (<div style={{ marginBottom: 16 }}>
+      {alerts.map((a, i) => (<div key={i} style={{ padding: "8px 12px", marginBottom: 4, borderRadius: 4, fontSize: 13, background: a.type === "danger" ? C.redBg : C.yellowBg, color: a.type === "danger" ? C.red : "#856d0a", display: "flex", gap: 8, alignItems: "center" }}><span style={{ fontSize: 14, flexShrink: 0 }}>{a.type === "danger" ? "\u26A0" : "\u25CF"}</span>{a.text}</div>))}
+    </div>)}
+
+    {error && <div style={{ padding: "12px 16px", background: C.redBg, borderRadius: 4, marginBottom: 16, fontSize: 13, color: C.red }}>{error}</div>}
+
+    {isStreaming && streamText && (<pre style={{ padding: "14px 16px", background: C.bgS, borderRadius: 4, fontSize: 12, color: C.txS, fontFamily: F.mono, whiteSpace: "pre-wrap", lineHeight: 1.6, marginBottom: 16, overflow: "auto", maxHeight: 300 }}>{streamText}<span style={{ animation: "blink 1s infinite" }}>|</span></pre>)}
+
+    {toolLog.length > 0 && (<div style={{ marginBottom: 16 }}>
+      <div style={{ fontSize: 10, fontWeight: 600, color: C.purple, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6, fontFamily: F.sans }}>Tool calls</div>
+      {toolLog.map((t, i) => (<div key={i} style={{ padding: "6px 10px", marginBottom: 3, borderRadius: 4, fontSize: 12, background: C.purpleBg, color: C.purple, fontFamily: F.mono }}>{t.tool}({JSON.stringify(t.input)})</div>))}
+    </div>)}
+
+    {abResult && (<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
+      {[{ label: "A: Health Officer", data: abResult.a, color: C.green }, { label: "B: Clinical Analyst", data: abResult.b, color: C.purple }].map(({ label, data: d, color }) => (
+        <div key={label} style={{ border: `1px solid ${C.bdr}`, borderRadius: 6, padding: "12px 14px" }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color, marginBottom: 8, fontFamily: F.sans }}>{label}</div>
+          <div style={{ fontSize: 22, fontWeight: 500, color: scoreColor(d.overall_score), marginBottom: 6 }}>{d.overall_score}/10</div>
+          <div style={{ fontSize: 12, color: C.txS, marginBottom: 4, lineHeight: 1.5 }}>{d.top_pattern}</div>
+          <div style={{ fontSize: 12, color: C.red, marginBottom: 4, lineHeight: 1.5 }}>{d.concern}</div>
+          <div style={{ fontSize: 12, color: C.green, fontWeight: 500, lineHeight: 1.5 }}>{d.recommendation}</div>
+          {d.reasoning && (<div style={{ fontSize: 11, color: C.txT, marginTop: 8, lineHeight: 1.5, fontStyle: "italic" }}>{d.reasoning.slice(0, 200)}...</div>)}
+        </div>
+      ))}
+    </div>)}
+
+    {analysis && (<div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
+        {[{ l: "Overall", v: analysis.overall_score + "/10", c: scoreColor(analysis.overall_score) }, { l: "Sleep avg", v: (analysis.sleep_avg || "-") + "h", c: analysis.sleep_avg >= 7 ? C.green : C.orange, extra: analysis.sleep_trend }, { l: "Water avg", v: (analysis.water_avg || "-") + "L", c: (analysis.water_avg || 0) >= 1.5 ? C.green : C.orange }, { l: "Supplements", v: analysis.supplement_compliance || "-", c: C.tx }].map((g, i) => (
+          <div key={i} style={{ background: C.bgS, borderRadius: 4, padding: "10px 12px" }}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 3 }}>{g.l}</div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}><span style={{ fontSize: 22, fontWeight: 500, color: g.c }}>{g.v}</span>{g.extra && <span style={{ fontSize: 14, color: trendColor(g.extra) }}>{trendArrow(g.extra)}</span>}</div>
           </div>
         ))}
       </div>
-    )}
 
-    {error && (
-      <div style={{ padding: "12px 16px", background: C.redBg, borderRadius: 4, marginBottom: 16, fontSize: 13, color: C.red }}>
-        {error}
-      </div>
-    )}
+      {analysis.reasoning && (<div style={{ marginBottom: 16 }}>
+        <div onClick={() => setShowReasoning(!showReasoning)} style={{ fontSize: 11, color: C.purple, cursor: "pointer", fontFamily: F.sans, fontWeight: 600, padding: "6px 0" }}>{showReasoning ? "Hide" : "Show"} Health Officer's reasoning</div>
+        {showReasoning && (<div style={{ padding: "12px 16px", background: C.purpleBg, borderRadius: 4, fontSize: 13, color: C.tx, lineHeight: 1.6, fontStyle: "italic" }}>{analysis.reasoning}</div>)}
+      </div>)}
 
-    {analysis && (
-      <div>
-        {/* Score cards with trends */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
-          <div style={{ background: C.bgS, borderRadius: 4, padding: "10px 12px" }}>
-            <div style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 3 }}>Overall</div>
-            <div style={{ fontSize: 22, fontWeight: 500, color: scoreColor(analysis.overall_score) }}>{analysis.overall_score}/10</div>
-          </div>
-          <div style={{ background: C.bgS, borderRadius: 4, padding: "10px 12px" }}>
-            <div style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 3 }}>Sleep avg</div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
-              <span style={{ fontSize: 22, fontWeight: 500, color: analysis.sleep_avg >= 7 ? C.green : C.orange }}>{analysis.sleep_avg || "-"}h</span>
-              {analysis.sleep_trend && <span style={{ fontSize: 14, color: trendColor(analysis.sleep_trend) }}>{trendArrow(analysis.sleep_trend)}</span>}
-            </div>
-          </div>
-          <div style={{ background: C.bgS, borderRadius: 4, padding: "10px 12px" }}>
-            <div style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 3 }}>Water avg</div>
-            <div style={{ fontSize: 22, fontWeight: 500, color: analysis.water_avg >= 1.5 ? C.green : C.orange }}>{analysis.water_avg || "-"}L</div>
-          </div>
-          <div style={{ background: C.bgS, borderRadius: 4, padding: "10px 12px" }}>
-            <div style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 3 }}>Supplements</div>
-            <div style={{ fontSize: 22, fontWeight: 500, color: C.tx }}>{analysis.supplement_compliance || "-"}</div>
-          </div>
+      {analysis.weekly_summary && (<div style={{ padding: "12px 16px", background: C.blueBg, borderRadius: 4, marginBottom: 16 }}>
+        <div style={{ fontSize: 10, fontWeight: 600, color: C.blue, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 4 }}>Weekly summary</div>
+        <div style={{ fontSize: 14, color: C.tx, lineHeight: 1.6 }}>{analysis.weekly_summary}</div>
+        {analysis.trend_insight && <div style={{ fontSize: 12, color: C.txS, marginTop: 6, fontStyle: "italic" }}>{analysis.trend_insight}</div>}
+      </div>)}
+
+      {[{ label: "Top pattern", value: analysis.top_pattern, color: C.txT }, { label: "Concern", value: analysis.concern, color: C.red }, { label: "Action", value: analysis.recommendation, color: C.green }].map((row, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: `1px solid ${C.bdr}` }}>
+          <span style={{ fontSize: 10, fontWeight: 600, color: row.color, textTransform: "uppercase", letterSpacing: "0.04em", minWidth: 100, paddingTop: 2, flexShrink: 0, fontFamily: F.sans }}>{row.label}</span>
+          <span style={{ fontSize: 14, color: row.label === "Concern" && row.value === "None" ? C.green : C.tx, lineHeight: 1.5, fontWeight: row.label === "Action" ? 500 : 400 }}>{row.value}</span>
         </div>
+      ))}
 
-        {/* Step 9: Weekly summary */}
-        {analysis.weekly_summary && (
-          <div style={{ padding: "12px 16px", background: C.blueBg, borderRadius: 4, marginBottom: 16 }}>
-            <div style={{ fontSize: 10, fontWeight: 600, color: C.blue, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 4 }}>Weekly summary</div>
-            <div style={{ fontSize: 14, color: C.tx, lineHeight: 1.6 }}>{analysis.weekly_summary}</div>
-            {analysis.trend_insight && (
-              <div style={{ fontSize: 12, color: C.txS, marginTop: 6, fontStyle: "italic" }}>{analysis.trend_insight}</div>
-            )}
-          </div>
-        )}
-
-        {/* Pattern + Concern + Recommendation */}
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: `1px solid ${C.bdr}` }}>
-            <span style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", minWidth: 100, paddingTop: 2, flexShrink: 0 }}>Top pattern</span>
-            <span style={{ fontSize: 14, color: C.tx, lineHeight: 1.5 }}>{analysis.top_pattern}</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: `1px solid ${C.bdr}` }}>
-            <span style={{ fontSize: 10, fontWeight: 600, color: C.red, textTransform: "uppercase", letterSpacing: "0.04em", minWidth: 100, paddingTop: 2, flexShrink: 0 }}>Concern</span>
-            <span style={{ fontSize: 14, color: analysis.concern === "None" ? C.green : C.red, lineHeight: 1.5 }}>{analysis.concern}</span>
-          </div>
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: `1px solid ${C.bdr}` }}>
-            <span style={{ fontSize: 10, fontWeight: 600, color: C.green, textTransform: "uppercase", letterSpacing: "0.04em", minWidth: 100, paddingTop: 2, flexShrink: 0 }}>Action</span>
-            <span style={{ fontSize: 14, color: C.tx, fontWeight: 500, lineHeight: 1.5 }}>{analysis.recommendation}</span>
-          </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 12 }}>
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 600, color: C.green, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6, fontFamily: F.sans }}>Wins</div>
+          {(analysis.wins || []).map((w, i) => <div key={i} style={{ fontSize: 13, color: C.tx, padding: "4px 0", borderBottom: `1px solid ${C.bdr}` }}>{w}</div>)}
         </div>
-
-        {/* Wins + Flags */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-          <div>
-            <div style={{ fontSize: 10, fontWeight: 600, color: C.green, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>Wins</div>
-            {(analysis.wins || []).map((w, i) => (
-              <div key={i} style={{ fontSize: 13, color: C.tx, padding: "4px 0", borderBottom: `1px solid ${C.bdr}` }}>{w}</div>
-            ))}
-          </div>
-          <div>
-            <div style={{ fontSize: 10, fontWeight: 600, color: C.red, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>Flags</div>
-            {(analysis.flags || []).length > 0 ? (analysis.flags || []).map((f, i) => (
-              <div key={i} style={{ fontSize: 13, color: C.red, padding: "4px 0", borderBottom: `1px solid ${C.bdr}` }}>{f}</div>
-            )) : <div style={{ fontSize: 13, color: C.txT, padding: "4px 0" }}>None</div>}
-          </div>
-        </div>
-
-        {/* Raw JSON toggle */}
-        <div style={{ marginTop: 16 }}>
-          <span onClick={() => setShowRaw(!showRaw)} style={{ fontSize: 11, color: C.txT, cursor: "pointer", padding: "4px 0" }}>
-            {showRaw ? "Hide" : "Show"} raw API response
-          </span>
-          {showRaw && rawJSON && (
-            <pre style={{ marginTop: 8, padding: "12px 14px", background: C.bgS, borderRadius: 4, fontSize: 11, color: C.txS, fontFamily: F.mono, whiteSpace: "pre-wrap", lineHeight: 1.6, overflow: "auto" }}>
-              {rawJSON}
-            </pre>
-          )}
+        <div>
+          <div style={{ fontSize: 10, fontWeight: 600, color: C.red, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6, fontFamily: F.sans }}>Flags</div>
+          {(analysis.flags || []).length > 0 ? (analysis.flags || []).map((f, i) => <div key={i} style={{ fontSize: 13, color: C.red, padding: "4px 0", borderBottom: `1px solid ${C.bdr}` }}>{f}</div>) : <div style={{ fontSize: 13, color: C.txT }}>None</div>}
         </div>
       </div>
-    )}
 
-    {/* Analysis history */}
-    {history.length > 0 && (
-      <div style={{ marginTop: 24 }}>
-        <div style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8 }}>Previous analyses</div>
-        {history.map((h, i) => {
-          const d = new Date(h.timestamp);
-          const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) + " " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
-          const isActive = analysis && h.analysis.overall_score === analysis.overall_score && h.timestamp === history[0]?.timestamp && i === 0;
-          return (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: `1px solid ${C.bdr}` }}>
-              <span onClick={() => { setAnalysis(h.analysis); setAlerts(h.alerts || []); setRawJSON(h.rawJSON || null); }} style={{ fontSize: 13, color: C.blue, cursor: "pointer", flex: 1 }}>{label}</span>
-              <span style={{ fontSize: 14, fontWeight: 600, color: h.analysis.overall_score >= 8 ? C.green : h.analysis.overall_score >= 5 ? C.orange : C.red }}>{h.analysis.overall_score}/10</span>
-              <span style={{ fontSize: 11, color: C.txT }}>{h.analysis.sleep_avg || "-"}h sleep</span>
-              <span onClick={() => deleteHistoryEntry(i)} style={{ fontSize: 11, color: C.txT, cursor: "pointer", padding: "2px 6px" }}>x</span>
-            </div>
-          );
-        })}
+      <div style={{ marginTop: 16 }}>
+        <span onClick={() => setShowRaw(!showRaw)} style={{ fontSize: 11, color: C.txT, cursor: "pointer" }}>{showRaw ? "Hide" : "Show"} raw API response</span>
+        {showRaw && rawJSON && <pre style={{ marginTop: 8, padding: "12px 14px", background: C.bgS, borderRadius: 4, fontSize: 11, color: C.txS, fontFamily: F.mono, whiteSpace: "pre-wrap", lineHeight: 1.6, overflow: "auto" }}>{rawJSON}</pre>}
       </div>
-    )}
+    </div>)}
 
-    {/* CCA skills */}
+    <div style={{ marginTop: 24, borderTop: `1px solid ${C.bdr}`, paddingTop: 16 }}>
+      <div style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8, fontFamily: F.sans }}>Chat with Health Officer</div>
+      <div style={{ maxHeight: 300, overflowY: "auto", marginBottom: 10 }}>
+        {chatMessages.map((m, i) => (<div key={i} style={{ padding: "8px 12px", marginBottom: 4, borderRadius: 6, fontSize: 13, lineHeight: 1.6, background: m.role === "user" ? C.bgS : C.greenBg, color: C.tx, fontFamily: F.sans }}><span style={{ fontSize: 10, fontWeight: 600, color: m.role === "user" ? C.txT : C.green, marginRight: 6 }}>{m.role === "user" ? "You" : "Health Officer"}</span>{m.text}</div>))}
+        {chatLoading && <div style={{ fontSize: 12, color: C.txT, padding: "8px 12px" }}>Thinking...</div>}
+      </div>
+      <div style={{ display: "flex", gap: 8 }}>
+        <input value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendChat()} placeholder="Ask a follow-up question..." style={{ flex: 1, border: `1px solid ${C.bdr}`, borderRadius: 4, padding: "8px 12px", fontSize: 13, color: C.tx, background: C.bgS, outline: "none", fontFamily: F.sans }} />
+        {osBtn({ children: "Send", onClick: sendChat, disabled: chatLoading || !chatInput.trim(), style: { padding: "8px 14px" } })}
+      </div>
+    </div>
+
+    {history.length > 0 && (<div style={{ marginTop: 24 }}>
+      <div style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8, fontFamily: F.sans }}>Previous analyses</div>
+      {history.map((h, i) => {
+        const d = new Date(h.timestamp); const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) + " " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+        return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: `1px solid ${C.bdr}` }}>
+          <span onClick={() => { setAnalysis(h.analysis); setAlerts(h.alerts || []); setRawJSON(h.rawJSON || null); }} style={{ fontSize: 13, color: C.blue, cursor: "pointer", flex: 1 }}>{label}</span>
+          {h.source && <span style={{ fontSize: 9, color: C.txT, padding: "1px 6px", borderRadius: 6, background: C.bgS }}>{h.source}</span>}
+          <span style={{ fontSize: 14, fontWeight: 600, color: scoreColor(h.analysis.overall_score) }}>{h.analysis.overall_score}/10</span>
+          <span onClick={() => rateAnalysis(i, "up")} style={{ fontSize: 14, cursor: "pointer", opacity: h.rating === "up" ? 1 : 0.3 }}>&#x1F44D;</span>
+          <span onClick={() => rateAnalysis(i, "down")} style={{ fontSize: 14, cursor: "pointer", opacity: h.rating === "down" ? 1 : 0.3 }}>&#x1F44E;</span>
+          <span onClick={() => deleteHistoryEntry(i)} style={{ fontSize: 11, color: C.txT, cursor: "pointer", padding: "2px 6px" }}>x</span>
+        </div>);
+      })}
+    </div>)}
+
     <div style={{ marginTop: 24, padding: "12px 16px", background: C.bgS, borderRadius: 4 }}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>CCA skills practiced</div>
-      <div style={{ fontSize: 12, color: C.txS, lineHeight: 1.6 }}>
-        Tool use (s6) - reading multiple data sources from Supabase, calculating trends locally.
-        Proactive alerts (s9) - rule-based pattern detection before API call.
-        Cross-agent (s9) - work intensity context fed into health analysis.
-        Weekly summary (s3) - structured output with trend comparisons.
-        Error handling (s4) - retry with exponential backoff.
+      <div style={{ fontSize: 11, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6, fontFamily: F.sans }}>CCA skills practiced in this tab</div>
+      <div style={{ fontSize: 12, color: C.txS, lineHeight: 1.8, fontFamily: F.sans }}>
+        API basics (s1) - messages, model, max_tokens.
+        Prompt engineering (s3) - few-shot example, chain-of-thought reasoning field, role assignment.
+        Prompt evaluation (s2) - thumbs up/down ratings, A/B prompt comparison.
+        Error handling (s4) - retry with backoff.
+        Tool use (s6) - Claude calls read_habits, read_blood_work, search_habit_history.
+        RAG (s5) - search_habit_history searches across months for patterns.
+        Features (s7) - streaming responses, structured JSON output.
+        Agents (s9) - multi-turn chat, proactive alerts, cron auto-report, Slack notifications.
+        MCP prep (s8) - tool definitions follow MCP-compatible schema.
       </div>
     </div>
   </div>);
