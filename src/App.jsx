@@ -510,6 +510,11 @@ const BLOOD_MARKERS = [
   { id: "chol", label: "Total cholesterol", unit: "mg/dL", target: "under 200", range: "under 200", good: (v) => v <= 200, warn: (v) => v <= 240 },
   { id: "hdl", label: "HDL", unit: "mg/dL", target: "above 50", range: "40-60+", good: (v) => v >= 50, warn: (v) => v >= 40 },
   { id: "ldl", label: "LDL", unit: "mg/dL", target: "under 100", range: "under 100", good: (v) => v <= 100, warn: (v) => v <= 130 },
+  { id: "antitpo", label: "Anti-TPO", unit: "IU/mL", target: "under 5.61", range: "0-5.61", good: (v) => v <= 5.61, warn: (v) => v <= 15 },
+  { id: "antiatg", label: "Anti-ATG", unit: "IU/mL", target: "under 4.11", range: "0-4.11", good: (v) => v <= 4.11, warn: (v) => v <= 10 },
+  { id: "ggt", label: "GGT", unit: "U/L", target: "under 38", range: "under 38", good: (v) => v <= 38, warn: (v) => v <= 50 },
+  { id: "wbc", label: "WBC", unit: "x10^9/L", target: "4-10", range: "4-10", good: (v) => v >= 4 && v <= 10, warn: (v) => v >= 3 && v <= 12 },
+  { id: "mcv", label: "MCV", unit: "fL", target: "80-99", range: "80-99", good: (v) => v >= 80 && v <= 99, warn: (v) => v >= 75 && v <= 105 },
 ];
 
 const BODY_METRICS = [
@@ -537,6 +542,8 @@ const CONDITIONS = [
   { id: "gallstone", label: "Gallstone", target: "No pain" },
   { id: "gut", label: "Gut health", target: "Good" },
   { id: "teeth", label: "Teeth (Kilbon)", target: "Aligned" },
+  { id: "hashimoto", label: "Thyroid autoimmunity (Anti-TPO)", target: "Under 5.61" },
+  { id: "prediabetes", label: "Prediabetes (HbA1c)", target: "Under 5.7" },
 ];
 const COND_STATUSES = ["monitoring", "good", "concern", "in progress", "resolved"];
 const COND_COLORS = { monitoring: { bg: C.yellowBg, c: "#856d0a" }, good: { bg: C.greenBg, c: C.green }, concern: { bg: C.redBg, c: C.red }, "in progress": { bg: C.blueBg, c: C.blue }, resolved: { bg: C.greenBg, c: C.green } };
