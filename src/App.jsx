@@ -629,7 +629,7 @@ function MetricsTab() {
 
   const grpS = { flex: "0 0 100px", fontSize: 12, fontWeight: 500, padding: "4px 10px", background: C.bgS, color: C.txS, alignSelf: "stretch", display: "flex", alignItems: "center" };
   const grpE = { flex: "0 0 100px", padding: "4px 10px", background: C.bgS };
-  const nameS = { flex: 1, minWidth: 80, paddingLeft: 8, color: C.tx, fontSize: 13 };
+  const nameS = { flex: "0 0 160px", paddingLeft: 8, color: C.tx, fontSize: 13 };
   const normS = { flex: "0 0 90px", fontSize: 12, textAlign: "left", color: C.txT, paddingLeft: 4 };
   const valS = { flex: "0 0 54px", textAlign: "center", fontSize: 13, fontWeight: 500 };
   const dotS = { width: 5, height: 5, borderRadius: 3, flexShrink: 0, margin: "0 4px 0 2px" };
@@ -642,7 +642,10 @@ function MetricsTab() {
   const dateColumns = [];
   for (let i = 0; i < 4; i++) { dateColumns.push(entries[i] || null); }
 
-  const lineS = { display: "flex", alignItems: "center", padding: "6px 0", borderBottom: `1px solid ${C.bdr}`, gap: 10 };
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const lineS = { display: "flex", alignItems: "center", padding: "5px 0", gap: 10 };
 
   return (<div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
@@ -658,9 +661,16 @@ function MetricsTab() {
       </div>))}
     </div>
 
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, position: "relative" }}>
       <span style={{ fontSize: 15, fontWeight: 600, color: C.tx }}>Markers</span>
-      {osBtn({ children: "+ Add blood work", onClick: addEntry, style: { padding: "5px 12px", fontSize: 12 } })}
+      <div style={{ position: "relative" }}>
+        <span onClick={() => setShowAddMenu(!showAddMenu)} style={{ padding: "5px 12px", fontSize: 12, fontWeight: 600, background: C.green, color: "#fff", borderRadius: 4, cursor: "pointer" }}>+ Add blood work</span>
+        {showAddMenu && <div style={{ position: "absolute", right: 0, top: 32, background: C.bg, border: `1px solid ${C.bdr}`, borderRadius: 4, zIndex: 10, minWidth: 160 }}>
+          <div onClick={() => { addEntry(); setShowAddMenu(false); }} style={{ padding: "8px 14px", fontSize: 13, cursor: "pointer", color: C.tx, borderBottom: `1px solid ${C.bdr}` }}>Manual entry</div>
+          <div onClick={() => { setShowAddMenu(false); alert("Upload a screenshot of your lab results in the chat, and ask Claude to extract the values into your markers."); }} style={{ padding: "8px 14px", fontSize: 13, cursor: "pointer", color: C.tx, borderBottom: `1px solid ${C.bdr}` }}>From screenshot</div>
+          <div onClick={() => { setShowAddMenu(false); alert("Upload a PDF of your lab results in the chat, and ask Claude to extract the values into your markers."); }} style={{ padding: "8px 14px", fontSize: 13, cursor: "pointer", color: C.tx }}>From PDF</div>
+        </div>}
+      </div>
     </div>
 
     <div style={{ display: "flex", alignItems: "center", padding: "6px 0", borderBottom: `0.5px solid ${C.bdr}` }}>
@@ -674,7 +684,7 @@ function MetricsTab() {
     </div>
 
     {BLOOD_GROUPS.map((grp, gi) => (<React.Fragment key={grp.key}>
-      {gi > 0 && <div style={{ height: 2 }}></div>}
+      {gi > 0 && <div style={{ height: 6 }}></div>}
       {grp.markers.map((m, mi) => {
         const isFirst = mi === 0;
         return (<div key={m.id} style={rowS}>
@@ -708,22 +718,25 @@ function MetricsTab() {
     </div>}
 
     <div style={{ height: 24 }} />
-    <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}><span style={{ fontSize: 15, fontWeight: 600, color: C.tx }}>Supplement protocol</span></div>
-    {SUPPLEMENTS.map((s, i) => (<div key={i} style={lineS}>
-      <span style={{ fontSize: 14, color: C.tx, flex: 1, paddingLeft: 16 }}>{s.name}</span>
-      <span style={{ fontSize: 13, color: C.txS, width: 80 }}>{s.dose}</span>
-      <span style={{ fontSize: 12, color: C.txT, width: 70 }}>{s.time}</span>
-      <span style={{ fontSize: 12, color: C.txT, width: 110, textAlign: "right", paddingRight: 16 }}>{s.why}</span>
-    </div>))}
-
-    <div style={{ height: 20 }} />
-    <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}><span style={{ fontSize: 15, fontWeight: 600, color: C.tx }}>Health conditions</span></div>
-    {CONDITIONS.map((c) => { const status = (data.conditions || {})[c.id] || "monitoring"; const sc = COND_COLORS[status] || COND_COLORS.monitoring; return (
-      <div key={c.id} style={lineS}>
-        <span style={{ fontSize: 14, color: C.tx, flex: 1, paddingLeft: 16 }}>{c.label}</span>
-        <span onClick={() => cycleCondition(c.id)} style={{ fontSize: 11, fontWeight: 500, padding: "2px 10px", borderRadius: 10, background: sc.bg, color: sc.c, cursor: "pointer", userSelect: "none" }}>{status}</span>
-        <span style={{ fontSize: 13, color: C.txT, width: 100, textAlign: "right", paddingRight: 16 }}>{c.target}</span>
-      </div>); })}
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "start" }}>
+      <div>
+        <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}><span style={{ fontSize: 15, fontWeight: 600, color: C.tx }}>Health conditions</span></div>
+        {CONDITIONS.map((c) => { const status = (data.conditions || {})[c.id] || "monitoring"; const sc = COND_COLORS[status] || COND_COLORS.monitoring; return (
+          <div key={c.id} style={lineS}>
+            <span style={{ fontSize: 14, color: C.tx, flex: 1, paddingLeft: 16 }}>{c.label}</span>
+            <span onClick={() => cycleCondition(c.id)} style={{ fontSize: 11, fontWeight: 500, padding: "2px 10px", borderRadius: 10, background: sc.bg, color: sc.c, cursor: "pointer", userSelect: "none" }}>{status}</span>
+            <span style={{ fontSize: 12, color: C.txT, width: 80, textAlign: "right" }}>{c.target}</span>
+          </div>); })}
+      </div>
+      <div>
+        <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}><span style={{ fontSize: 15, fontWeight: 600, color: C.tx }}>Supplement protocol</span></div>
+        {SUPPLEMENTS.map((s, i) => (<div key={i} style={lineS}>
+          <span style={{ fontSize: 14, color: C.tx, flex: 1, paddingLeft: 16 }}>{s.name}</span>
+          <span style={{ fontSize: 12, color: C.txS, width: 60 }}>{s.dose}</span>
+          <span style={{ fontSize: 12, color: C.txT, width: 60 }}>{s.time}</span>
+        </div>))}
+      </div>
+    </div>
   </div>);
 }
 
