@@ -667,8 +667,8 @@ function MetricsTab() {
         <span onClick={() => setShowAddMenu(!showAddMenu)} style={{ padding: "5px 12px", fontSize: 12, fontWeight: 600, background: C.green, color: "#fff", borderRadius: 4, cursor: "pointer" }}>+ Add blood work</span>
         {showAddMenu && <div style={{ position: "absolute", right: 0, top: 32, background: C.bg, border: `1px solid ${C.bdr}`, borderRadius: 4, zIndex: 10, minWidth: 160 }}>
           <div onClick={() => { addEntry(); setShowAddMenu(false); }} style={{ padding: "8px 14px", fontSize: 13, cursor: "pointer", color: C.tx, borderBottom: `1px solid ${C.bdr}` }}>Manual entry</div>
-          <div onClick={() => { setShowAddMenu(false); alert("Upload a screenshot of your lab results in the chat, and ask Claude to extract the values into your markers."); }} style={{ padding: "8px 14px", fontSize: 13, cursor: "pointer", color: C.tx, borderBottom: `1px solid ${C.bdr}` }}>From screenshot</div>
-          <div onClick={() => { setShowAddMenu(false); alert("Upload a PDF of your lab results in the chat, and ask Claude to extract the values into your markers."); }} style={{ padding: "8px 14px", fontSize: 13, cursor: "pointer", color: C.tx }}>From PDF</div>
+          <div style={{ padding: "8px 14px", fontSize: 13, color: C.txT, borderBottom: `1px solid ${C.bdr}` }}>From screenshot <span style={{ fontSize: 10, color: C.txT, fontStyle: "italic" }}>soon</span></div>
+          <div style={{ padding: "8px 14px", fontSize: 13, color: C.txT }}>From PDF <span style={{ fontSize: 10, color: C.txT, fontStyle: "italic" }}>soon</span></div>
         </div>}
       </div>
     </div>
