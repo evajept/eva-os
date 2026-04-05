@@ -25,7 +25,234 @@ const osBtn=({children,onClick,variant,style:sx,disabled})=>{const s={primary:{b
 const MONTHS_LIST=["January","February","March","April","May","June","July","August","September","October","November","December"];
 
 // ══════════════════════════════════════════════════════════════
-// NEW ENHANCED HABITS TRACKER
+// GOALS TAB (from draft, storage shifted to osLoad/osSave)
+// ══════════════════════════════════════════════════════════════
+
+const LIFE_GOALS=[
+  {n:1,title:"Stay balanced and graceful",short:"Balanced",cat:"core"},
+  {n:2,title:"Stay sovereign & regulated",short:"Sovereign",cat:"core"},
+  {n:3,title:"Live well",short:"Live well",cat:"core"},
+  {n:4,title:"Earn B1,000,000-12,000,000",short:"Earn B1-12M",cat:"career"},
+  {n:5,title:"Grow aligned & reciprocal connections",short:"Connections",cat:"core"},
+  {n:12,title:"Work on my own terms",short:"Own terms",cat:"core"},
+  {n:6,title:"Sell Life OS planner",short:"Life OS",cat:"project"},
+  {n:7,title:"Workation Dharamshala India",short:"Dharamshala",cat:"experience"},
+  {n:8,title:"Kilbon",short:"Kilbon",cat:"experience"},
+  {n:9,title:"Nervous System Reset Program",short:"NS Reset",cat:"experience"},
+  {n:10,title:"Finish Sean & Dasha",short:"Sean & Dasha",cat:"project"},
+  {n:11,title:"Regulate with Me Youtube Channel",short:"Vagal Tone",cat:"project"},
+];
+const STATUS_CFG={"not started":{bg:C.redBg,c:C.red},building:{bg:C.yellowBg,c:"#856d0a"},"in motion":{bg:C.orangeBg,c:C.orange},ramping:{bg:C.blueBg,c:C.blue},living:{bg:C.greenBg,c:C.green},achieved:{bg:C.greenBg,c:C.green},paused:{bg:C.bgS,c:C.txS},someday:{bg:C.bgS,c:C.txT}};
+const STATUS_OPTS=["not started","building","in motion","ramping","living","achieved","paused","someday"];
+const GOAL_SEED={
+1:{status:"building",
+vision:"รู้สึกถึงพลังชีวิต มีพลังใจสมดุล อารมณ์ลื่นไหล ไม่ติดค้าง\nสบายใจและมั่นใจในรูปร่างและรูปลักษณ์ตัวเอง\nค่าตรวจสุขภาพดี: น้ำตาล ความดัน ไขมันปกติ\nค่าไทรอยด์อยู่ในเกณฑ์ปลอดภัย\nเนื้องอกอยู่ในระดับที่ไม่เป็นปัญหา\nภูมิคุ้มกันแข็งแรง ขับถ่ายดี สบายท้อง\nไม่มีอาการนิ่ว การมองเห็นปกติ\nหุ่นดี หน้าท้องแบนราบ กินไม่อ้วน\nสบายหลัง ตัวตรง อกยืด คอระหง เดินตรง สง่า\nหน้าสวย เรียว กรามชัด จมูกสันคม ผิวเนียนสดใส\nฟังเรียงตัวสวย ยิ้มสวย ไม่ผุ\nผมสวย หนา ไม่ร่วงเยอะ\nแต่งตัวมั่นใจ ใส่บิกินี่สวย ไร้ขน",
+why:"ร่างกายที่แข็งแรงส่งเสริมความรู้สึกปลอดภัย ใช้ชีวิตได้เต็มที่ มีพลังทำตามเป้าหมาย รู้สึกเติมเต็ม ความกลัวไม่ครอบงำ ฟังเสียงหัวใจตัวเองชัด รักได้อย่างสมดุล ตั้งหลักได้ สื่อสารชัดเจน ผ่อนคลาย ไม่แบกความกดดันเกินจำเป็น แสดงตัวตนจริงในความสัมพันธ์ได้",
+assess:[{metric:"Health check",target:"Normal sugar"},{metric:"Weight/BMI/Fat",target:"54 -> 50"},{metric:"Teeth",target:"Aligned"},{metric:"Self-pictures",target:"Radiant"},{metric:"LSIL",target:"Negative"},{metric:"Gallstone",target:"No pain"},{metric:"Gut health",target:"Good"}],
+actions:[{id:101,text:"Book annual health check-up",prio:"P0",date:"",done:false},{id:102,text:"Measure weight, body",prio:"P0",date:"",done:false},{id:103,text:"Complete learning/skill list + summary",prio:"P0",date:"",done:false},{id:104,text:"What vitamins + probiotics to take",prio:"P0",date:"",done:false},{id:105,text:"Define nutrition plan",prio:"P0",date:"",done:false},{id:106,text:"Plan and prepare for actions",prio:"P0",date:"",done:false},{id:107,text:"Set realistic goals",prio:"P0",date:"Dec 25",done:true},{id:108,text:"Define habits",prio:"P0",date:"Dec 25",done:true},{id:109,text:"Define Health-NS Protocol",prio:"P0",date:"Dec 25",done:true}],
+practices:[{id:111,text:"Sleep 7 hours",freq:"daily"},{id:112,text:"Move body",freq:"daily"},{id:113,text:"Water 1.5-2L",freq:"daily"},{id:114,text:"Vitamins + probiotics",freq:"daily"},{id:115,text:"Eat protein, fat, low-carb",freq:"5/w"},{id:116,text:"Skincare / grooming",freq:"5/w"},{id:117,text:"Posture work",freq:"1/w"},{id:118,text:"Non-sugar day",freq:"1/w"}],
+learning:[{id:121,text:"Nervous system regulation",done:true},{id:122,text:"Somatic awareness",done:true},{id:123,text:"Emotional processing",done:true},{id:124,text:"Gut health foundations",done:true},{id:125,text:"Strength training basics",done:true},{id:126,text:"My body",done:true},{id:127,text:"Posture & breath mechanics",done:true},{id:128,text:"Anti-inflammatory nutrition",done:true},{id:129,text:"Lymphatic health - Dtox",done:true},{id:130,text:"Hormone balance 101",done:true},{id:131,text:"Circadian rhythm & sleep",done:true},{id:132,text:"Skin & body care fundamentals",done:true},{id:133,text:"Graceful postures",done:true}]},
+2:{status:"building",
+vision:"เลือกตัวเองก่อนเสมอ อยากได้อะไรจากคนอื่น ให้สิ่งนั้นกับตัวเองก่อน\nรู้สึกเป็นอิสระ เป็นตัวเอง รู้สึกปลอดภัย\nคุณค่าตัวเองไม่ขึ้นลงตามใคร นับถือตัวเอง มั่นใจ\nไม่วิ่งไล่ ยึดติด รักษาขอบเขตในความสัมพันธ์\nอยู่กับความไม่สบายได้โดยไม่หนี ยอมรับความผิดหวังได้\nตัดสินใจด้วยความชัดเจน ไม่ใช่เพราะกลัวหรือกดดัน\nตอบสนองจากสติ ไม่ใช่ปฏิกิริยาอัตโนมัติ\nฟื้นตัวจากความเครียดได้เร็ว ทำสิ่งที่ต้องทำ ไม่จมดิ่งนาน\nเดินสู่เป้าหมายได้ต่อเนื่อง\nสื่อสารตรงไปตรงมา ชัดเจน สุภาพ แม้เป็นเรื่องยาก\nเผชิญกับความขัดแย้งอย่างสง่างาม\nแก้ปัญหาเก่ง เร็ว ตัดสินใจถูก ลงมือทำทันที",
+why:"จิตใจและอารมณ์ที่มั่นคง ทำให้เลือกสิ่งต่าง ๆ ได้สอดคล้องกับตัวตนที่แท้จริง คิด ตัดสินใจได้เฉียบคมและชัดเจน กระจ่างเรื่องความรัก เรียนรู้จากประสบการณ์ชีวิต และใช้ชีวิตได้อย่างสมบูรณ์",
+assess:[{metric:"Sovereign Matrix",target:"1.88 -> 2.2"},{metric:"Cause-Effect Report",target:"Behavior shifted"}],
+actions:[{id:201,text:"Define goals / actions / practices",prio:"P0",date:"Jan 2",done:true},{id:202,text:"Define - Who I truly am",prio:"P0",date:"Jan 2",done:true},{id:203,text:"Final Evalynn OS Book",prio:"P0",date:"",done:false},{id:204,text:"Complete learning/skill list + summary",prio:"P0",date:"",done:false},{id:205,text:"Come up with voice journal framework",prio:"P0",date:"",done:false},{id:206,text:"Identity matrix assessment Q1",prio:"P2",date:"",done:false},{id:207,text:"Identity matrix assessment Q2",prio:"P2",date:"",done:false},{id:208,text:"Identity matrix assessment Q3",prio:"P2",date:"",done:false},{id:209,text:"Identity matrix assessment Q4",prio:"P2",date:"",done:false},{id:210,text:"Final Identity Matrix",prio:"P0",date:"Dec 1",done:true},{id:211,text:"Assess Identity Score 2025",prio:"P0",date:"Dec 1",done:true},{id:212,text:"Draft Evalynn OS Book",prio:"P0",date:"Dec 1",done:true}],
+practices:[{id:221,text:"Morning manifest-meditation",freq:"daily"},{id:222,text:"State check, day plan, act",freq:"daily"},{id:223,text:"Night gratitude",freq:"daily"}],
+learning:[{id:231,text:"Nervous system",done:true},{id:232,text:"Body awareness",done:true},{id:233,text:"Emotional processing",done:true},{id:234,text:"Triggers & patterns",done:true},{id:235,text:"Regulated clarity",done:true},{id:236,text:"Grounded presence",done:true},{id:237,text:"Conflict competence",done:true},{id:238,text:"Trustworthy presence",done:true},{id:239,text:"Identity alignment",done:true},{id:240,text:"Stable self-esteem",done:true},{id:241,text:"Powerful execution",done:true},{id:242,text:"Cause and effect",done:true},{id:243,text:"Boundary and self-respect",done:true}]},
+3:{status:"building",
+vision:"ตื่นมารู้สึกได้พักผ่อน ไม่เร่งรีบ เวลายามเช้าเรียบง่าย ชิล\nเอ็นจอยชีวิตประจำวันที่สมดุลระหว่างแบบแผนและยืดหยุ่น\nเรียนรู้และฝึกสกิลที่สนใจและเป็นประโยชน์\nอยู่ที่ปลอดภัย สะอาด เรียบร้อย ชีวิตสบาย สะดวก คุณภาพชีวิตดี\nมีอิสระเลือกทำสิ่งที่ต้องการ ไปที่ที่อยากไป เจอคนที่อยากเจอ\nนั่งสมาธิ breathwork icebath ออนเซ็น นั่งชิวพักผ่อน ฟังเพลง\nคุยกับตัวเอง เขียนไดอารี่ สะท้อนตัวเอง inner work\nนวด ครอบแก้ว อบสมุนไพร อาบน้ำอุ่น ซาวน่า\nเสริมสวย ทำคิ้ว ทำผม ขัดผิว ทำเล็บ\nโยคะ พิลาทีส บาร์เล่ต์ เต้น มวย เล่นเวท ชี่กง ไทชิ ปั่นจักรยาน เดินเล่น\nดูหนัง อ่านหนังสือ สัมผัสธรรมชาติ เที่ยว ผจญภัย ปั้นเซรามิก วาดรูป\nแต่งตัวดูดี ใส่สบาย รู้สึกมั่นใจแบบผ่อนคลาย\nปรับกิจกรรม ความหนักเบา ตามพลังงาน\nพักหรือรีเซ็ตเมื่อรู้สึกเหนื่อย",
+why:"การตั้งใจใช้ชีวิตให้ดีทำให้รู้สึกชีวิตมีความหมาย เติมเต็ม มีพลังทำสิ่งตามเป้าหมายและสิ่งที่เป็นประโยชน์",
+assess:[{metric:"Habit tracker",target:"On momentum"},{metric:"Energy stability",target:"Yes"},{metric:"Nourishment moments",target:"2-3/month"},{metric:"Clutter & chaos level",target:"Yes"}],
+actions:[{id:301,text:"Refresh home environment",prio:"P0",date:"Jan 10",done:true},{id:302,text:"Complete learning/skill list + summary",prio:"P0",date:"",done:false},{id:303,text:"Plan personal retreat / workation",prio:"P1",date:"",done:false},{id:304,text:"Define joy lists",prio:"P1",date:"",done:false},{id:305,text:"Reflect - Review - Recalibrate (monthly)",prio:"P2",date:"",done:false},{id:306,text:"Define habits",prio:"P0",date:"Dec 25",done:true},{id:307,text:"Add alignment signals in reflection",prio:"P0",date:"Dec 1",done:true}],
+practices:[{id:311,text:"Self-care",freq:"daily"},{id:312,text:"Home reset",freq:"1/w"}],
+learning:[{id:321,text:"Restorative rhythm",done:true},{id:322,text:"Nourishing environment",done:true},{id:323,text:"Meaningful practice flow",done:true},{id:324,text:"Emotional & mental unwind",done:true},{id:325,text:"Embodied enjoyment",done:true},{id:326,text:"Frictionless learning",done:true},{id:327,text:"Live well protocol",done:true},{id:328,text:"Adaptive habit formation",done:true}]},
+4:{status:"in motion",
+vision:"Active และ passive income เดือนละ 84,000-1,000,000 บาท\nทั้งปีทำรายได้ 1,000,000-12,000,000 บาท\nเงินเก็บเดือนละ 10,000-730,000 บาท\nมีเงินสำรอง 100,000-300,000 บาท\nพอร์ตลงทุนเติบโตอย่างน้อย 10% ต่อปี\nใช้เงินได้อย่างสบายใจ คล่องตัว\nมีระบบทำรายได้ เก็บเงิน ออมเงิน ลงทุนโดยไม่รู้สึกฝืน\nมีแผนรายได้ รายจ่าย เก็บเงิน ลงทุน ระยะสั้น-ยาวที่ชัดเจน",
+why:"ความมั่งคั่งทำให้รู้สึกปลอดภัย มั่นคง ดูแลและพึ่งพาตัวเองได้ ใช้ชีวิตสบาย คล่องตัว เต็มที่ พัฒนาตัวเอง เปิดกว้างชีวิต ช่วยเหลือครอบครัวได้ เลือกเส้นทางชีวิตอย่างอิสระ ต่อยอดอนาคตได้",
+assess:[{metric:"Finance report",target:"On budget"},{metric:"Digital product ROI",target:"60,000/year"}],
+actions:[{id:401,text:"Complete learning/skill list + summary",prio:"P1",date:"",done:false},{id:402,text:"Launch Life OS digital product",prio:"P1",date:"",done:false},{id:403,text:"Get clarity 2025 income/expense/debt",prio:"P0",date:"Dec 31",done:true},{id:404,text:"Finance sheet 2026 - Design",prio:"P0",date:"Jan 24",done:true},{id:405,text:"Finance sheet 2026 - Automate",prio:"P0",date:"Jan 24",done:true},{id:406,text:"Finance sheet 2026 - Final",prio:"P0",date:"Jan 24",done:true},{id:407,text:"Build system - Review, Reflect, Protocol",prio:"P0",date:"Jan 24",done:true},{id:408,text:"Final flexible strategy for 2026",prio:"P0",date:"Dec 6",done:true},{id:409,text:"Adaptive finance plan",prio:"P0",date:"Dec 6",done:true},{id:410,text:"Define income stream: Active+Passive",prio:"P0",date:"Dec 6",done:true},{id:411,text:"Review & reflect finance 2025",prio:"P0",date:"Dec 6",done:true},{id:412,text:"Explore income stream and strategy",prio:"P0",date:"Dec 7",done:true},{id:413,text:"Draft Eva Finance Instruction",prio:"P0",date:"Dec 6",done:true},{id:414,text:"Final Eva Finance Instruction",prio:"P0",date:"Dec 8",done:true},{id:415,text:"List active + passive income potential",prio:"P0",date:"Dec 6",done:true},{id:416,text:"Investment 2025 review",prio:"P0",date:"Dec 7",done:true},{id:417,text:"Investment 2026 plan",prio:"P0",date:"Dec 7",done:true}],
+practices:[{id:421,text:"Work",freq:"daily"},{id:422,text:"Create, learn, apply, decide",freq:"daily"}],
+learning:[{id:431,text:"Money psychology",done:true},{id:432,text:"Money manifestation",done:true},{id:433,text:"Long term investment",done:false},{id:434,text:"Swing trading basics",done:false},{id:435,text:"Option basics",done:false},{id:436,text:"Advanced Nasdaq reading",done:false},{id:437,text:"Digital products design/setup/scale",done:false},{id:438,text:"Marketing + storytelling",done:false},{id:439,text:"Paid acquisition for digital products",done:false},{id:440,text:"High-ticket offer creation",done:false},{id:441,text:"Networking",done:false},{id:442,text:"Portfolio building",done:false},{id:443,text:"Automation",done:false},{id:444,text:"Agency model",done:false},{id:445,text:"Team building",done:false},{id:446,text:"Systems building",done:false},{id:447,text:"AI project management refinement",done:false}]},
+5:{status:"building",
+vision:"เป็นตัวเองได้ สบายใจ รู้สึกถึงคุณค่า เติบโตทางใจ จากทุกความสัมพันธ์\nรู้สึกอุ่นใจ ปลอดภัย แสดงความรักและหวังดีกับคนในครอบครัว\nใช้เวลาคุณภาพกับเพื่อน ๆ ตามขอบเขตและระดับความสนิทที่เหมาะสม\nทำงานเป็นทีมกับเพื่อนร่วมงานได้อย่างดี สื่อสารชัด มีเน็ตเวิร์คที่มีคุณภาพ\nโสดอย่างมีความสุข รักและเห็นคุณค่าตัวเอง เปิดรับความสัมพันธ์ที่ดี\nมีคนรักที่ไปด้วยกันได้ ไว้ใจได้ ใจดี ฉลาด ฐานะมั่นคง เป็นผู้ใหญ่ ดูแลตัวเอง",
+why:"ความสัมพันธ์ที่ดีกับคนรอบตัว รู้ว่ามีคนอยู่ข้าง ๆ เสมอ ส่งเสริมความมั่นคงทางใจ รู้สึกชีวิตมีความหมายและมีคุณค่า สบายใจ มีกำลังใจ",
+assess:[{metric:"Emotional ease",target:"Yes"},{metric:"Meaningful interactions",target:"2-3/month"},{metric:"Boundary health check",target:"Yes"},{metric:"Communication capacity",target:"Yes"},{metric:"Emotional stability in connection",target:"Yes"}],
+actions:[{id:501,text:"Practice communication capacity",prio:"P1",date:"",done:false},{id:502,text:"Define connection principles",prio:"P0",date:"Jan 24",done:true},{id:503,text:"Complete learning/skill list + summary",prio:"P0",date:"Jan 24",done:true}],
+practices:[{id:511,text:"Connect meaningfully",freq:"1/w"}],
+learning:[{id:521,text:"Relational self-worth",done:true},{id:522,text:"Pacing & emotional safety",done:true},{id:523,text:"Authentic expression",done:true},{id:524,text:"Reading people",done:true},{id:525,text:"Relational leadership",done:true},{id:526,text:"Attraction discernment",done:true},{id:527,text:"Attachment style",done:true},{id:528,text:"Trust & protection",done:true},{id:529,text:"Connection depth",done:true},{id:530,text:"Context application",done:true}]},
+6:{status:"not started",vision:"การใช้แพลนเนอร์ทำให้ทำตามเป้าหมายได้สำเร็จ\nแชร์แพลนเนอร์แล้วช่วยพัฒนาให้ชีวิตคนอื่นดีขึ้น\nขายแพลนเนอร์ได้",why:"การมีเครื่องมีอที่ช่วยให้ทำตามเป้าหมายได้สำเร็จ ทำให้รู้สึกภูมิใจ เป็นประโยชน์ และมีคุณค่า",assess:[{metric:"Test and see that it works",target:""}],actions:[{id:601,text:"Create contact AltSpace 45 days before",prio:"P0",date:"",done:false}],practices:[],learning:[]},
+7:{status:"someday",vision:"ได้ทำงานในที่ที่เห็นวิวภูเขาหิมาลัย\nได้ใช้ชีวิตเรียบง่าย สนุก\nได้รู้จักเพื่อนใหม่ ๆ",why:"การเปิดหูเปิดตา เปลี่ยนบรรยากาศ อยู่ในที่ใหม่ เจอเพื่อนใหม่ ๆ ทำให้รู้สึกตื่นตัว และมีความสุข",assess:[{metric:"Accommodation available",target:""},{metric:"Allocate budget",target:"THB 500,000"},{metric:"Stable income stream",target:"THB 160,000"}],actions:[{id:701,text:"Define when conditions unlocked",prio:"P0",date:"",done:false},{id:702,text:"Use Apply for VISA",prio:"P0",date:"",done:false},{id:703,text:"Refine",prio:"P0",date:"",done:false},{id:704,text:"Test",prio:"P0",date:"",done:false},{id:705,text:"Launch",prio:"P0",date:"",done:false},{id:706,text:"Scale AI travel request",prio:"P0",date:"",done:false},{id:707,text:"Book flight",prio:"P0",date:"",done:false},{id:708,text:"Book accommodation",prio:"P0",date:"",done:false},{id:709,text:"Book airport pick-up",prio:"P0",date:"",done:false}],practices:[],learning:[]},
+8:{status:"in motion",vision:"ได้จัดฟัน Kilbon พบหมอทุก 3 สัปดาห์",why:"เพื่อให้ฟันเรียงตัวสวย โครงหน้าสมดุล",assess:[{metric:"Stay in Thailand 2 years",target:""},{metric:"A sense of safety",target:""}],actions:[{id:801,text:"Check-in Feb 1",prio:"P0",date:"Feb 1",done:true}],practices:[],learning:[]},
+9:{status:"someday",vision:"ได้ปลดปล่อยและเรียนรู้การจัดการระบบความคิด ความรู้สึก",why:"การรีเซ็ทตัวเอง ทำให้ใช้ชีวิตได้ลื่นไหล การปลดปล่อยตัวเอง การรู้จักตัวเอง และการมีสกิลจัดการตัวเอง ทำให้ใช้ชีวิตได้ดีขึ้น ทำตามสิ่งที่สอดคล้องเป้าหมายได้ดีขึ้น",assess:[{metric:"Budget A - EMDR Bangkok",target:"THB 15,000"},{metric:"Budget B - Wellness Bali",target:"THB 50,000"},{metric:"Budget C - Psilocybin Netherlands",target:"THB 300,000"},{metric:"Budget D - Vipassana Retreat",target:"THB 30,000"}],actions:[{id:901,text:"Define when conditions unlocked",prio:"P0",date:"",done:false},{id:902,text:"Vipassana Meditation Retreat",prio:"P0",date:"Dec 20",done:true},{id:903,text:"Get insurance",prio:"P0",date:"",done:false},{id:904,text:"Prepare for moving",prio:"P0",date:"",done:false}],practices:[],learning:[{id:911,text:"Vipassana: Awareness, Suffering, Attachment",done:true}]},
+10:{status:"not started",vision:"เขียนแก้จบ\nอ่านแล้วรู้สึกอินกับเรื่องที่แต่ง\nมีคนที่อ่านแล้วชอบ",why:"ฉันเกิดมาเพื่อเขียนเรื่องราวที่ขับเคลื่อนความรู้สึกและจิตใจคนอ่าน",assess:[],actions:[{id:1001,text:"Define when conditions unlocked",prio:"P0",date:"",done:false}],practices:[],learning:[]},
+11:{status:"not started",vision:"สร้างช่อง\nมีคนติดตาม 100K\nได้รายได้อย่างน้อยเดือนละ 2,000K",why:"อยากช่วยให้คนอื่นจัดการสภาวะจิตใจตัวเอง ใช้ชีวิตต่อตามความตั้งใจ",assess:[],actions:[{id:1101,text:"Choose name",prio:"P0",date:"",done:false},{id:1102,text:"Create channel",prio:"P0",date:"",done:false},{id:1103,text:"Set up branding in Canva",prio:"P0",date:"",done:false},{id:1104,text:"Sign up Suno Pro",prio:"P0",date:"",done:false},{id:1105,text:"Generate first 5 tracks",prio:"P0",date:"",done:false},{id:1106,text:"Install Audacity + CapCut",prio:"P0",date:"",done:false},{id:1107,text:"Practice extending tracks",prio:"P0",date:"",done:false},{id:1108,text:"Record voice intros for first 3 videos",prio:"P0",date:"",done:false},{id:1109,text:"Upload Video #1-5",prio:"P0",date:"",done:false},{id:1110,text:"Sign up DistroKid",prio:"P0",date:"",done:false},{id:1111,text:"Create Track 1: Coming home to Safety",prio:"P0",date:"",done:false},{id:1112,text:"Create Track 2: Softening the Fight Response",prio:"P0",date:"",done:false}],practices:[],learning:[]},
+12:{status:"not started",vision:"",why:"",assess:[],actions:[],practices:[],learning:[]}};
+
+function GoalCard({g,isOpen,onToggle,data}){
+  const d=data||{};
+  const status=d.status||"not started";
+  const sc=STATUS_CFG[status]||STATUS_CFG["not started"];
+  return(<div onClick={onToggle} style={{padding:"12px 14px",marginBottom:4,cursor:"pointer",borderRadius:4,background:isOpen?sc.bg:sc.bg,border:isOpen?`1.5px solid ${sc.c}40`:"1.5px solid transparent",transition:"all 0.15s"}}>
+    <div style={{fontFamily:F.sans,fontSize:14,fontWeight:isOpen?600:500,color:C.tx}}>{g.title}</div>
+    <div style={{fontSize:10,color:sc.c,fontWeight:500,marginTop:3}}>{status}</div>
+  </div>);
+}
+function GoalDetail({g,data,setData}){
+  const[showCtx,setShowCtx]=useState(false);const[showDoneA,setShowDoneA]=useState(true);const[showDoneL,setShowDoneL]=useState(true);
+  const d=data||{vision:"",why:"",assess:[],actions:[],practices:[],learning:[],status:"seeding"};
+  const set=(field,val)=>setData({...d,[field]:val});
+  const actions=d.actions||[];const practices=d.practices||[];const learning=d.learning||[];
+  const doneActions=actions.filter(a=>a.done);const todoActions=actions.filter(a=>!a.done).sort((a,b)=>{const ord={P0:0,P1:1,P2:2};return(ord[a.prio]??1)-(ord[b.prio]??1);});
+  const LEARN_STATUS=["done","applied","integrated"];
+  const doneLearning=learning.filter(l=>l.done||l.status);const todoLearning=learning.filter(l=>!l.done&&!l.status);
+  const totalDone=doneActions.length+doneLearning.length;const totalAll=actions.length+learning.length;
+  const addAction=()=>set("actions",[...actions,{id:Date.now(),text:"",prio:"P0",date:"",done:false}]);
+  const addPractice=()=>set("practices",[...practices,{id:Date.now(),text:"",freq:"daily"}]);
+  const addLearning=()=>set("learning",[...learning,{id:Date.now(),text:"",done:false}]);
+  const updAction=(id,f,v)=>set("actions",actions.map(a=>a.id===id?{...a,[f]:v}:a));
+  const updPractice=(id,f,v)=>set("practices",practices.map(p=>p.id===id?{...p,[f]:v}:p));
+  const updLearning=(id,f,v)=>set("learning",learning.map(l=>l.id===id?{...l,[f]:v}:l));
+  const rmPractice=(id)=>set("practices",practices.filter(p=>p.id!==id));
+  const rmLearning=(id)=>set("learning",learning.filter(l=>l.id!==id));
+  const addAssess=()=>set("assess",[...(d.assess||[]),{metric:"",target:""}]);
+  const PRIO_LIST=["P0","P1","P2"];
+  const prioColors={P0:{bg:C.redBg,c:C.red},P1:{bg:C.yellowBg,c:"#856d0a"},P2:{bg:C.bgS,c:C.txS}};
+  const cyclePrio=(id,cur)=>{const c=cur==="P0"?"P0":cur;const idx=PRIO_LIST.indexOf(c);const next=PRIO_LIST[(idx+1)%PRIO_LIST.length];updAction(id,"prio",next);};
+  const cycleLearnStatus=(id,cur)=>{const idx=LEARN_STATUS.indexOf(cur||"done");const next=LEARN_STATUS[(idx+1)%LEARN_STATUS.length];updLearning(id,"status",next);updLearning(id,"done",true);};
+  const learnStatusCfg={done:{bg:C.yellowBg,c:"#856d0a"},applied:{bg:C.blueBg,c:C.blue},integrated:{bg:C.greenBg,c:C.green}};
+  const statusOpts=STATUS_OPTS;const stCfg=STATUS_CFG;
+  const lineS={padding:"5px 0",borderBottom:`1px solid ${C.bdr}`,display:"flex",alignItems:"center",gap:8};
+  const txtS={fontSize:13,color:C.tx,flex:1,background:"transparent",border:"none",outline:"none",fontFamily:F.sans,padding:0,minWidth:0};
+  const secHdr=(label,onAdd)=>(<div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between",alignItems:"center"}}><span>{label}</span><span onClick={onAdd} style={{cursor:"pointer",fontSize:14,fontWeight:400,color:C.txT}}>+</span></div>);
+  const chipS=(bg,c)=>({fontSize:9,fontWeight:600,padding:"1px 6px",borderRadius:8,background:bg,color:c,cursor:"pointer",flexShrink:0,userSelect:"none"});
+  const chkBox=<svg width="7" height="5" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+  const inp4={border:`1px solid ${C.bdr}`,borderRadius:3,padding:"4px 6px",fontFamily:F.sans,fontSize:12,color:C.tx,background:"transparent",outline:"none",boxSizing:"border-box"};
+  const displayPrio=(p)=>p==="P0"?"P0":p;
+  const prioColor=(p)=>prioColors[p==="P0"?"P0":p]||prioColors.P0;
+  return(<div style={{marginTop:8,paddingTop:16}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+      <span style={{fontFamily:F.serif,fontSize:18,fontWeight:600}}>{g.title}</span>
+      <div style={{display:"flex",gap:8,alignItems:"center"}}>
+        {totalAll>0&&<span style={{fontSize:11,color:C.txT}}>{totalDone}/{totalAll} done</span>}
+        <select value={d.status||"not started"} onChange={e=>set("status",e.target.value)} style={{padding:"3px 8px",borderRadius:12,fontSize:11,fontWeight:600,border:`1px solid ${C.bdr}`,background:(stCfg[d.status||"not started"]||stCfg["not started"]).bg,color:(stCfg[d.status||"not started"]||stCfg["not started"]).c,cursor:"pointer",outline:"none",fontFamily:F.sans}}>{statusOpts.map(s=><option key={s} value={s}>{s}</option>)}</select>
+        <span onClick={()=>setShowCtx(!showCtx)} style={{fontSize:11,color:C.txT,cursor:"pointer",padding:"3px 8px",border:`1px solid ${C.bdr}`,borderRadius:4}}>{showCtx?"hide context":"context"}</span>
+      </div>
+    </div>
+    {showCtx&&<div style={{background:C.bgS,borderRadius:4,padding:"12px 16px",marginBottom:16}}>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:20}}>
+        <div>
+          <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:4,textTransform:"uppercase",letterSpacing:"0.04em"}}>Vision</div>
+          <textarea value={d.vision||""} onChange={e=>set("vision",e.target.value)} rows={3} placeholder="How does accomplishing this look like?" style={{...inp4,width:"100%",fontSize:12,resize:"vertical",lineHeight:1.5}}/>
+          <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:4,marginTop:10,textTransform:"uppercase",letterSpacing:"0.04em"}}>Why</div>
+          <textarea value={d.why||""} onChange={e=>set("why",e.target.value)} rows={2} placeholder="Why does this matter?" style={{...inp4,width:"100%",fontSize:12,resize:"vertical",lineHeight:1.5}}/>
+        </div>
+        <div>
+          <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between"}}><span>Assess</span><span onClick={addAssess} style={{cursor:"pointer",fontSize:12,fontWeight:400}}>+</span></div>
+          {(d.assess||[]).map((a,i)=>(<div key={i} style={{padding:"4px 0",borderBottom:`1px solid ${C.bdr}`,display:"flex",alignItems:"center",gap:8}}>
+            <input value={a.metric} onChange={e=>{const u=[...(d.assess||[])];u[i]={...u[i],metric:e.target.value};set("assess",u);}} style={{...txtS,fontSize:12,fontWeight:500}} placeholder="Metric"/>
+            <input value={a.target} onChange={e=>{const u=[...(d.assess||[])];u[i]={...u[i],target:e.target.value};set("assess",u);}} style={{...txtS,fontSize:12,color:C.txS,textAlign:"right",flex:"0 0 auto",width:100}} placeholder="Target"/>
+          </div>))}
+        </div>
+        <div>
+          <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between"}}><span>Practices</span><span onClick={addPractice} style={{cursor:"pointer",fontSize:12,fontWeight:400}}>+</span></div>
+          {practices.map((p,i)=>(<div key={p.id} style={{padding:"4px 0",borderBottom:`1px solid ${C.bdr}`,display:"flex",alignItems:"center",gap:8}}>
+            <input value={p.text} onChange={e=>updPractice(p.id,"text",e.target.value)} style={{...txtS,fontSize:12}} placeholder="Practice..."/>
+            <span onClick={()=>{const freqs=["daily","5/w","3/w","1/w","1/m"];const idx=freqs.indexOf(p.freq);updPractice(p.id,"freq",freqs[(idx+1)%freqs.length]);}} style={{fontSize:11,color:C.txT,cursor:"pointer",flexShrink:0}}>{p.freq||"daily"}</span>
+            <span onClick={()=>rmPractice(p.id)} style={{cursor:"pointer",fontSize:11,color:C.txT,flexShrink:0}}>x</span>
+          </div>))}
+        </div>
+      </div>
+    </div>}
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24,alignItems:"start"}}>
+      <div>
+        {secHdr("Actions",addAction)}
+        {todoActions.map(a=>(<div key={a.id} style={lineS}>
+          <span onClick={()=>cyclePrio(a.id,a.prio)} style={chipS(prioColor(a.prio).bg,prioColor(a.prio).c)}>{displayPrio(a.prio)}</span>
+          <input value={a.text} onChange={e=>updAction(a.id,"text",e.target.value)} style={txtS} placeholder="Action..."/>
+          <div onClick={()=>updAction(a.id,"done",true)} style={{width:13,height:13,borderRadius:3,border:`1.5px solid ${C.bdrH}`,cursor:"pointer",flexShrink:0}}/>
+        </div>))}
+        {doneActions.length>0&&<div style={{background:C.bgS,borderRadius:4,padding:"6px 10px",marginTop:4}}>
+          <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",cursor:"pointer",padding:"2px 0"}} onClick={()=>setShowDoneA(!showDoneA)}>
+            <span style={{fontSize:8,color:C.txT,transform:showDoneA?"rotate(180deg)":"rotate(0deg)",transition:"transform 0.15s",lineHeight:1}}>{"\u25BC"}</span>
+          </div>
+          {showDoneA&&doneActions.map((a,i)=>(<div key={a.id} style={{padding:"4px 0",display:"flex",alignItems:"center",gap:6,borderBottom:i<doneActions.length-1?`1px solid ${C.bdr}`:"none"}}>
+            <div onClick={()=>updAction(a.id,"done",false)} style={{width:13,height:13,borderRadius:3,background:C.green,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0}}>{chkBox}</div>
+            <span style={{fontSize:12,color:C.txT,textDecoration:"line-through",flex:1}}>{a.text}</span>
+            {a.date&&<span style={{fontSize:10,color:C.txT,flexShrink:0}}>{a.date}</span>}
+          </div>))}
+        </div>}
+      </div>
+      <div>
+        {secHdr("Learning",addLearning)}
+        {todoLearning.map(l=>(<div key={l.id} style={lineS}>
+          <input value={l.text} onChange={e=>updLearning(l.id,"text",e.target.value)} style={txtS} placeholder="Skill..."/>
+          <span onClick={()=>rmLearning(l.id)} style={{cursor:"pointer",fontSize:11,color:C.txT,flexShrink:0}}>x</span>
+        </div>))}
+        {doneLearning.length>0&&<div style={{background:C.bgS,borderRadius:4,padding:"6px 10px",marginTop:4}}>
+          <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",cursor:"pointer",padding:"2px 0"}} onClick={()=>setShowDoneL(!showDoneL)}>
+            <span style={{fontSize:8,color:C.txT,transform:showDoneL?"rotate(180deg)":"rotate(0deg)",transition:"transform 0.15s",lineHeight:1}}>{"\u25BC"}</span>
+          </div>
+          {showDoneL&&doneLearning.map((l,i)=>{const st=l.status||"done";const sc=learnStatusCfg[st]||learnStatusCfg.done;return(<div key={l.id} style={{padding:"4px 0",display:"flex",alignItems:"center",gap:6,borderBottom:i<doneLearning.length-1?`1px solid ${C.bdr}`:"none"}}>
+            <span style={{fontSize:12,color:C.txT,flex:1}}>{l.text}</span>
+            <span onClick={()=>cycleLearnStatus(l.id,st)} style={chipS(sc.bg,sc.c)}>{st}</span>
+          </div>);})}
+        </div>}
+      </div>
+    </div>
+  </div>);
+}
+function GoalsTab(){
+  const[data,setData]=useState({});const[loaded,setLoaded]=useState(false);const[activeGoal,setActiveGoal]=useState(null);const[view,setView]=useState("goals");
+  useEffect(()=>{(async()=>{const d=await osLoad("goals-v2",{});const seeded=d._seeded_v3;if(!seeded){const s={_seeded_v3:true};Object.entries(GOAL_SEED).forEach(([k,v])=>{s[k]=v;});setData(s);osSave("goals-v2",s);}else{setData(d);}setLoaded(true);})();},[]);
+  useEffect(()=>{if(!loaded)return;osSave("goals-v2",data);},[data,loaded]);
+  const cores=LIFE_GOALS.filter(g=>g.cat==="core"||g.cat==="career");
+  const projects=LIFE_GOALS.filter(g=>g.cat==="project");
+  const experiences=LIFE_GOALS.filter(g=>g.cat==="experience");
+  const allGoals=[...cores,...projects,...experiences];
+  const activeG=LIFE_GOALS.find(g=>g.n===activeGoal);
+  const activeIdx=allGoals.findIndex(g=>g.n===activeGoal);
+  const catColor={core:C.purple,career:C.purple,project:C.gold,experience:C.ocean};
+  const catLabel={core:"Core",career:"Core",project:"Project",experience:"Experience"};
+  const prevG=activeIdx>0?allGoals[activeIdx-1]:null;
+  const nextG=activeIdx<allGoals.length-1?allGoals[activeIdx+1]:null;
+  const openGoal=(n)=>{setActiveGoal(n);setView("plans");};
+  const backToGrid=()=>{setActiveGoal(null);setView("goals");};
+  const addGoal=(cat)=>{const maxN=Math.max(...LIFE_GOALS.map(g=>g.n),0);const newG={n:maxN+100+Math.floor(Math.random()*900),title:"New goal",short:"New",cat};LIFE_GOALS.push(newG);setData(p=>({...p}));};
+  const firstGoal=allGoals[0];
+
+  const hdr=<div style={{marginBottom:12}}>
+    <H1 style={{margin:"0 0 8px"}}>2026 Goals</H1>
+    <div style={{display:"flex",gap:0,borderBottom:`1px solid ${C.bdr}`}}>{[{k:"goals",l:"Goals"},{k:"plans",l:"Plans"}].map((t,i)=>(<button key={t.k} onClick={()=>{setView(t.k);if(t.k==="goals")setActiveGoal(null);if(t.k==="plans"&&!activeGoal&&firstGoal)setActiveGoal(firstGoal.n);}} style={{padding:`6px 14px 6px ${i===0?0:14}px`,border:"none",background:"none",fontFamily:F.sans,fontSize:13,fontWeight:view===t.k?600:400,color:view===t.k?C.tx:C.txT,cursor:"pointer",borderBottom:view===t.k?`2px solid ${C.tx}`:"2px solid transparent",marginBottom:-1}}>{t.l}</button>))}</div>
+  </div>;
+
+  const planGoal=activeG||(firstGoal?LIFE_GOALS.find(g=>g.n===firstGoal.n):null);
+
+  if(view==="plans"&&planGoal){
+    return(<div>{hdr}
+    <div style={{display:"flex",alignItems:"center",gap:0,padding:"6px 0",marginBottom:8,overflowX:"auto",flexWrap:"nowrap",borderBottom:`1px solid ${C.bdr}`}}>
+      {[{goals:cores,color:C.purple},{goals:projects,color:C.gold},{goals:experiences,color:C.ocean}].map((grp,gi)=>(<div key={gi} style={{display:"flex",alignItems:"center",gap:0,flexShrink:0}}>
+        {gi>0&&<span style={{fontSize:11,fontWeight:700,color:C.tx,padding:"0 3px",flexShrink:0}}>/</span>}
+        {grp.goals.map((g,i)=>(<span key={g.n} style={{display:"flex",alignItems:"center",flexShrink:0}}>
+          {i>0&&<span style={{fontSize:11,color:C.txT,padding:"0 1px",flexShrink:0}}>/</span>}
+          <span onClick={()=>setActiveGoal(g.n)} style={{fontSize:12,fontWeight:planGoal.n===g.n?600:400,color:planGoal.n===g.n?C.tx:C.txT,cursor:"pointer",padding:"3px 6px",whiteSpace:"nowrap",borderBottom:planGoal.n===g.n?`2px solid ${grp.color}`:"2px solid transparent",marginBottom:-1}}>{g.short}</span>
+        </span>))}
+      </div>))}</div>
+    <GoalDetail g={planGoal} data={data[planGoal.n]} setData={v=>setData(p=>({...p,[planGoal.n]:v}))}/>
+  </div>);}
+
+  return(<div>{hdr}
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,borderBottom:`1px solid ${C.bdr}`,marginBottom:12}}>{[{l:"Core",color:C.purple,cat:"core"},{l:"Project",color:C.gold,cat:"project"},{l:"Experience",color:C.ocean,cat:"experience"}].map(c=>(<div key={c.l} style={{display:"flex",alignItems:"center",gap:0}}><span style={{padding:"6px 0",fontFamily:F.sans,fontSize:13,fontWeight:600,color:c.color}}>{c.l}</span><span onClick={()=>addGoal(c.cat)} style={{cursor:"pointer",fontSize:14,color:c.color,padding:"6px 6px"}}>+</span></div>))}</div>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,alignItems:"start"}}>
+      <div>{cores.map(g=>(<GoalCard key={g.n} g={g} data={data[g.n]} isOpen={false} onToggle={()=>openGoal(g.n)}/>))}</div>
+      <div>{projects.map(g=>(<GoalCard key={g.n} g={g} data={data[g.n]} isOpen={false} onToggle={()=>openGoal(g.n)}/>))}</div>
+      <div>{experiences.map(g=>(<GoalCard key={g.n} g={g} data={data[g.n]} isOpen={false} onToggle={()=>openGoal(g.n)}/>))}</div>
+    </div>
+  </div>);
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// HABITS TAB (existing, unchanged)
 // ══════════════════════════════════════════════════════════════
 
 const HABIT_SECTIONS = [
@@ -64,10 +291,6 @@ const HABIT_SECTIONS = [
 
 const MARCH_SEED = {"1_work":true,"2_work":true,"3_work":true,"4_work":true,"5_work":true,"6_work":true,"7_work":true,"8_work":true,"9_work":true,"10_work":true,"11_work":true,"12_work":true,"13_work":true,"14_work":true,"15_work":true,"16_work":true,"17_work":true,"18_work":true,"19_work":true,"20_work":true,"21_work":true,"22_work":true,"23_work":true,"24_work":true,"25_work":true,"1_create":true,"2_create":true,"3_create":true,"4_create":true,"5_create":true,"6_create":true,"7_create":true,"8_create":true,"9_create":true,"10_create":true,"11_create":true,"12_create":true,"13_create":true,"14_create":true,"15_create":true,"16_create":true,"17_create":true,"18_create":true,"19_create":true,"20_create":true,"21_create":true,"22_create":true,"23_create":true,"24_create":true,"25_create":true,"1_daytype":"B","2_daytype":"B","3_daytype":"B","4_daytype":"B","5_daytype":"B","6_daytype":"B","7_daytype":"B","8_daytype":"B","9_daytype":"B","10_daytype":"B","11_daytype":"B","12_daytype":"B","13_daytype":"B","14_daytype":"B","15_daytype":"B","16_daytype":"B","17_daytype":"B","18_daytype":"B","19_daytype":"B","20_daytype":"B","21_daytype":"X","22_daytype":"B","23_daytype":"B","24_daytype":"B","25_daytype":"B","9_sleep":"6","10_sleep":"6","11_sleep":"6","12_sleep":"6","13_sleep":"7","14_sleep":"7","15_sleep":"7","16_sleep":"7","17_sleep":"7","18_sleep":"7","19_sleep":"6","20_sleep":"6","21_sleep":"6","22_sleep":"6","23_sleep":"6","24_sleep":"6","25_sleep":"6","13_connect":true,"20_connect":true,"21_connect":true,"22_connect":true,"23_connect":true,"24_connect":true,"25_connect":true,"18_selfcare":true,"19_selfcare":true,"22_selfcare":true,"23_selfcare":true,"13_statecheck":true,"14_statecheck":true,"15_statecheck":true,"16_statecheck":true,"17_statecheck":true,"18_statecheck":true,"19_statecheck":true,"20_statecheck":true,"21_statecheck":true,"22_statecheck":true,"23_statecheck":true,"24_statecheck":true,"25_statecheck":true,"18_mood":"1","19_mood":"2","20_mood":"2","21_mood":"2","22_mood":"2","23_mood":"1","24_mood":"2","25_mood":"2","1_meditation":true,"1_selfcare":true,"2_selfcare":true,"1_statecheck":true};
 
-// ══════════════════════════════════════════════════════════════
-// NEW: PROMPT TEMPLATES - Few-shot + Chain-of-thought
-// ══════════════════════════════════════════════════════════════
-
 const FEW_SHOT_EXAMPLE = `Here is an example of a good response:
 {"reasoning":"Sleep averaged 6.8h which is borderline. Berberine compliance is 0% while glucose was 105 last blood work, creating a direct risk. Work at 100% with declining sleep suggests unsustainable pace. Bright spots: state check consistency at 100% and daily creative work show strong routine.","overall_score":6,"sleep_avg":6.8,"sleep_trend":"declining","water_avg":1.5,"supplement_compliance":"20%","top_pattern":"High work output masking declining recovery metrics","concern":"Zero berberine compliance with elevated glucose is the exact pattern that led to the 211 spike","recommendation":"Take berberine with lunch today. Non-negotiable. Set a phone alarm.","wins":["State check streak shows strong self-awareness","Creative work every single day"],"flags":["Berberine compliance at 0%"],"weekly_summary":"A productive but unsustainable week. Work intensity stayed at 100% while sleep declined from 7h to 6.2h. Supplement protocol is barely active, with berberine completely missing despite elevated glucose.","trend_insight":"Sleep dropped 0.8h from last week while work stayed constant, suggesting the system is borrowing from recovery to fuel output."}`;
 
@@ -100,7 +323,6 @@ Respond ONLY with a JSON object (no markdown, no backticks), with this exact str
   "trend_insight": "<one sentence comparing this week to last week>"
 }`;
 
-// Prompt V2 for A/B testing - more aggressive, clinical tone
 const PROMPT_V2 = (data) => `You are a clinical health data analyst. Evaluate this patient's weekly data with zero sugar-coating. Flag every risk. No em-dashes.
 
 ${JSON.stringify(data, null, 2)}
@@ -121,10 +343,6 @@ Respond ONLY with JSON (no markdown, no backticks):
   "weekly_summary": "<2-3 sentences>",
   "trend_insight": "<one sentence>"
 }`;
-
-// ══════════════════════════════════════════════════════════════
-// NEW: TOOL DEFINITIONS for Claude
-// ══════════════════════════════════════════════════════════════
 
 const HEALTH_TOOLS = [
   {
@@ -168,21 +386,14 @@ const HEALTH_TOOLS = [
   }
 ];
 
-// ══════════════════════════════════════════════════════════════
-// EXISTING: HABITS TAB (unchanged from your current code)
-// ══════════════════════════════════════════════════════════════
-
 function HabitsTab(){
   const[viewDate,setViewDate]=useState(new Date().toISOString().slice(0,7));
   const[data,setData]=useState({});
   const[loaded,setLoaded]=useState(false);
-  const[canSave,setCanSave]=useState(false);
   const getDays=(ym)=>{const[y,m]=ym.split("-").map(Number);return new Date(y,m,0).getDate();};
-
 
   useEffect(()=>{(async()=>{
     const stored = await osLoad("habits2_"+viewDate,{});
-    // If March 2026, merge seed (stored data takes priority)
     if (viewDate === "2026-03") {
       const merged = { ...MARCH_SEED };
       Object.keys(stored).forEach(k => { if (stored[k] !== undefined && stored[k] !== false && stored[k] !== "-") merged[k] = stored[k]; });
@@ -240,43 +451,6 @@ function HabitsTab(){
   const cellS={width:17,height:17,borderRadius:3,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:8,fontWeight:600,cursor:"pointer",userSelect:"none",fontFamily:F.mono,flexShrink:0};
   const chkS={...cellS,width:15,height:15};
 
-  const seedMarch = () => {
-    if (viewDate !== "2026-03") { alert("Switch to March 2026 first"); return; }
-    const seed = {};
-    for (let d = 1; d <= 25; d++) seed[`${d}_work`] = true;
-    for (let d = 1; d <= 25; d++) seed[`${d}_create`] = true;
-    for (let d = 1; d <= 25; d++) seed[`${d}_daytype`] = d === 21 ? "X" : "B";
-    for (let d = 9; d <= 12; d++) seed[`${d}_sleep`] = "6";
-    for (let d = 13; d <= 17; d++) seed[`${d}_sleep`] = "7";
-    seed["18_sleep"] = "7";
-    for (let d = 19; d <= 25; d++) seed[`${d}_sleep`] = "6";
-    seed["13_connect"] = true;
-    seed["20_connect"] = true;
-    seed["21_connect"] = true;
-    seed["22_connect"] = true;
-    seed["23_connect"] = true;
-    seed["24_connect"] = true;
-    seed["25_connect"] = true;
-    seed["18_selfcare"] = true;
-    seed["19_selfcare"] = true;
-    seed["22_selfcare"] = true;
-    seed["23_selfcare"] = true;
-    for (let d = 13; d <= 25; d++) seed[`${d}_statecheck`] = true;
-    seed["18_mood"] = "1";
-    seed["19_mood"] = "2";
-    seed["20_mood"] = "2";
-    seed["21_mood"] = "2";
-    seed["22_mood"] = "2";
-    seed["23_mood"] = "1";
-    seed["24_mood"] = "2";
-    seed["25_mood"] = "2";
-    setData(p => {
-      const merged = { ...seed };
-      Object.keys(p).forEach(k => { if (p[k] !== undefined && p[k] !== false && p[k] !== "-") merged[k] = p[k]; });
-      return merged;
-    });
-  };
-
   return(<div><H1>Habits</H1>
     <div style={{display:"flex",gap:14,alignItems:"center",marginBottom:16}}>
       <input type="month" value={viewDate} onChange={e=>{setViewDate(e.target.value);setLoaded(false);}} style={{border:`1px solid ${C.bdr}`,borderRadius:4,padding:"8px 12px",fontSize:14,color:C.tx,background:C.bgS,outline:"none",fontFamily:F.sans}}/>
@@ -320,7 +494,7 @@ function HabitsTab(){
   </div>);}
 
 // ══════════════════════════════════════════════════════════════
-// EXISTING: METRICS TAB (unchanged)
+// METRICS TAB (existing, unchanged)
 // ══════════════════════════════════════════════════════════════
 
 const BLOOD_MARKERS = [
@@ -479,7 +653,7 @@ function MetricsTab() {
 }
 
 // ══════════════════════════════════════════════════════════════
-// EXISTING: PROTOCOL TAB (unchanged)
+// PROTOCOL TAB (existing, unchanged)
 // ══════════════════════════════════════════════════════════════
 
 const PROTOCOL_DATA = [
@@ -531,8 +705,7 @@ function ProtocolTab() {
 }
 
 // ══════════════════════════════════════════════════════════════
-// NEW: ENHANCED HEALTH OFFICER TAB
-// (Replaces old HealthOfficerTab with streaming, tool use, A/B, chat)
+// HEALTH OFFICER TAB (existing, unchanged)
 // ══════════════════════════════════════════════════════════════
 
 function HealthOfficerTab() {
@@ -542,7 +715,6 @@ function HealthOfficerTab() {
   const [rawJSON, setRawJSON] = useState(null);
   const [showRaw, setShowRaw] = useState(false);
   const [showReasoning, setShowReasoning] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
   const [alerts, setAlerts] = useState([]);
   const [trends, setTrends] = useState(null);
   const [history, setHistory] = useState([]);
@@ -773,16 +945,6 @@ function HealthOfficerTab() {
     setChatLoading(false);
   };
 
-  const sendSlackAlert = async () => {
-    if (!analysis) return;
-    try {
-      const emoji = analysis.overall_score >= 8 ? "+" : analysis.overall_score >= 5 ? "!" : "X";
-      const text = `[${emoji}] Health Report (Score: ${analysis.overall_score}/10)\nSleep: ${analysis.sleep_avg || "-"}h | Supplements: ${analysis.supplement_compliance || "-"}\nConcern: ${analysis.concern}\nAction: ${analysis.recommendation}`;
-      await fetch("/api/slack-notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) });
-      alert("Sent to Slack!");
-    } catch (err) { alert("Slack failed: " + err.message); }
-  };
-
   const saveToHistory = (parsed, raw, alerts, source = "manual") => {
     const entry = { timestamp: new Date().toISOString(), analysis: parsed, alerts: alerts || [], rawJSON: raw, source, rating: null };
     setHistory(p => [entry, ...p].slice(0, 20));
@@ -817,7 +979,6 @@ function HealthOfficerTab() {
 
     <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 20, flexWrap: "wrap" }}>
       {osBtn({ children: loading || isStreaming || abLoading ? "Analyzing..." : "Run analysis", onClick: runAnalysis, disabled: loading || isStreaming || abLoading })}
-      {analysis && osBtn({ children: "Send to Slack", onClick: sendSlackAlert, variant: "ghost", style: { padding: "9px 14px" } })}
     </div>
 
     {alerts.length > 0 && (<div style={{ marginBottom: 16 }}>
@@ -966,8 +1127,75 @@ function BodyPage() {
   </div>);
 }
 
+
+// ══════════════════════════════════════════════════════════════
+// MAIN APP - Left sidebar with Goals + Body
+// ══════════════════════════════════════════════════════════════
+
+const NAV_ITEMS = [
+  { k: "goals", l: "Goals" },
+  { k: "body", l: "Body" },
+];
+
 export default function App() {
-  return (<div style={{ minHeight: "100vh", background: "#fff", color: "#1a1a1a", fontFamily: '"Karla","system-ui",sans-serif', padding: "32px 48px" }}>
-    <BodyPage />
-  </div>);
+  return <ThemeCtx>{({ dark, toggle, C: theme }) => <AppInner dark={dark} toggle={toggle} theme={theme} />}</ThemeCtx>;
+}
+
+function AppInner({ dark, toggle, theme }) {
+  C = theme;
+  const fontLink = "https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Karla:wght@400;500;600;700&display=swap";
+  const [pg, setPg] = useState("goals");
+
+  const goTo = (k) => { setPg(k); window.scrollTo({ top: 0, behavior: "smooth" }); };
+
+  return (
+    <div style={{ minHeight: "100vh", background: C.bg, color: C.tx, display: "flex" }}>
+      <link href={fontLink} rel="stylesheet" />
+
+      {/* LEFT SIDEBAR */}
+      <nav style={{
+        width: 200, minWidth: 200, background: C.bgS, borderRight: `1px solid ${C.bdr}`,
+        padding: "20px 0", position: "sticky", top: 0, height: "100vh", overflowY: "auto", flexShrink: 0
+      }}>
+        <div style={{
+          padding: "12px 20px 20px", fontFamily: F.serif, fontSize: 18, fontWeight: 700, color: C.tx,
+          borderBottom: `1px solid ${C.bdr}`, marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center"
+        }}>
+          <span>Evalynn</span>
+          <div onClick={toggle} style={{
+            width: 32, height: 18, borderRadius: 9, background: dark ? C.txT : C.bdrH,
+            cursor: "pointer", position: "relative", transition: "background 0.2s"
+          }}>
+            <div style={{
+              width: 14, height: 14, borderRadius: "50%", background: dark ? "#e0e0e0" : "#ffffff",
+              position: "absolute", top: 2, left: dark ? 16 : 2, transition: "left 0.2s",
+              boxShadow: "0 1px 2px rgba(0,0,0,0.2)"
+            }} />
+          </div>
+        </div>
+
+        {NAV_ITEMS.map(item => {
+          const isActive = pg === item.k;
+          return (
+            <button key={item.k} onClick={() => goTo(item.k)} style={{
+              display: "block", width: "100%", padding: "10px 20px", border: "none",
+              background: isActive ? C.bg : "transparent",
+              borderLeft: isActive ? `3px solid ${C.tx}` : "3px solid transparent",
+              fontFamily: F.sans, fontSize: 14, fontWeight: isActive ? 600 : 400,
+              color: isActive ? C.tx : C.txS, cursor: "pointer", textAlign: "left",
+              transition: "all 0.1s"
+            }}>
+              {item.l}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* MAIN CONTENT */}
+      <main style={{ flex: 1, overflowY: "auto", padding: "32px 48px 60px" }}>
+        {pg === "goals" && <GoalsTab />}
+        {pg === "body" && <BodyPage />}
+      </main>
+    </div>
+  );
 }
