@@ -497,25 +497,38 @@ function HabitsTab(){
 // METRICS TAB (existing, unchanged)
 // ══════════════════════════════════════════════════════════════
 
-const BLOOD_MARKERS = [
-  { id: "glucose", label: "Fasting glucose", unit: "mg/dL", target: "under 100", range: "70-100", good: (v) => v <= 100, warn: (v) => v <= 110 },
-  { id: "hba1c", label: "HbA1c", unit: "%", target: "under 5.7", range: "4.0-5.6", good: (v) => v <= 5.7, warn: (v) => v <= 6.0 },
-  { id: "tsh", label: "TSH", unit: "mIU/L", target: "1.0-2.5", range: "0.4-4.0", good: (v) => v >= 0.4 && v <= 4.0, warn: (v) => v <= 5.0 },
-  { id: "ft4", label: "Free T4", unit: "ng/dL", target: "1.0-1.5", range: "0.8-1.8", good: (v) => v >= 0.8 && v <= 1.8, warn: () => true },
-  { id: "ft3", label: "Free T3", unit: "pg/mL", target: "2.5-3.5", range: "2.3-4.2", good: (v) => v >= 2.3 && v <= 4.2, warn: () => true },
-  { id: "vitd", label: "Vitamin D", unit: "ng/mL", target: "40-60", range: "30-100", good: (v) => v >= 30, warn: (v) => v >= 20 },
-  { id: "alt", label: "ALT", unit: "U/L", target: "under 33", range: "7-56", good: (v) => v <= 33, warn: (v) => v <= 56 },
-  { id: "ast", label: "AST", unit: "U/L", target: "under 32", range: "10-40", good: (v) => v <= 32, warn: (v) => v <= 40 },
-  { id: "tg", label: "Triglycerides", unit: "mg/dL", target: "under 150", range: "under 150", good: (v) => v <= 150, warn: (v) => v <= 200 },
-  { id: "chol", label: "Total cholesterol", unit: "mg/dL", target: "under 200", range: "under 200", good: (v) => v <= 200, warn: (v) => v <= 240 },
-  { id: "hdl", label: "HDL", unit: "mg/dL", target: "above 50", range: "40-60+", good: (v) => v >= 50, warn: (v) => v >= 40 },
-  { id: "ldl", label: "LDL", unit: "mg/dL", target: "under 100", range: "under 100", good: (v) => v <= 100, warn: (v) => v <= 130 },
-  { id: "antitpo", label: "Anti-TPO", unit: "IU/mL", target: "under 5.61", range: "0-5.61", good: (v) => v <= 5.61, warn: (v) => v <= 15 },
-  { id: "antiatg", label: "Anti-ATG", unit: "IU/mL", target: "under 4.11", range: "0-4.11", good: (v) => v <= 4.11, warn: (v) => v <= 10 },
-  { id: "ggt", label: "GGT", unit: "U/L", target: "under 38", range: "under 38", good: (v) => v <= 38, warn: (v) => v <= 50 },
-  { id: "wbc", label: "WBC", unit: "x10^9/L", target: "4-10", range: "4-10", good: (v) => v >= 4 && v <= 10, warn: (v) => v >= 3 && v <= 12 },
-  { id: "mcv", label: "MCV", unit: "fL", target: "80-99", range: "80-99", good: (v) => v >= 80 && v <= 99, warn: (v) => v >= 75 && v <= 105 },
+const BLOOD_GROUPS = [
+  { key: "diabetes", label: "Diabetes", color: "red", markers: [
+    { id: "glucose", label: "Fasting glucose", unit: "mg/dL", target: "under 100", range: "70-100", good: (v) => v <= 100, warn: (v) => v <= 110 },
+    { id: "hba1c", label: "HbA1c", unit: "%", target: "under 5.7", range: "4.0-5.6", good: (v) => v <= 5.7, warn: (v) => v <= 6.0 },
+  ]},
+  { key: "lipid", label: "Lipid profile", color: "blue", markers: [
+    { id: "chol", label: "Total cholesterol", unit: "mg/dL", target: "under 200", range: "under 200", good: (v) => v <= 200, warn: (v) => v <= 240 },
+    { id: "hdl", label: "HDL", unit: "mg/dL", target: "above 50", range: "40-60+", good: (v) => v >= 50, warn: (v) => v >= 40 },
+    { id: "ldl", label: "LDL", unit: "mg/dL", target: "under 100", range: "under 100", good: (v) => v <= 100, warn: (v) => v <= 130 },
+    { id: "tg", label: "Triglycerides", unit: "mg/dL", target: "under 150", range: "under 150", good: (v) => v <= 150, warn: (v) => v <= 200 },
+  ]},
+  { key: "thyroid", label: "Thyroid", color: "purple", markers: [
+    { id: "tsh", label: "TSH", unit: "mIU/L", target: "1.0-2.5", range: "0.4-4.0", good: (v) => v >= 0.4 && v <= 4.0, warn: (v) => v <= 5.0 },
+    { id: "ft4", label: "Free T4", unit: "ng/dL", target: "1.0-1.5", range: "0.8-1.8", good: (v) => v >= 0.8 && v <= 1.8, warn: () => true },
+    { id: "ft3", label: "Free T3", unit: "pg/mL", target: "2.5-3.5", range: "2.3-4.2", good: (v) => v >= 2.3 && v <= 4.2, warn: () => true },
+    { id: "antitpo", label: "Anti-TPO", unit: "IU/mL", target: "under 5.61", range: "0-5.61", good: (v) => v <= 5.61, warn: (v) => v <= 15 },
+    { id: "antiatg", label: "Anti-ATG", unit: "IU/mL", target: "under 4.11", range: "0-4.11", good: (v) => v <= 4.11, warn: (v) => v <= 10 },
+  ]},
+  { key: "liver", label: "Liver", color: "orange", markers: [
+    { id: "alt", label: "ALT", unit: "U/L", target: "under 33", range: "7-56", good: (v) => v <= 33, warn: (v) => v <= 56 },
+    { id: "ast", label: "AST", unit: "U/L", target: "under 32", range: "10-40", good: (v) => v <= 32, warn: (v) => v <= 40 },
+    { id: "ggt", label: "GGT", unit: "U/L", target: "under 38", range: "under 38", good: (v) => v <= 38, warn: (v) => v <= 50 },
+  ]},
+  { key: "blood", label: "Blood count", color: "gray", markers: [
+    { id: "wbc", label: "WBC", unit: "x10^9/L", target: "4-10", range: "4-10", good: (v) => v >= 4 && v <= 10, warn: (v) => v >= 3 && v <= 12 },
+    { id: "mcv", label: "MCV", unit: "fL", target: "80-99", range: "80-99", good: (v) => v >= 80 && v <= 99, warn: (v) => v >= 75 && v <= 105 },
+  ]},
+  { key: "nutrition", label: "Nutrition", color: "green", markers: [
+    { id: "vitd", label: "Vitamin D", unit: "ng/mL", target: "40-60", range: "30-100", good: (v) => v >= 30, warn: (v) => v >= 20 },
+  ]},
 ];
+const BLOOD_MARKERS = BLOOD_GROUPS.flatMap(g => g.markers);
 
 const BODY_METRICS = [
   { id: "weight", label: "Weight", unit: "kg" },
@@ -538,12 +551,14 @@ const SUPPLEMENTS = [
 ];
 
 const CONDITIONS = [
+  { id: "hashimoto", label: "Hashimoto's", target: "Anti-TPO down" },
+  { id: "prediabetes", label: "Prediabetes", target: "HbA1c under 5.7" },
+  { id: "pcos", label: "PCOS", target: "Monitoring" },
+  { id: "fibroid", label: "Uterine fibroid", target: "Ultrasound" },
   { id: "lsil", label: "LSIL", target: "Negative" },
   { id: "gallstone", label: "Gallstone", target: "No pain" },
   { id: "gut", label: "Gut health", target: "Good" },
-  { id: "teeth", label: "Teeth (Kilbon)", target: "Aligned" },
-  { id: "hashimoto", label: "Thyroid autoimmunity (Anti-TPO)", target: "Under 5.61" },
-  { id: "prediabetes", label: "Prediabetes (HbA1c)", target: "Under 5.7" },
+  { id: "teeth", label: "Teeth (Kilbon)", target: "Aligners" },
 ];
 const COND_STATUSES = ["monitoring", "good", "concern", "in progress", "resolved"];
 const COND_COLORS = { monitoring: { bg: C.yellowBg, c: "#856d0a" }, good: { bg: C.greenBg, c: C.green }, concern: { bg: C.redBg, c: C.red }, "in progress": { bg: C.blueBg, c: C.blue }, resolved: { bg: C.greenBg, c: C.green } };
@@ -552,6 +567,7 @@ function MetricsTab() {
   const [data, setData] = useState({ entries: [], bodyEntries: [], targets: {}, conditions: {} });
   const [loaded, setLoaded] = useState(false);
   const [canSave, setCanSave] = useState(false);
+  const [showOlder, setShowOlder] = useState(false);
 
   useEffect(() => { (async () => {
     const d = await osLoad("metrics_v1", { entries: [], bodyEntries: [], targets: {}, conditions: {} });
@@ -574,52 +590,84 @@ function MetricsTab() {
   const updateBodyEntry = (id, field, val) => set("bodyEntries", (data.bodyEntries || []).map((e) => e.id === id ? { ...e, [field]: val } : e));
   const updateBodyValue = (id, metric, val) => set("bodyEntries", (data.bodyEntries || []).map((e) => e.id === id ? { ...e, values: { ...e.values, [metric]: parseFloat(val) || "" } } : e));
   const deleteBodyEntry = (id) => set("bodyEntries", (data.bodyEntries || []).filter((e) => e.id !== id));
-  const setTarget = (id, val) => set("targets", { ...(data.targets || {}), [id]: val });
   const cycleCondition = (id) => { const cur = (data.conditions || {})[id] || "monitoring"; const idx = COND_STATUSES.indexOf(cur); const next = COND_STATUSES[(idx + 1) % COND_STATUSES.length]; set("conditions", { ...(data.conditions || {}), [id]: next }); };
 
   const entries = data.entries || [];
   const bodyEntries = data.bodyEntries || [];
   const latest = entries[0];
+  const olderEntries = entries.slice(1);
 
   const getMarkerColor = (marker, val) => { if (!val && val !== 0) return C.txT; if (marker.good(val)) return C.green; if (marker.warn(val)) return "#856d0a"; return C.red; };
+  const findMarker = (id) => BLOOD_MARKERS.find(m => m.id === id);
 
   const inp = { border: `1px solid ${C.bdr}`, borderRadius: 3, padding: "4px 6px", fontFamily: F.sans, fontSize: 12, color: C.tx, background: "transparent", outline: "none", textAlign: "right", width: 70 };
   const lineS = { display: "flex", alignItems: "center", padding: "6px 0", borderBottom: `1px solid ${C.bdr}`, gap: 10 };
+  const grpColors = { red: { bg: C.redBg, c: C.red }, blue: { bg: C.blueBg, c: C.blue }, purple: { bg: C.purpleBg, c: C.purple }, orange: { bg: C.orangeBg, c: C.orange }, gray: { bg: C.bgS, c: C.txS }, green: { bg: C.greenBg, c: C.green } };
+
+  const tpoMarker = findMarker("antitpo");
 
   return (<div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
       {[
-        { l: "Weight", v: bodyEntries[0]?.values?.weight ? bodyEntries[0].values.weight + " kg" : "-", c: C.tx, sub: "Target: " + (data.targets?.weight || "50") + " kg" },
-        { l: "Fasting glucose", v: latest?.values?.glucose ? latest.values.glucose + "" : "-", c: latest?.values?.glucose ? getMarkerColor(BLOOD_MARKERS[0], latest.values.glucose) : C.txT, sub: "Target: under 100" },
-        { l: "TSH", v: latest?.values?.tsh ? latest.values.tsh + "" : "-", c: latest?.values?.tsh ? getMarkerColor(BLOOD_MARKERS[2], latest.values.tsh) : C.txT, sub: "Range: 0.4-4.0" },
-        { l: "Last blood work", v: latest?.date ? new Date(latest.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "None", c: C.txS, sub: entries.length + " entries" },
+        { l: "Weight", v: bodyEntries[0]?.values?.weight ? bodyEntries[0].values.weight + " kg" : "-", c: C.tx, sub: "Target: 50 kg" },
+        { l: "Fasting glucose", v: latest?.values?.glucose ? latest.values.glucose + "" : "-", c: latest?.values?.glucose ? getMarkerColor(findMarker("glucose"), latest.values.glucose) : C.txT, sub: "Target: under 100" },
+        { l: "TSH", v: latest?.values?.tsh ? latest.values.tsh + "" : "-", c: latest?.values?.tsh ? getMarkerColor(findMarker("tsh"), latest.values.tsh) : C.txT, sub: "Range: 0.4-4.0" },
+        { l: "Anti-TPO", v: latest?.values?.antitpo ? latest.values.antitpo + "" : "-", c: latest?.values?.antitpo ? getMarkerColor(tpoMarker, latest.values.antitpo) : C.txT, sub: "Ref: under 5.61" },
       ].map((g, i) => (<div key={i} style={{ background: C.bgS, borderRadius: 4, padding: "10px 12px" }}>
         <div style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 3 }}>{g.l}</div>
         <div style={{ fontSize: 18, fontWeight: 500, color: g.c }}>{g.v}</div>
         <div style={{ fontSize: 10, color: C.txT, marginTop: 2 }}>{g.sub}</div>
       </div>))}
     </div>
-    <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
       <span style={{ fontSize: 14, fontWeight: 600, color: C.tx }}>Blood markers</span>
-      {osBtn({ children: "+ Add blood work", onClick: addEntry, style: { padding: "5px 12px", fontSize: 11 } })}
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        {latest?.date && <span style={{ fontSize: 11, color: C.txT }}>{new Date(latest.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>}
+        {osBtn({ children: "+ Add blood work", onClick: addEntry, style: { padding: "5px 12px", fontSize: 11 } })}
+      </div>
     </div>
-    {entries.length === 0 ? (<div style={{ padding: "20px 16px", fontSize: 13, color: C.txT }}>No blood work entries yet. Click "+ Add blood work" to record your first test results.</div>) : (<div>
-      {entries.map((entry, ei) => (<div key={entry.id} style={{ marginBottom: 12 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 16px", background: ei === 0 ? C.bgS : "transparent", borderBottom: `1px solid ${C.bdr}` }}>
-          <input type="date" value={entry.date} onChange={(e) => updateEntry(entry.id, "date", e.target.value)} style={{ ...inp, width: 130, textAlign: "left" }} />
-          {ei === 0 && <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 6px", borderRadius: 8, background: C.greenBg, color: C.green }}>latest</span>}
-          <span style={{ marginLeft: "auto", fontSize: 11, color: C.txT, cursor: "pointer" }} onClick={() => { if (confirm("Delete this entry?")) deleteEntry(entry.id); }}>delete</span>
+
+    {entries.length === 0 ? (<div style={{ padding: "20px 0", fontSize: 13, color: C.txT }}>No blood work entries yet. Click "+ Add blood work" to record your first test results.</div>) : (<div>
+      {latest && <div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0", borderBottom: `1px solid ${C.bdr}` }}>
+          <input type="date" value={latest.date} onChange={(e) => updateEntry(latest.id, "date", e.target.value)} style={{ ...inp, width: 130, textAlign: "left" }} />
+          <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 6px", borderRadius: 8, background: C.greenBg, color: C.green }}>latest</span>
+          <span style={{ marginLeft: "auto", fontSize: 11, color: C.txT, cursor: "pointer" }} onClick={() => { if (confirm("Delete this entry?")) deleteEntry(latest.id); }}>delete</span>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
-          {BLOOD_MARKERS.map((m) => { const val = entry.values?.[m.id]; const color = val ? getMarkerColor(m, val) : C.txT; return (
-            <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 16px", borderBottom: `1px solid ${C.bdr}` }}>
+        {BLOOD_GROUPS.map(grp => { const gc = grpColors[grp.color] || grpColors.gray; return (<div key={grp.key}>
+          <div style={{ padding: "6px 8px", fontSize: 11, fontWeight: 500, color: gc.c, background: gc.bg, borderBottom: `0.5px solid ${C.bdr}`, marginTop: 4 }}>{grp.label}</div>
+          {grp.markers.map(m => { const val = latest.values?.[m.id]; const color = val ? getMarkerColor(m, val) : C.txT; return (
+            <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 16px", borderBottom: `1px solid ${C.bdr}` }}>
               <span style={{ fontSize: 12, color: C.txS, flex: 1 }}>{m.label} <span style={{ fontSize: 10, color: C.txT }}>{m.unit}</span></span>
-              <input type="number" step="0.1" value={val || ""} onChange={(e) => updateEntryValue(entry.id, m.id, e.target.value)} placeholder="-" style={{ ...inp, width: 60, color }} />
+              <input type="number" step="0.1" value={val || ""} onChange={(e) => updateEntryValue(latest.id, m.id, e.target.value)} placeholder="-" style={{ ...inp, width: 60, color }} />
               <div style={{ width: 6, height: 6, borderRadius: 3, background: val ? color : C.bgS, flexShrink: 0 }} />
             </div>); })}
+        </div>); })}
+      </div>}
+
+      {olderEntries.length > 0 && <div style={{ marginTop: 4 }}>
+        <div onClick={() => setShowOlder(!showOlder)} style={{ padding: "6px 0", fontSize: 11, color: C.txT, cursor: "pointer" }}>
+          Older entries ({olderEntries.length}) {showOlder ? "\u25B4" : "\u25BE"}
         </div>
-      </div>))}
+        {showOlder && olderEntries.map((entry) => (<div key={entry.id} style={{ marginBottom: 8, opacity: 0.7 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "6px 0", borderBottom: `1px solid ${C.bdr}` }}>
+            <input type="date" value={entry.date} onChange={(e) => updateEntry(entry.id, "date", e.target.value)} style={{ ...inp, width: 130, textAlign: "left" }} />
+            <span style={{ marginLeft: "auto", fontSize: 11, color: C.txT, cursor: "pointer" }} onClick={() => { if (confirm("Delete this entry?")) deleteEntry(entry.id); }}>delete</span>
+          </div>
+          {BLOOD_GROUPS.map(grp => { const gc = grpColors[grp.color] || grpColors.gray; return (<div key={grp.key}>
+            <div style={{ padding: "4px 8px", fontSize: 10, fontWeight: 500, color: gc.c, background: gc.bg, borderBottom: `0.5px solid ${C.bdr}` }}>{grp.label}</div>
+            {grp.markers.map(m => { const val = entry.values?.[m.id]; const color = val ? getMarkerColor(m, val) : C.txT; return (
+              <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 16px", borderBottom: `1px solid ${C.bdr}` }}>
+                <span style={{ fontSize: 12, color: C.txS, flex: 1 }}>{m.label} <span style={{ fontSize: 10, color: C.txT }}>{m.unit}</span></span>
+                <input type="number" step="0.1" value={val || ""} onChange={(e) => updateEntryValue(entry.id, m.id, e.target.value)} placeholder="-" style={{ ...inp, width: 60, color }} />
+                <div style={{ width: 6, height: 6, borderRadius: 3, background: val ? color : C.bgS, flexShrink: 0 }} />
+              </div>); })}
+          </div>); })}
+        </div>))}
+      </div>}
     </div>)}
+
     <div style={{ height: 20 }} />
     <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
       <span style={{ fontSize: 14, fontWeight: 600, color: C.tx }}>Body measurements</span>
@@ -640,6 +688,7 @@ function MetricsTab() {
         </div>
       </div>))}
     </div>)}
+
     <div style={{ height: 20 }} />
     <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}><span style={{ fontSize: 14, fontWeight: 600, color: C.tx }}>Supplement protocol</span></div>
     {SUPPLEMENTS.map((s, i) => (<div key={i} style={lineS}>
@@ -648,13 +697,14 @@ function MetricsTab() {
       <span style={{ fontSize: 11, color: C.txT, width: 70 }}>{s.time}</span>
       <span style={{ fontSize: 11, color: C.txT, width: 110, textAlign: "right", paddingRight: 16 }}>{s.why}</span>
     </div>))}
+
     <div style={{ height: 20 }} />
     <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}><span style={{ fontSize: 14, fontWeight: 600, color: C.tx }}>Health conditions</span></div>
     {CONDITIONS.map((c) => { const status = (data.conditions || {})[c.id] || "monitoring"; const sc = COND_COLORS[status] || COND_COLORS.monitoring; return (
       <div key={c.id} style={lineS}>
         <span style={{ fontSize: 13, color: C.tx, flex: 1, paddingLeft: 16 }}>{c.label}</span>
         <span onClick={() => cycleCondition(c.id)} style={{ fontSize: 10, fontWeight: 500, padding: "2px 10px", borderRadius: 10, background: sc.bg, color: sc.c, cursor: "pointer", userSelect: "none" }}>{status}</span>
-        <span style={{ fontSize: 12, color: C.txT, width: 80, textAlign: "right", paddingRight: 16 }}>{c.target}</span>
+        <span style={{ fontSize: 12, color: C.txT, width: 100, textAlign: "right", paddingRight: 16 }}>{c.target}</span>
       </div>); })}
   </div>);
 }
@@ -1111,7 +1161,7 @@ function BodyPage() {
   const [tab, setTab] = useState("habits");
   const tabs = [
     { k: "habits", l: "Habits" },
-    { k: "metrics", l: "Metrics" },
+    { k: "metrics", l: "Markers" },
     { k: "protocol", l: "Protocol" },
     { k: "officer", l: "Health Officer" },
   ];
