@@ -8,20 +8,20 @@ const F={serif:'"Crimson Pro","Georgia",serif',sans:'"Karla","system-ui",sans-se
 function useIV(t=0.1){const r=useRef(null);const[v,setV]=useState(false);useEffect(()=>{const e=r.current;if(!e)return;const o=new IntersectionObserver(([x])=>{if(x.isIntersecting){setV(true);o.disconnect();}},{threshold:t});o.observe(e);return()=>o.disconnect();},[t]);return[r,v];}
 function Fade({children,delay=0}){const[r,v]=useIV();return(<div ref={r} style={{opacity:v?1:0,transform:v?"translateY(0)":"translateY(12px)",transition:`opacity 0.6s ease ${delay}s, transform 0.6s ease ${delay}s`}}>{children}</div>);}
 const Dv=()=><div style={{height:1,background:C.bdr,margin:"4px 0"}}/>;
-const Tag=({children,color})=>{const m={blue:{bg:C.blueBg,c:C.blue},green:{bg:C.greenBg,c:C.green},red:{bg:C.redBg,c:C.red},yellow:{bg:C.yellowBg,c:"#856d0a"},purple:{bg:C.purpleBg,c:C.purple},orange:{bg:C.orangeBg,c:C.orange}};const s=m[color]||{bg:C.bgS,c:C.tx};return(<span style={{display:"inline-flex",padding:"2px 8px",borderRadius:3,fontSize:12,fontFamily:F.sans,fontWeight:500,background:s.bg,color:s.c,lineHeight:"20px",whiteSpace:"nowrap"}}>{children}</span>);};
-const H1=({children,style:sx})=><h1 style={{fontFamily:F.serif,fontSize:28,fontWeight:700,color:C.tx,margin:"0 0 8px",lineHeight:1.2,...sx}}>{children}</h1>;
-const H2=({children,style:sx})=><h2 style={{fontFamily:F.serif,fontSize:20,fontWeight:600,color:C.tx,margin:"24px 0 8px",...sx}}>{children}</h2>;
+const Tag=({children,color})=>{const m={blue:{bg:C.blueBg,c:C.blue},green:{bg:C.greenBg,c:C.green},red:{bg:C.redBg,c:C.red},yellow:{bg:C.yellowBg,c:"#856d0a"},purple:{bg:C.purpleBg,c:C.purple},orange:{bg:C.orangeBg,c:C.orange}};const s=m[color]||{bg:C.bgS,c:C.tx};return(<span style={{display:"inline-flex",padding:"2px 8px",borderRadius:3,fontSize:13,fontFamily:F.sans,fontWeight:500,background:s.bg,color:s.c,lineHeight:"20px",whiteSpace:"nowrap"}}>{children}</span>);};
+const H1=({children,style:sx})=><h1 style={{fontFamily:F.serif,fontSize:30,fontWeight:700,color:C.tx,margin:"0 0 8px",lineHeight:1.2,...sx}}>{children}</h1>;
+const H2=({children,style:sx})=><h2 style={{fontFamily:F.serif,fontSize:22,fontWeight:600,color:C.tx,margin:"24px 0 8px",...sx}}>{children}</h2>;
 const H3=({children,style:sx})=><h3 style={{fontFamily:F.serif,fontSize:16,fontWeight:600,color:C.tx,margin:"16px 0 6px",...sx}}>{children}</h3>;
-const P=({children,style:sx})=><p style={{fontFamily:F.sans,fontSize:15,color:C.tx,lineHeight:1.65,margin:"0 0 8px",...sx}}>{children}</p>;
-const Ps=({children,style:sx})=><p style={{fontFamily:F.sans,fontSize:14,color:C.txS,lineHeight:1.65,margin:"0 0 12px",...sx}}>{children}</p>;
-const Pill=({children,color,bg})=><span style={{display:"inline-flex",padding:"2px 8px",borderRadius:12,fontSize:12,fontFamily:F.sans,fontWeight:500,background:bg||C.bgS,color:color||C.txS,lineHeight:"18px",whiteSpace:"nowrap"}}>{children}</span>;
-const Call=({children,emoji,bg})=><div style={{padding:"12px 16px",background:bg||C.yellowBg,borderRadius:4,fontFamily:F.sans,fontSize:14,lineHeight:1.6,color:C.tx,display:"flex",gap:10,alignItems:"flex-start"}}><span style={{fontSize:16,flexShrink:0}}>{emoji}</span><div>{children}</div></div>;
+const P=({children,style:sx})=><p style={{fontFamily:F.sans,fontSize:16,color:C.tx,lineHeight:1.65,margin:"0 0 8px",...sx}}>{children}</p>;
+const Ps=({children,style:sx})=><p style={{fontFamily:F.sans,fontSize:15,color:C.txS,lineHeight:1.65,margin:"0 0 12px",...sx}}>{children}</p>;
+const Pill=({children,color,bg})=><span style={{display:"inline-flex",padding:"2px 8px",borderRadius:12,fontSize:13,fontFamily:F.sans,fontWeight:500,background:bg||C.bgS,color:color||C.txS,lineHeight:"18px",whiteSpace:"nowrap"}}>{children}</span>;
+const Call=({children,emoji,bg})=><div style={{padding:"12px 16px",background:bg||C.yellowBg,borderRadius:4,fontFamily:F.sans,fontSize:15,lineHeight:1.6,color:C.tx,display:"flex",gap:10,alignItems:"flex-start"}}><span style={{fontSize:16,flexShrink:0}}>{emoji}</span><div>{children}</div></div>;
 const Cd=({children,bg,accent})=><div style={{padding:"12px 14px",background:bg||C.bgS,borderRadius:4,borderLeft:`3px solid ${accent||C.bdr}`}}>{children}</div>;
 const HL=({children,color})=><span style={{background:color?undefined:C.yellowBg,color:color||C.tx,padding:"0 3px",borderRadius:2}}>{children}</span>;
-function ABar({value}){return(<div style={{display:"flex",alignItems:"center",gap:5}}><div style={{flex:1,height:5,background:C.bgS,borderRadius:3,overflow:"hidden"}}><div style={{width:`${(value/10)*100}%`,height:"100%",background:value>=8?C.green:value>=6?C.orange:C.red,borderRadius:3}}/></div><span style={{fontSize:12,fontWeight:600,color:value>=8?C.green:value>=6?C.orange:C.red,fontFamily:F.mono,minWidth:16,textAlign:"right"}}>{value}</span></div>);}
-function Collapse({title,icon,color,open:dO,children}){const[o,setO]=useState(dO||false);return(<div style={{marginBottom:6}}><div onClick={()=>setO(!o)} style={{padding:"12px 0",cursor:"pointer",display:"flex",alignItems:"center",gap:10}}><span style={{fontSize:15,width:22,textAlign:"center",flexShrink:0}}>{icon}</span><span style={{fontFamily:F.sans,fontSize:15,fontWeight:600,color:C.tx,flex:1}}>{title}</span><span style={{fontSize:11,color:C.txT,transform:o?"rotate(90deg)":"rotate(0)",transition:"transform 0.15s"}}>&#9654;</span></div>{o&&<div style={{paddingTop:8}}>{children}</div>}</div>);}
-const osTa=({value,onChange,placeholder,rows})=><textarea value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} rows={rows||3} style={{border:`1px solid ${C.bdr}`,borderRadius:4,padding:"10px 12px",fontSize:14,color:C.tx,background:C.bgS,outline:"none",fontFamily:F.sans,width:"100%",boxSizing:"border-box",resize:"vertical",lineHeight:1.6}}/>;
-const osBtn=({children,onClick,variant,style:sx,disabled})=>{const s={primary:{background:C.green,color:"#fff"},ghost:{background:"transparent",color:C.green,border:`1px solid ${C.green}`},danger:{background:C.red,color:"#fff"}};return(<button onClick={onClick} disabled={disabled} style={{padding:"9px 18px",borderRadius:4,border:"none",cursor:disabled?"not-allowed":"pointer",fontSize:13,fontWeight:600,fontFamily:F.sans,opacity:disabled?0.6:1,...(s[variant||"primary"]||s.primary),...sx}}>{children}</button>);};
+function ABar({value}){return(<div style={{display:"flex",alignItems:"center",gap:5}}><div style={{flex:1,height:5,background:C.bgS,borderRadius:3,overflow:"hidden"}}><div style={{width:`${(value/10)*100}%`,height:"100%",background:value>=8?C.green:value>=6?C.orange:C.red,borderRadius:3}}/></div><span style={{fontSize:13,fontWeight:600,color:value>=8?C.green:value>=6?C.orange:C.red,fontFamily:F.mono,minWidth:16,textAlign:"right"}}>{value}</span></div>);}
+function Collapse({title,icon,color,open:dO,children}){const[o,setO]=useState(dO||false);return(<div style={{marginBottom:6}}><div onClick={()=>setO(!o)} style={{padding:"12px 0",cursor:"pointer",display:"flex",alignItems:"center",gap:10}}><span style={{fontSize:16,width:22,textAlign:"center",flexShrink:0}}>{icon}</span><span style={{fontFamily:F.sans,fontSize:16,fontWeight:600,color:C.tx,flex:1}}>{title}</span><span style={{fontSize:12,color:C.txT,transform:o?"rotate(90deg)":"rotate(0)",transition:"transform 0.15s"}}>&#9654;</span></div>{o&&<div style={{paddingTop:8}}>{children}</div>}</div>);}
+const osTa=({value,onChange,placeholder,rows})=><textarea value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} rows={rows||3} style={{border:`1px solid ${C.bdr}`,borderRadius:4,padding:"10px 12px",fontSize:15,color:C.tx,background:C.bgS,outline:"none",fontFamily:F.sans,width:"100%",boxSizing:"border-box",resize:"vertical",lineHeight:1.6}}/>;
+const osBtn=({children,onClick,variant,style:sx,disabled})=>{const s={primary:{background:C.green,color:"#fff"},ghost:{background:"transparent",color:C.green,border:`1px solid ${C.green}`},danger:{background:C.red,color:"#fff"}};return(<button onClick={onClick} disabled={disabled} style={{padding:"9px 18px",borderRadius:4,border:"none",cursor:disabled?"not-allowed":"pointer",fontSize:14,fontWeight:600,fontFamily:F.sans,opacity:disabled?0.6:1,...(s[variant||"primary"]||s.primary),...sx}}>{children}</button>);};
 const MONTHS_LIST=["January","February","March","April","May","June","July","August","September","October","November","December"];
 
 // ══════════════════════════════════════════════════════════════
@@ -93,8 +93,8 @@ function GoalCard({g,isOpen,onToggle,data}){
   const status=d.status||"not started";
   const sc=STATUS_CFG[status]||STATUS_CFG["not started"];
   return(<div onClick={onToggle} style={{padding:"12px 14px",marginBottom:4,cursor:"pointer",borderRadius:4,background:isOpen?sc.bg:sc.bg,border:isOpen?`1.5px solid ${sc.c}40`:"1.5px solid transparent",transition:"all 0.15s"}}>
-    <div style={{fontFamily:F.sans,fontSize:14,fontWeight:isOpen?600:500,color:C.tx}}>{g.title}</div>
-    <div style={{fontSize:10,color:sc.c,fontWeight:500,marginTop:3}}>{status}</div>
+    <div style={{fontFamily:F.sans,fontSize:15,fontWeight:isOpen?600:500,color:C.tx}}>{g.title}</div>
+    <div style={{fontSize:11,color:sc.c,fontWeight:500,marginTop:3}}>{status}</div>
   </div>);
 }
 function GoalDetail({g,data,setData}){
@@ -122,43 +122,43 @@ function GoalDetail({g,data,setData}){
   const learnStatusCfg={done:{bg:C.yellowBg,c:"#856d0a"},applied:{bg:C.blueBg,c:C.blue},integrated:{bg:C.greenBg,c:C.green}};
   const statusOpts=STATUS_OPTS;const stCfg=STATUS_CFG;
   const lineS={padding:"5px 0",borderBottom:`1px solid ${C.bdr}`,display:"flex",alignItems:"center",gap:8};
-  const txtS={fontSize:13,color:C.tx,flex:1,background:"transparent",border:"none",outline:"none",fontFamily:F.sans,padding:0,minWidth:0};
-  const secHdr=(label,onAdd)=>(<div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between",alignItems:"center"}}><span>{label}</span><span onClick={onAdd} style={{cursor:"pointer",fontSize:14,fontWeight:400,color:C.txT}}>+</span></div>);
-  const chipS=(bg,c)=>({fontSize:9,fontWeight:600,padding:"1px 6px",borderRadius:8,background:bg,color:c,cursor:"pointer",flexShrink:0,userSelect:"none"});
+  const txtS={fontSize:14,color:C.tx,flex:1,background:"transparent",border:"none",outline:"none",fontFamily:F.sans,padding:0,minWidth:0};
+  const secHdr=(label,onAdd)=>(<div style={{fontSize:11,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between",alignItems:"center"}}><span>{label}</span><span onClick={onAdd} style={{cursor:"pointer",fontSize:15,fontWeight:400,color:C.txT}}>+</span></div>);
+  const chipS=(bg,c)=>({fontSize:10,fontWeight:600,padding:"1px 6px",borderRadius:8,background:bg,color:c,cursor:"pointer",flexShrink:0,userSelect:"none"});
   const chkBox=<svg width="7" height="5" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
-  const inp4={border:`1px solid ${C.bdr}`,borderRadius:3,padding:"4px 6px",fontFamily:F.sans,fontSize:12,color:C.tx,background:"transparent",outline:"none",boxSizing:"border-box"};
+  const inp4={border:`1px solid ${C.bdr}`,borderRadius:3,padding:"4px 6px",fontFamily:F.sans,fontSize:13,color:C.tx,background:"transparent",outline:"none",boxSizing:"border-box"};
   const displayPrio=(p)=>p==="P0"?"P0":p;
   const prioColor=(p)=>prioColors[p==="P0"?"P0":p]||prioColors.P0;
   return(<div style={{marginTop:8,paddingTop:16}}>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-      <span style={{fontFamily:F.serif,fontSize:18,fontWeight:600}}>{g.title}</span>
+      <span style={{fontFamily:F.serif,fontSize:20,fontWeight:600}}>{g.title}</span>
       <div style={{display:"flex",gap:8,alignItems:"center"}}>
-        {totalAll>0&&<span style={{fontSize:11,color:C.txT}}>{totalDone}/{totalAll} done</span>}
-        <select value={d.status||"not started"} onChange={e=>set("status",e.target.value)} style={{padding:"3px 8px",borderRadius:12,fontSize:11,fontWeight:600,border:`1px solid ${C.bdr}`,background:(stCfg[d.status||"not started"]||stCfg["not started"]).bg,color:(stCfg[d.status||"not started"]||stCfg["not started"]).c,cursor:"pointer",outline:"none",fontFamily:F.sans}}>{statusOpts.map(s=><option key={s} value={s}>{s}</option>)}</select>
-        <span onClick={()=>setShowCtx(!showCtx)} style={{fontSize:11,color:C.txT,cursor:"pointer",padding:"3px 8px",border:`1px solid ${C.bdr}`,borderRadius:4}}>{showCtx?"hide context":"context"}</span>
+        {totalAll>0&&<span style={{fontSize:12,color:C.txT}}>{totalDone}/{totalAll} done</span>}
+        <select value={d.status||"not started"} onChange={e=>set("status",e.target.value)} style={{padding:"3px 8px",borderRadius:12,fontSize:12,fontWeight:600,border:`1px solid ${C.bdr}`,background:(stCfg[d.status||"not started"]||stCfg["not started"]).bg,color:(stCfg[d.status||"not started"]||stCfg["not started"]).c,cursor:"pointer",outline:"none",fontFamily:F.sans}}>{statusOpts.map(s=><option key={s} value={s}>{s}</option>)}</select>
+        <span onClick={()=>setShowCtx(!showCtx)} style={{fontSize:12,color:C.txT,cursor:"pointer",padding:"3px 8px",border:`1px solid ${C.bdr}`,borderRadius:4}}>{showCtx?"hide context":"context"}</span>
       </div>
     </div>
     {showCtx&&<div style={{background:C.bgS,borderRadius:4,padding:"12px 16px",marginBottom:16}}>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:20}}>
         <div>
-          <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:4,textTransform:"uppercase",letterSpacing:"0.04em"}}>Vision</div>
-          <textarea value={d.vision||""} onChange={e=>set("vision",e.target.value)} rows={3} placeholder="How does accomplishing this look like?" style={{...inp4,width:"100%",fontSize:12,resize:"vertical",lineHeight:1.5}}/>
-          <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:4,marginTop:10,textTransform:"uppercase",letterSpacing:"0.04em"}}>Why</div>
-          <textarea value={d.why||""} onChange={e=>set("why",e.target.value)} rows={2} placeholder="Why does this matter?" style={{...inp4,width:"100%",fontSize:12,resize:"vertical",lineHeight:1.5}}/>
+          <div style={{fontSize:11,fontWeight:600,color:C.txT,marginBottom:4,textTransform:"uppercase",letterSpacing:"0.04em"}}>Vision</div>
+          <textarea value={d.vision||""} onChange={e=>set("vision",e.target.value)} rows={3} placeholder="How does accomplishing this look like?" style={{...inp4,width:"100%",fontSize:13,resize:"vertical",lineHeight:1.5}}/>
+          <div style={{fontSize:11,fontWeight:600,color:C.txT,marginBottom:4,marginTop:10,textTransform:"uppercase",letterSpacing:"0.04em"}}>Why</div>
+          <textarea value={d.why||""} onChange={e=>set("why",e.target.value)} rows={2} placeholder="Why does this matter?" style={{...inp4,width:"100%",fontSize:13,resize:"vertical",lineHeight:1.5}}/>
         </div>
         <div>
-          <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between"}}><span>Assess</span><span onClick={addAssess} style={{cursor:"pointer",fontSize:12,fontWeight:400}}>+</span></div>
+          <div style={{fontSize:11,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between"}}><span>Assess</span><span onClick={addAssess} style={{cursor:"pointer",fontSize:13,fontWeight:400}}>+</span></div>
           {(d.assess||[]).map((a,i)=>(<div key={i} style={{padding:"4px 0",borderBottom:`1px solid ${C.bdr}`,display:"flex",alignItems:"center",gap:8}}>
-            <input value={a.metric} onChange={e=>{const u=[...(d.assess||[])];u[i]={...u[i],metric:e.target.value};set("assess",u);}} style={{...txtS,fontSize:12,fontWeight:500}} placeholder="Metric"/>
-            <input value={a.target} onChange={e=>{const u=[...(d.assess||[])];u[i]={...u[i],target:e.target.value};set("assess",u);}} style={{...txtS,fontSize:12,color:C.txS,textAlign:"right",flex:"0 0 auto",width:100}} placeholder="Target"/>
+            <input value={a.metric} onChange={e=>{const u=[...(d.assess||[])];u[i]={...u[i],metric:e.target.value};set("assess",u);}} style={{...txtS,fontSize:13,fontWeight:500}} placeholder="Metric"/>
+            <input value={a.target} onChange={e=>{const u=[...(d.assess||[])];u[i]={...u[i],target:e.target.value};set("assess",u);}} style={{...txtS,fontSize:13,color:C.txS,textAlign:"right",flex:"0 0 auto",width:100}} placeholder="Target"/>
           </div>))}
         </div>
         <div>
-          <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between"}}><span>Practices</span><span onClick={addPractice} style={{cursor:"pointer",fontSize:12,fontWeight:400}}>+</span></div>
+          <div style={{fontSize:11,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between"}}><span>Practices</span><span onClick={addPractice} style={{cursor:"pointer",fontSize:13,fontWeight:400}}>+</span></div>
           {practices.map((p,i)=>(<div key={p.id} style={{padding:"4px 0",borderBottom:`1px solid ${C.bdr}`,display:"flex",alignItems:"center",gap:8}}>
-            <input value={p.text} onChange={e=>updPractice(p.id,"text",e.target.value)} style={{...txtS,fontSize:12}} placeholder="Practice..."/>
-            <span onClick={()=>{const freqs=["daily","5/w","3/w","1/w","1/m"];const idx=freqs.indexOf(p.freq);updPractice(p.id,"freq",freqs[(idx+1)%freqs.length]);}} style={{fontSize:11,color:C.txT,cursor:"pointer",flexShrink:0}}>{p.freq||"daily"}</span>
-            <span onClick={()=>rmPractice(p.id)} style={{cursor:"pointer",fontSize:11,color:C.txT,flexShrink:0}}>x</span>
+            <input value={p.text} onChange={e=>updPractice(p.id,"text",e.target.value)} style={{...txtS,fontSize:13}} placeholder="Practice..."/>
+            <span onClick={()=>{const freqs=["daily","5/w","3/w","1/w","1/m"];const idx=freqs.indexOf(p.freq);updPractice(p.id,"freq",freqs[(idx+1)%freqs.length]);}} style={{fontSize:12,color:C.txT,cursor:"pointer",flexShrink:0}}>{p.freq||"daily"}</span>
+            <span onClick={()=>rmPractice(p.id)} style={{cursor:"pointer",fontSize:12,color:C.txT,flexShrink:0}}>x</span>
           </div>))}
         </div>
       </div>
@@ -173,12 +173,12 @@ function GoalDetail({g,data,setData}){
         </div>))}
         {doneActions.length>0&&<div style={{background:C.bgS,borderRadius:4,padding:"6px 10px",marginTop:4}}>
           <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",cursor:"pointer",padding:"2px 0"}} onClick={()=>setShowDoneA(!showDoneA)}>
-            <span style={{fontSize:8,color:C.txT,transform:showDoneA?"rotate(180deg)":"rotate(0deg)",transition:"transform 0.15s",lineHeight:1}}>{"\u25BC"}</span>
+            <span style={{fontSize:9,color:C.txT,transform:showDoneA?"rotate(180deg)":"rotate(0deg)",transition:"transform 0.15s",lineHeight:1}}>{"\u25BC"}</span>
           </div>
           {showDoneA&&doneActions.map((a,i)=>(<div key={a.id} style={{padding:"4px 0",display:"flex",alignItems:"center",gap:6,borderBottom:i<doneActions.length-1?`1px solid ${C.bdr}`:"none"}}>
             <div onClick={()=>updAction(a.id,"done",false)} style={{width:13,height:13,borderRadius:3,background:C.green,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0}}>{chkBox}</div>
-            <span style={{fontSize:12,color:C.txT,textDecoration:"line-through",flex:1}}>{a.text}</span>
-            {a.date&&<span style={{fontSize:10,color:C.txT,flexShrink:0}}>{a.date}</span>}
+            <span style={{fontSize:13,color:C.txT,textDecoration:"line-through",flex:1}}>{a.text}</span>
+            {a.date&&<span style={{fontSize:11,color:C.txT,flexShrink:0}}>{a.date}</span>}
           </div>))}
         </div>}
       </div>
@@ -186,14 +186,14 @@ function GoalDetail({g,data,setData}){
         {secHdr("Learning",addLearning)}
         {todoLearning.map(l=>(<div key={l.id} style={lineS}>
           <input value={l.text} onChange={e=>updLearning(l.id,"text",e.target.value)} style={txtS} placeholder="Skill..."/>
-          <span onClick={()=>rmLearning(l.id)} style={{cursor:"pointer",fontSize:11,color:C.txT,flexShrink:0}}>x</span>
+          <span onClick={()=>rmLearning(l.id)} style={{cursor:"pointer",fontSize:12,color:C.txT,flexShrink:0}}>x</span>
         </div>))}
         {doneLearning.length>0&&<div style={{background:C.bgS,borderRadius:4,padding:"6px 10px",marginTop:4}}>
           <div style={{display:"flex",justifyContent:"flex-end",alignItems:"center",cursor:"pointer",padding:"2px 0"}} onClick={()=>setShowDoneL(!showDoneL)}>
-            <span style={{fontSize:8,color:C.txT,transform:showDoneL?"rotate(180deg)":"rotate(0deg)",transition:"transform 0.15s",lineHeight:1}}>{"\u25BC"}</span>
+            <span style={{fontSize:9,color:C.txT,transform:showDoneL?"rotate(180deg)":"rotate(0deg)",transition:"transform 0.15s",lineHeight:1}}>{"\u25BC"}</span>
           </div>
           {showDoneL&&doneLearning.map((l,i)=>{const st=l.status||"done";const sc=learnStatusCfg[st]||learnStatusCfg.done;return(<div key={l.id} style={{padding:"4px 0",display:"flex",alignItems:"center",gap:6,borderBottom:i<doneLearning.length-1?`1px solid ${C.bdr}`:"none"}}>
-            <span style={{fontSize:12,color:C.txT,flex:1}}>{l.text}</span>
+            <span style={{fontSize:13,color:C.txT,flex:1}}>{l.text}</span>
             <span onClick={()=>cycleLearnStatus(l.id,st)} style={chipS(sc.bg,sc.c)}>{st}</span>
           </div>);})}
         </div>}
@@ -222,7 +222,7 @@ function GoalsTab(){
 
   const hdr=<div style={{marginBottom:12}}>
     <H1 style={{margin:"0 0 8px"}}>2026 Goals</H1>
-    <div style={{display:"flex",gap:0,borderBottom:`1px solid ${C.bdr}`}}>{[{k:"goals",l:"Goals"},{k:"plans",l:"Plans"}].map((t,i)=>(<button key={t.k} onClick={()=>{setView(t.k);if(t.k==="goals")setActiveGoal(null);if(t.k==="plans"&&!activeGoal&&firstGoal)setActiveGoal(firstGoal.n);}} style={{padding:`6px 14px 6px ${i===0?0:14}px`,border:"none",background:"none",fontFamily:F.sans,fontSize:13,fontWeight:view===t.k?600:400,color:view===t.k?C.tx:C.txT,cursor:"pointer",borderBottom:view===t.k?`2px solid ${C.tx}`:"2px solid transparent",marginBottom:-1}}>{t.l}</button>))}</div>
+    <div style={{display:"flex",gap:0,borderBottom:`1px solid ${C.bdr}`}}>{[{k:"goals",l:"Goals"},{k:"plans",l:"Plans"}].map((t,i)=>(<button key={t.k} onClick={()=>{setView(t.k);if(t.k==="goals")setActiveGoal(null);if(t.k==="plans"&&!activeGoal&&firstGoal)setActiveGoal(firstGoal.n);}} style={{padding:`6px 14px 6px ${i===0?0:14}px`,border:"none",background:"none",fontFamily:F.sans,fontSize:14,fontWeight:view===t.k?600:400,color:view===t.k?C.tx:C.txT,cursor:"pointer",borderBottom:view===t.k?`2px solid ${C.tx}`:"2px solid transparent",marginBottom:-1}}>{t.l}</button>))}</div>
   </div>;
 
   const planGoal=activeG||(firstGoal?LIFE_GOALS.find(g=>g.n===firstGoal.n):null);
@@ -231,17 +231,17 @@ function GoalsTab(){
     return(<div>{hdr}
     <div style={{display:"flex",alignItems:"center",gap:0,padding:"6px 0",marginBottom:8,overflowX:"auto",flexWrap:"nowrap",borderBottom:`1px solid ${C.bdr}`}}>
       {[{goals:cores,color:C.purple},{goals:projects,color:C.gold},{goals:experiences,color:C.ocean}].map((grp,gi)=>(<div key={gi} style={{display:"flex",alignItems:"center",gap:0,flexShrink:0}}>
-        {gi>0&&<span style={{fontSize:11,fontWeight:700,color:C.tx,padding:"0 3px",flexShrink:0}}>/</span>}
+        {gi>0&&<span style={{fontSize:12,fontWeight:700,color:C.tx,padding:"0 3px",flexShrink:0}}>/</span>}
         {grp.goals.map((g,i)=>(<span key={g.n} style={{display:"flex",alignItems:"center",flexShrink:0}}>
-          {i>0&&<span style={{fontSize:11,color:C.txT,padding:"0 1px",flexShrink:0}}>/</span>}
-          <span onClick={()=>setActiveGoal(g.n)} style={{fontSize:12,fontWeight:planGoal.n===g.n?600:400,color:planGoal.n===g.n?C.tx:C.txT,cursor:"pointer",padding:"3px 6px",whiteSpace:"nowrap",borderBottom:planGoal.n===g.n?`2px solid ${grp.color}`:"2px solid transparent",marginBottom:-1}}>{g.short}</span>
+          {i>0&&<span style={{fontSize:12,color:C.txT,padding:"0 1px",flexShrink:0}}>/</span>}
+          <span onClick={()=>setActiveGoal(g.n)} style={{fontSize:13,fontWeight:planGoal.n===g.n?600:400,color:planGoal.n===g.n?C.tx:C.txT,cursor:"pointer",padding:"3px 6px",whiteSpace:"nowrap",borderBottom:planGoal.n===g.n?`2px solid ${grp.color}`:"2px solid transparent",marginBottom:-1}}>{g.short}</span>
         </span>))}
       </div>))}</div>
     <GoalDetail g={planGoal} data={data[planGoal.n]} setData={v=>setData(p=>({...p,[planGoal.n]:v}))}/>
   </div>);}
 
   return(<div>{hdr}
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,borderBottom:`1px solid ${C.bdr}`,marginBottom:12}}>{[{l:"Core",color:C.purple,cat:"core"},{l:"Project",color:C.gold,cat:"project"},{l:"Experience",color:C.ocean,cat:"experience"}].map(c=>(<div key={c.l} style={{display:"flex",alignItems:"center",gap:0}}><span style={{padding:"6px 0",fontFamily:F.sans,fontSize:13,fontWeight:600,color:c.color}}>{c.l}</span><span onClick={()=>addGoal(c.cat)} style={{cursor:"pointer",fontSize:14,color:c.color,padding:"6px 6px"}}>+</span></div>))}</div>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,borderBottom:`1px solid ${C.bdr}`,marginBottom:12}}>{[{l:"Core",color:C.purple,cat:"core"},{l:"Project",color:C.gold,cat:"project"},{l:"Experience",color:C.ocean,cat:"experience"}].map(c=>(<div key={c.l} style={{display:"flex",alignItems:"center",gap:0}}><span style={{padding:"6px 0",fontFamily:F.sans,fontSize:14,fontWeight:600,color:c.color}}>{c.l}</span><span onClick={()=>addGoal(c.cat)} style={{cursor:"pointer",fontSize:15,color:c.color,padding:"6px 6px"}}>+</span></div>))}</div>
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,alignItems:"start"}}>
       <div>{cores.map(g=>(<GoalCard key={g.n} g={g} data={data[g.n]} isOpen={false} onToggle={()=>openGoal(g.n)}/>))}</div>
       <div>{projects.map(g=>(<GoalCard key={g.n} g={g} data={data[g.n]} isOpen={false} onToggle={()=>openGoal(g.n)}/>))}</div>
@@ -448,42 +448,42 @@ function HabitsTab(){
     warn:{bg:C.yellowBg,tx:"#856d0a"},
     bad:{bg:C.redBg,tx:C.red},
   };
-  const cellS={width:17,height:17,borderRadius:3,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:8,fontWeight:600,cursor:"pointer",userSelect:"none",fontFamily:F.mono,flexShrink:0};
+  const cellS={width:17,height:17,borderRadius:3,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:9,fontWeight:600,cursor:"pointer",userSelect:"none",fontFamily:F.mono,flexShrink:0};
   const chkS={...cellS,width:15,height:15};
 
   return(<div><H1>Habits</H1>
     <div style={{display:"flex",gap:14,alignItems:"center",marginBottom:16}}>
-      <input type="month" value={viewDate} onChange={e=>{setViewDate(e.target.value);setLoaded(false);}} style={{border:`1px solid ${C.bdr}`,borderRadius:4,padding:"8px 12px",fontSize:14,color:C.tx,background:C.bgS,outline:"none",fontFamily:F.sans}}/>
-      <div style={{fontSize:20,fontWeight:700,color:overallPct>=70?C.green:overallPct>=40?C.orange:C.red}}>{overallPct}%</div>
+      <input type="month" value={viewDate} onChange={e=>{setViewDate(e.target.value);setLoaded(false);}} style={{border:`1px solid ${C.bdr}`,borderRadius:4,padding:"8px 12px",fontSize:15,color:C.tx,background:C.bgS,outline:"none",fontFamily:F.sans}}/>
+      <div style={{fontSize:22,fontWeight:700,color:overallPct>=70?C.green:overallPct>=40?C.orange:C.red}}>{overallPct}%</div>
     </div>
     <div style={{border:`1px solid ${C.bdr}`,borderRadius:4,overflow:"hidden"}}>
       <div style={{overflowX:"auto"}}>
         <table style={{borderCollapse:"collapse",width:"100%",minWidth:700}}>
           <thead><tr>
-            <th style={{textAlign:"left",fontSize:11,color:C.txS,padding:"8px 8px",minWidth:160}}>Habit</th>
-            {Array.from({length:days},(_,i)=><th key={i+1} style={{fontSize:9,color:C.txT,padding:"3px 1px",minWidth:17,textAlign:"center"}}>{i+1}</th>)}
-            <th style={{fontSize:11,color:C.txS,padding:"4px 8px",textAlign:"right",minWidth:36}}>%</th>
+            <th style={{textAlign:"left",fontSize:12,color:C.txS,padding:"8px 8px",minWidth:160}}>Habit</th>
+            {Array.from({length:days},(_,i)=><th key={i+1} style={{fontSize:10,color:C.txT,padding:"3px 1px",minWidth:17,textAlign:"center"}}>{i+1}</th>)}
+            <th style={{fontSize:12,color:C.txS,padding:"4px 8px",textAlign:"right",minWidth:36}}>%</th>
           </tr></thead>
           <tbody>
             {HABIT_SECTIONS.map(section=>(<React.Fragment key={section.key}>
-              <tr><td colSpan={days+2} style={{padding:"6px 8px",fontSize:11,fontWeight:600,color:C.txT,background:C.bgS,borderBottom:`1px solid ${C.bdr}`,borderTop:`1px solid ${C.bdr}`,textTransform:"uppercase",letterSpacing:"0.04em"}}>{section.label}</td></tr>
+              <tr><td colSpan={days+2} style={{padding:"6px 8px",fontSize:12,fontWeight:600,color:C.txT,background:C.bgS,borderBottom:`1px solid ${C.bdr}`,borderTop:`1px solid ${C.bdr}`,textTransform:"uppercase",letterSpacing:"0.04em"}}>{section.label}</td></tr>
               {section.items.map(item=>{const stat=getStat(item);return(
                 <tr key={item.id} style={{borderBottom:`1px solid ${C.bdr}`}}>
-                  <td style={{padding:"5px 8px",fontSize:12,color:C.tx,whiteSpace:"nowrap"}}>{item.label}</td>
+                  <td style={{padding:"5px 8px",fontSize:13,color:C.tx,whiteSpace:"nowrap"}}>{item.label}</td>
                   {Array.from({length:days},(_,i)=>{const day=i+1;
                     if(item.type==="check"){const done=getCheck(day,item.id);return(
                       <td key={day} style={{padding:"2px 1px",textAlign:"center"}}><div onClick={()=>toggleCheck(day,item.id)} style={{...chkS,background:done?C.green:C.bgS,border:done?"none":`1px solid ${C.bdr}`,margin:"0 auto"}}/></td>);}
                     const val=getCycleValue(day,item);const cKey=cellColor(item,val);const cm=colorMap[cKey]||colorMap.none;
                     return(<td key={day} style={{padding:"2px 1px",textAlign:"center"}}><div onClick={()=>cycleValue(day,item)} style={{...cellS,background:cm.bg,color:cm.tx,margin:"0 auto"}}>{val==="-"?"\u00B7":val}</div></td>);
                   })}
-                  <td style={{padding:"4px 8px",textAlign:"right",fontSize:12,fontWeight:600,color:stat.color}}>{stat.val}</td>
+                  <td style={{padding:"4px 8px",textAlign:"right",fontSize:13,fontWeight:600,color:stat.color}}>{stat.val}</td>
                 </tr>);})}
             </React.Fragment>))}
           </tbody>
         </table>
       </div>
     </div>
-    <div style={{display:"flex",gap:16,flexWrap:"wrap",marginTop:10,padding:"8px 0",fontSize:10,color:C.txT}}>
+    <div style={{display:"flex",gap:16,flexWrap:"wrap",marginTop:10,padding:"8px 0",fontSize:11,color:C.txT}}>
       <span>Sleep: hours (4-9+)</span>
       <span>Move: W=Walk Y=Yoga G=Gym P=Pilates D=Dance R=Run N=None</span>
       <span>Water: liters</span>
@@ -627,15 +627,15 @@ function MetricsTab() {
     return C.red;
   };
 
-  const grpS = { flex: "0 0 100px", fontSize: 11, fontWeight: 500, padding: "4px 10px", background: C.bgS, color: C.txS, alignSelf: "stretch", display: "flex", alignItems: "center" };
+  const grpS = { flex: "0 0 100px", fontSize: 12, fontWeight: 500, padding: "4px 10px", background: C.bgS, color: C.txS, alignSelf: "stretch", display: "flex", alignItems: "center" };
   const grpE = { flex: "0 0 100px", padding: "4px 10px", background: C.bgS };
-  const nameS = { flex: 1, minWidth: 80, paddingLeft: 8, color: C.tx, fontSize: 12 };
-  const normS = { flex: "0 0 90px", fontSize: 11, textAlign: "left", color: C.txT, paddingLeft: 4 };
-  const valS = { flex: "0 0 54px", textAlign: "center", fontSize: 12, fontWeight: 500 };
+  const nameS = { flex: 1, minWidth: 80, paddingLeft: 8, color: C.tx, fontSize: 13 };
+  const normS = { flex: "0 0 90px", fontSize: 12, textAlign: "left", color: C.txT, paddingLeft: 4 };
+  const valS = { flex: "0 0 54px", textAlign: "center", fontSize: 13, fontWeight: 500 };
   const dotS = { width: 5, height: 5, borderRadius: 3, flexShrink: 0, margin: "0 4px 0 2px" };
-  const rowS = { display: "flex", alignItems: "center", padding: "3px 0", fontSize: 12 };
-  const futureS = { ...valS, color: C.txT, fontWeight: 400, fontSize: 11 };
-  const hdrValS = { ...valS, fontSize: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em", color: C.txT };
+  const rowS = { display: "flex", alignItems: "center", padding: "3px 0", fontSize: 13 };
+  const futureS = { ...valS, color: C.txT, fontWeight: 400, fontSize: 12 };
+  const hdrValS = { ...valS, fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em", color: C.txT };
 
   const fmtDate = (d) => { if (!d) return "-"; const dt = new Date(d); return dt.toLocaleDateString("en-US", { month: "short", day: "numeric" }); };
 
@@ -652,21 +652,21 @@ function MetricsTab() {
         { l: "TSH", v: (() => { const e = entries.find(e => e.values?.tsh); return e ? e.values.tsh + "" : "-"; })(), c: (() => { const e = entries.find(e => e.values?.tsh); const m = BLOOD_MARKERS.find(x => x.id === "tsh"); return e && m ? getMarkerColor(m, e.values.tsh) : C.txT; })(), sub: "Range: 0.4-4.0" },
         { l: "Anti-TPO", v: (() => { const e = entries.find(e => e.values?.antitpo); return e ? e.values.antitpo + "" : "-"; })(), c: (() => { const e = entries.find(e => e.values?.antitpo); const m = BLOOD_MARKERS.find(x => x.id === "antitpo"); return e && m ? getMarkerColor(m, e.values.antitpo) : C.txT; })(), sub: "Ref: <5.61" },
       ].map((g, i) => (<div key={i} style={{ background: C.bgS, borderRadius: 4, padding: "10px 12px" }}>
-        <div style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 3 }}>{g.l}</div>
-        <div style={{ fontSize: 18, fontWeight: 500, color: g.c }}>{g.v}</div>
-        <div style={{ fontSize: 10, color: C.txT, marginTop: 2 }}>{g.sub}</div>
+        <div style={{ fontSize: 11, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 3 }}>{g.l}</div>
+        <div style={{ fontSize: 20, fontWeight: 500, color: g.c }}>{g.v}</div>
+        <div style={{ fontSize: 11, color: C.txT, marginTop: 2 }}>{g.sub}</div>
       </div>))}
     </div>
 
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-      <span style={{ fontSize: 14, fontWeight: 600, color: C.tx }}>Markers</span>
-      {osBtn({ children: "+ Add blood work", onClick: addEntry, style: { padding: "5px 12px", fontSize: 11 } })}
+      <span style={{ fontSize: 15, fontWeight: 600, color: C.tx }}>Markers</span>
+      {osBtn({ children: "+ Add blood work", onClick: addEntry, style: { padding: "5px 12px", fontSize: 12 } })}
     </div>
 
     <div style={{ display: "flex", alignItems: "center", padding: "6px 0", borderBottom: `0.5px solid ${C.bdr}` }}>
       <span style={grpE}></span>
-      <span style={{ ...nameS, fontSize: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em", color: C.txT }}>Marker</span>
-      <span style={{ ...normS, fontSize: 10, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em" }}>Normal</span>
+      <span style={{ ...nameS, fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em", color: C.txT }}>Marker</span>
+      <span style={{ ...normS, fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em" }}>Normal</span>
       {dateColumns.map((entry, i) => (<React.Fragment key={i}>
         <span style={i === 0 ? { ...hdrValS, color: C.tx } : hdrValS}>{entry ? fmtDate(entry.date) : i === 0 ? "-" : "Day " + (i * 30)}</span>
         <span style={{ width: 9 }}></span>
@@ -688,7 +688,7 @@ function MetricsTab() {
             const display = hasVal ? (typeof val === "string" && isNaN(parseFloat(val)) ? val.slice(0, 3) : val) : "-";
             return (<React.Fragment key={ei}>
               {ei === 0 ? (
-                <input type={m.isText ? "text" : "number"} step="0.01" value={val || ""} onChange={(e) => entry && updateEntryValue(entry.id, m.id, e.target.value)} placeholder="-" style={{ flex: "0 0 54px", textAlign: "center", fontSize: 12, fontWeight: hasVal ? 500 : 400, color, border: "none", background: "transparent", outline: "none", fontFamily: F.sans, padding: 0 }} />
+                <input type={m.isText ? "text" : "number"} step="0.01" value={val || ""} onChange={(e) => entry && updateEntryValue(entry.id, m.id, e.target.value)} placeholder="-" style={{ flex: "0 0 54px", textAlign: "center", fontSize: 13, fontWeight: hasVal ? 500 : 400, color, border: "none", background: "transparent", outline: "none", fontFamily: F.sans, padding: 0 }} />
               ) : (
                 <span style={hasVal ? { ...valS, color } : futureS}>{display}</span>
               )}
@@ -700,29 +700,29 @@ function MetricsTab() {
     </React.Fragment>))}
 
     {entries.length > 0 && <div style={{ marginTop: 8, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-      {entries.map((entry, i) => (<div key={entry.id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: C.txT }}>
-        <input type="date" value={entry.date} onChange={(e) => updateEntryDate(entry.id, e.target.value)} style={{ border: `1px solid ${C.bdr}`, borderRadius: 3, padding: "3px 6px", fontFamily: F.sans, fontSize: 11, color: C.tx, background: "transparent", outline: "none" }} />
-        {i === 0 && <span style={{ fontSize: 9, fontWeight: 600, padding: "1px 6px", borderRadius: 8, background: C.greenBg, color: C.green }}>latest</span>}
-        <span onClick={() => deleteEntry(entry.id)} style={{ cursor: "pointer", fontSize: 10, color: C.txT }}>x</span>
+      {entries.map((entry, i) => (<div key={entry.id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: C.txT }}>
+        <input type="date" value={entry.date} onChange={(e) => updateEntryDate(entry.id, e.target.value)} style={{ border: `1px solid ${C.bdr}`, borderRadius: 3, padding: "3px 6px", fontFamily: F.sans, fontSize: 12, color: C.tx, background: "transparent", outline: "none" }} />
+        {i === 0 && <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 6px", borderRadius: 8, background: C.greenBg, color: C.green }}>latest</span>}
+        <span onClick={() => deleteEntry(entry.id)} style={{ cursor: "pointer", fontSize: 11, color: C.txT }}>x</span>
       </div>))}
     </div>}
 
     <div style={{ height: 24 }} />
-    <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}><span style={{ fontSize: 14, fontWeight: 600, color: C.tx }}>Supplement protocol</span></div>
+    <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}><span style={{ fontSize: 15, fontWeight: 600, color: C.tx }}>Supplement protocol</span></div>
     {SUPPLEMENTS.map((s, i) => (<div key={i} style={lineS}>
-      <span style={{ fontSize: 13, color: C.tx, flex: 1, paddingLeft: 16 }}>{s.name}</span>
-      <span style={{ fontSize: 12, color: C.txS, width: 80 }}>{s.dose}</span>
-      <span style={{ fontSize: 11, color: C.txT, width: 70 }}>{s.time}</span>
-      <span style={{ fontSize: 11, color: C.txT, width: 110, textAlign: "right", paddingRight: 16 }}>{s.why}</span>
+      <span style={{ fontSize: 14, color: C.tx, flex: 1, paddingLeft: 16 }}>{s.name}</span>
+      <span style={{ fontSize: 13, color: C.txS, width: 80 }}>{s.dose}</span>
+      <span style={{ fontSize: 12, color: C.txT, width: 70 }}>{s.time}</span>
+      <span style={{ fontSize: 12, color: C.txT, width: 110, textAlign: "right", paddingRight: 16 }}>{s.why}</span>
     </div>))}
 
     <div style={{ height: 20 }} />
-    <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}><span style={{ fontSize: 14, fontWeight: 600, color: C.tx }}>Health conditions</span></div>
+    <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}><span style={{ fontSize: 15, fontWeight: 600, color: C.tx }}>Health conditions</span></div>
     {CONDITIONS.map((c) => { const status = (data.conditions || {})[c.id] || "monitoring"; const sc = COND_COLORS[status] || COND_COLORS.monitoring; return (
       <div key={c.id} style={lineS}>
-        <span style={{ fontSize: 13, color: C.tx, flex: 1, paddingLeft: 16 }}>{c.label}</span>
-        <span onClick={() => cycleCondition(c.id)} style={{ fontSize: 10, fontWeight: 500, padding: "2px 10px", borderRadius: 10, background: sc.bg, color: sc.c, cursor: "pointer", userSelect: "none" }}>{status}</span>
-        <span style={{ fontSize: 12, color: C.txT, width: 100, textAlign: "right", paddingRight: 16 }}>{c.target}</span>
+        <span style={{ fontSize: 14, color: C.tx, flex: 1, paddingLeft: 16 }}>{c.label}</span>
+        <span onClick={() => cycleCondition(c.id)} style={{ fontSize: 11, fontWeight: 500, padding: "2px 10px", borderRadius: 10, background: sc.bg, color: sc.c, cursor: "pointer", userSelect: "none" }}>{status}</span>
+        <span style={{ fontSize: 13, color: C.txT, width: 100, textAlign: "right", paddingRight: 16 }}>{c.target}</span>
       </div>); })}
   </div>);
 }
@@ -741,38 +741,38 @@ const PROTOCOL_DATA = [
 
 function ProtocolTab() {
   const lineS = { display: "flex", alignItems: "flex-start", padding: "6px 0", borderBottom: `1px solid ${C.bdr}`, gap: 10 };
-  const labelS = { fontSize: 11, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", minWidth: 80, paddingTop: 2, flexShrink: 0 };
+  const labelS = { fontSize: 12, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", minWidth: 80, paddingTop: 2, flexShrink: 0 };
 
   return (<div>
     <Ps style={{ marginBottom: 16 }}>Reference guide for your supplement stack. What each does, why you take it, what to watch, when to adjust.</Ps>
-    <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}><span style={{ fontSize: 14, fontWeight: 600, color: C.tx }}>Daily stack</span></div>
+    <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}><span style={{ fontSize: 15, fontWeight: 600, color: C.tx }}>Daily stack</span></div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
       {PROTOCOL_DATA.map((s, i) => (<div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderBottom: `1px solid ${C.bdr}` }}>
         <div style={{ width: 6, height: 6, borderRadius: 3, background: s.color, flexShrink: 0 }} />
-        <span style={{ fontSize: 13, fontWeight: 500, color: C.tx, flex: 1 }}>{s.name}</span>
-        <span style={{ fontSize: 11, color: C.txS }}>{s.dose}</span>
-        <span style={{ fontSize: 11, color: C.txT }}>{s.timing.split(",")[0]}</span>
+        <span style={{ fontSize: 14, fontWeight: 500, color: C.tx, flex: 1 }}>{s.name}</span>
+        <span style={{ fontSize: 12, color: C.txS }}>{s.dose}</span>
+        <span style={{ fontSize: 12, color: C.txT }}>{s.timing.split(",")[0]}</span>
       </div>))}
     </div>
     <div style={{ height: 20 }} />
     {PROTOCOL_DATA.map((s, i) => (<div key={i} style={{ marginBottom: 16 }}>
       <div style={{ background: C.bgS, padding: "12px 16px", borderBottom: `1px solid ${C.bdr}`, display: "flex", alignItems: "center", gap: 10 }}>
         <div style={{ width: 8, height: 8, borderRadius: 4, background: s.color, flexShrink: 0 }} />
-        <span style={{ fontSize: 15, fontWeight: 600, color: C.tx }}>{s.name}</span>
-        <span style={{ fontSize: 12, color: C.txS, marginLeft: "auto" }}>{s.dose} - {s.timing}</span>
+        <span style={{ fontSize: 16, fontWeight: 600, color: C.tx }}>{s.name}</span>
+        <span style={{ fontSize: 13, color: C.txS, marginLeft: "auto" }}>{s.dose} - {s.timing}</span>
       </div>
       <div style={{ padding: "10px 16px" }}>
-        <div style={lineS}><span style={labelS}>Target</span><span style={{ fontSize: 13, color: s.color, fontWeight: 500 }}>{s.target}</span></div>
-        <div style={lineS}><span style={labelS}>What</span><span style={{ fontSize: 13, color: C.tx, lineHeight: 1.6 }}>{s.what}</span></div>
-        <div style={lineS}><span style={labelS}>Why you</span><span style={{ fontSize: 13, color: C.tx, lineHeight: 1.6 }}>{s.why}</span></div>
-        <div style={lineS}><span style={labelS}>Watch for</span><span style={{ fontSize: 13, color: C.tx, lineHeight: 1.6 }}>{s.watch}</span></div>
-        <div style={lineS}><span style={labelS}>Interactions</span><span style={{ fontSize: 13, color: C.tx, lineHeight: 1.6 }}>{s.interactions}</span></div>
-        <div style={{ ...lineS, borderBottom: "none" }}><span style={labelS}>Adjust</span><span style={{ fontSize: 13, color: C.tx, lineHeight: 1.6 }}>{s.adjust}</span></div>
+        <div style={lineS}><span style={labelS}>Target</span><span style={{ fontSize: 14, color: s.color, fontWeight: 500 }}>{s.target}</span></div>
+        <div style={lineS}><span style={labelS}>What</span><span style={{ fontSize: 14, color: C.tx, lineHeight: 1.6 }}>{s.what}</span></div>
+        <div style={lineS}><span style={labelS}>Why you</span><span style={{ fontSize: 14, color: C.tx, lineHeight: 1.6 }}>{s.why}</span></div>
+        <div style={lineS}><span style={labelS}>Watch for</span><span style={{ fontSize: 14, color: C.tx, lineHeight: 1.6 }}>{s.watch}</span></div>
+        <div style={lineS}><span style={labelS}>Interactions</span><span style={{ fontSize: 14, color: C.tx, lineHeight: 1.6 }}>{s.interactions}</span></div>
+        <div style={{ ...lineS, borderBottom: "none" }}><span style={labelS}>Adjust</span><span style={{ fontSize: 14, color: C.tx, lineHeight: 1.6 }}>{s.adjust}</span></div>
       </div>
     </div>))}
     <div style={{ background: C.bgS, padding: "12px 16px", borderRadius: 4, marginTop: 8 }}>
-      <div style={{ fontSize: 13, fontWeight: 600, color: C.tx, marginBottom: 6 }}>General guidelines</div>
-      <div style={{ fontSize: 12, color: C.txS, lineHeight: 1.7 }}>
+      <div style={{ fontSize: 14, fontWeight: 600, color: C.tx, marginBottom: 6 }}>General guidelines</div>
+      <div style={{ fontSize: 13, color: C.txS, lineHeight: 1.7 }}>
         Retest blood markers every 3 months minimum. Morning supplements (selenomethionine, D3+K2, myo-inositol) can be taken together with breakfast. Berberine strictly with a full meal. Magnesium in the evening for sleep benefit. If starting any prescription medication, review all interactions - berberine especially affects drug metabolism. Track compliance in your habit tracker - the Health Officer needs this data to correlate supplement consistency with marker changes.
       </div>
     </div>
@@ -1041,11 +1041,11 @@ function HealthOfficerTab() {
 
     <div style={{ display: "flex", gap: 0, borderBottom: `1px solid ${C.bdr}`, marginBottom: 16 }}>
       {[{ k: "standard", l: "Standard" }, { k: "stream", l: "Streaming" }, { k: "tools", l: "Tool use" }, { k: "ab", l: "A/B test" }].map(t => (
-        <button key={t.k} onClick={() => setMode(t.k)} style={{ padding: "7px 14px", border: "none", background: "none", fontFamily: F.sans, fontSize: 13, fontWeight: mode === t.k ? 600 : 400, color: mode === t.k ? C.tx : C.txT, cursor: "pointer", borderBottom: mode === t.k ? `2px solid ${C.green}` : "2px solid transparent", marginBottom: -1 }}>{t.l}</button>
+        <button key={t.k} onClick={() => setMode(t.k)} style={{ padding: "7px 14px", border: "none", background: "none", fontFamily: F.sans, fontSize: 14, fontWeight: mode === t.k ? 600 : 400, color: mode === t.k ? C.tx : C.txT, cursor: "pointer", borderBottom: mode === t.k ? `2px solid ${C.green}` : "2px solid transparent", marginBottom: -1 }}>{t.l}</button>
       ))}
     </div>
 
-    <div style={{ fontSize: 12, color: C.txT, marginBottom: 12, fontFamily: F.sans }}>
+    <div style={{ fontSize: 13, color: C.txT, marginBottom: 12, fontFamily: F.sans }}>
       {mode === "standard" && "Chain-of-thought + few-shot examples. Claude reasons through data before scoring."}
       {mode === "stream" && "Same analysis but words appear live as Claude generates them."}
       {mode === "tools" && "Claude decides what data to fetch using tools. It requests habits, blood work, and metrics autonomously."}
@@ -1057,27 +1057,27 @@ function HealthOfficerTab() {
     </div>
 
     {alerts.length > 0 && (<div style={{ marginBottom: 16 }}>
-      {alerts.map((a, i) => (<div key={i} style={{ padding: "8px 12px", marginBottom: 4, borderRadius: 4, fontSize: 13, background: a.type === "danger" ? C.redBg : C.yellowBg, color: a.type === "danger" ? C.red : "#856d0a", display: "flex", gap: 8, alignItems: "center" }}><span style={{ fontSize: 14, flexShrink: 0 }}>{a.type === "danger" ? "\u26A0" : "\u25CF"}</span>{a.text}</div>))}
+      {alerts.map((a, i) => (<div key={i} style={{ padding: "8px 12px", marginBottom: 4, borderRadius: 4, fontSize: 14, background: a.type === "danger" ? C.redBg : C.yellowBg, color: a.type === "danger" ? C.red : "#856d0a", display: "flex", gap: 8, alignItems: "center" }}><span style={{ fontSize: 15, flexShrink: 0 }}>{a.type === "danger" ? "\u26A0" : "\u25CF"}</span>{a.text}</div>))}
     </div>)}
 
-    {error && <div style={{ padding: "12px 16px", background: C.redBg, borderRadius: 4, marginBottom: 16, fontSize: 13, color: C.red }}>{error}</div>}
+    {error && <div style={{ padding: "12px 16px", background: C.redBg, borderRadius: 4, marginBottom: 16, fontSize: 14, color: C.red }}>{error}</div>}
 
-    {isStreaming && streamText && (<pre style={{ padding: "14px 16px", background: C.bgS, borderRadius: 4, fontSize: 12, color: C.txS, fontFamily: F.mono, whiteSpace: "pre-wrap", lineHeight: 1.6, marginBottom: 16, overflow: "auto", maxHeight: 300 }}>{streamText}<span style={{ animation: "blink 1s infinite" }}>|</span></pre>)}
+    {isStreaming && streamText && (<pre style={{ padding: "14px 16px", background: C.bgS, borderRadius: 4, fontSize: 13, color: C.txS, fontFamily: F.mono, whiteSpace: "pre-wrap", lineHeight: 1.6, marginBottom: 16, overflow: "auto", maxHeight: 300 }}>{streamText}<span style={{ animation: "blink 1s infinite" }}>|</span></pre>)}
 
     {toolLog.length > 0 && (<div style={{ marginBottom: 16 }}>
-      <div style={{ fontSize: 10, fontWeight: 600, color: C.purple, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6, fontFamily: F.sans }}>Tool calls</div>
-      {toolLog.map((t, i) => (<div key={i} style={{ padding: "6px 10px", marginBottom: 3, borderRadius: 4, fontSize: 12, background: C.purpleBg, color: C.purple, fontFamily: F.mono }}>{t.tool}({JSON.stringify(t.input)})</div>))}
+      <div style={{ fontSize: 11, fontWeight: 600, color: C.purple, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6, fontFamily: F.sans }}>Tool calls</div>
+      {toolLog.map((t, i) => (<div key={i} style={{ padding: "6px 10px", marginBottom: 3, borderRadius: 4, fontSize: 13, background: C.purpleBg, color: C.purple, fontFamily: F.mono }}>{t.tool}({JSON.stringify(t.input)})</div>))}
     </div>)}
 
     {abResult && (<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
       {[{ label: "A: Health Officer", data: abResult.a, color: C.green }, { label: "B: Clinical Analyst", data: abResult.b, color: C.purple }].map(({ label, data: d, color }) => (
         <div key={label} style={{ border: `1px solid ${C.bdr}`, borderRadius: 6, padding: "12px 14px" }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color, marginBottom: 8, fontFamily: F.sans }}>{label}</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color, marginBottom: 8, fontFamily: F.sans }}>{label}</div>
           <div style={{ fontSize: 22, fontWeight: 500, color: scoreColor(d.overall_score), marginBottom: 6 }}>{d.overall_score}/10</div>
-          <div style={{ fontSize: 12, color: C.txS, marginBottom: 4, lineHeight: 1.5 }}>{d.top_pattern}</div>
-          <div style={{ fontSize: 12, color: C.red, marginBottom: 4, lineHeight: 1.5 }}>{d.concern}</div>
-          <div style={{ fontSize: 12, color: C.green, fontWeight: 500, lineHeight: 1.5 }}>{d.recommendation}</div>
-          {d.reasoning && (<div style={{ fontSize: 11, color: C.txT, marginTop: 8, lineHeight: 1.5, fontStyle: "italic" }}>{d.reasoning.slice(0, 200)}...</div>)}
+          <div style={{ fontSize: 13, color: C.txS, marginBottom: 4, lineHeight: 1.5 }}>{d.top_pattern}</div>
+          <div style={{ fontSize: 13, color: C.red, marginBottom: 4, lineHeight: 1.5 }}>{d.concern}</div>
+          <div style={{ fontSize: 13, color: C.green, fontWeight: 500, lineHeight: 1.5 }}>{d.recommendation}</div>
+          {d.reasoning && (<div style={{ fontSize: 12, color: C.txT, marginTop: 8, lineHeight: 1.5, fontStyle: "italic" }}>{d.reasoning.slice(0, 200)}...</div>)}
         </div>
       ))}
     </div>)}
@@ -1086,77 +1086,77 @@ function HealthOfficerTab() {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
         {[{ l: "Overall", v: analysis.overall_score + "/10", c: scoreColor(analysis.overall_score) }, { l: "Sleep avg", v: (analysis.sleep_avg || "-") + "h", c: analysis.sleep_avg >= 7 ? C.green : C.orange, extra: analysis.sleep_trend }, { l: "Water avg", v: (analysis.water_avg || "-") + "L", c: (analysis.water_avg || 0) >= 1.5 ? C.green : C.orange }, { l: "Supplements", v: analysis.supplement_compliance || "-", c: C.tx }].map((g, i) => (
           <div key={i} style={{ background: C.bgS, borderRadius: 4, padding: "10px 12px" }}>
-            <div style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 3 }}>{g.l}</div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}><span style={{ fontSize: 22, fontWeight: 500, color: g.c }}>{g.v}</span>{g.extra && <span style={{ fontSize: 14, color: trendColor(g.extra) }}>{trendArrow(g.extra)}</span>}</div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 3 }}>{g.l}</div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}><span style={{ fontSize: 22, fontWeight: 500, color: g.c }}>{g.v}</span>{g.extra && <span style={{ fontSize: 15, color: trendColor(g.extra) }}>{trendArrow(g.extra)}</span>}</div>
           </div>
         ))}
       </div>
 
       {analysis.reasoning && (<div style={{ marginBottom: 16 }}>
-        <div onClick={() => setShowReasoning(!showReasoning)} style={{ fontSize: 11, color: C.purple, cursor: "pointer", fontFamily: F.sans, fontWeight: 600, padding: "6px 0" }}>{showReasoning ? "Hide" : "Show"} Health Officer's reasoning</div>
-        {showReasoning && (<div style={{ padding: "12px 16px", background: C.purpleBg, borderRadius: 4, fontSize: 13, color: C.tx, lineHeight: 1.6, fontStyle: "italic" }}>{analysis.reasoning}</div>)}
+        <div onClick={() => setShowReasoning(!showReasoning)} style={{ fontSize: 12, color: C.purple, cursor: "pointer", fontFamily: F.sans, fontWeight: 600, padding: "6px 0" }}>{showReasoning ? "Hide" : "Show"} Health Officer's reasoning</div>
+        {showReasoning && (<div style={{ padding: "12px 16px", background: C.purpleBg, borderRadius: 4, fontSize: 14, color: C.tx, lineHeight: 1.6, fontStyle: "italic" }}>{analysis.reasoning}</div>)}
       </div>)}
 
       {analysis.weekly_summary && (<div style={{ padding: "12px 16px", background: C.blueBg, borderRadius: 4, marginBottom: 16 }}>
-        <div style={{ fontSize: 10, fontWeight: 600, color: C.blue, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 4 }}>Weekly summary</div>
-        <div style={{ fontSize: 14, color: C.tx, lineHeight: 1.6 }}>{analysis.weekly_summary}</div>
-        {analysis.trend_insight && <div style={{ fontSize: 12, color: C.txS, marginTop: 6, fontStyle: "italic" }}>{analysis.trend_insight}</div>}
+        <div style={{ fontSize: 11, fontWeight: 600, color: C.blue, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 4 }}>Weekly summary</div>
+        <div style={{ fontSize: 15, color: C.tx, lineHeight: 1.6 }}>{analysis.weekly_summary}</div>
+        {analysis.trend_insight && <div style={{ fontSize: 13, color: C.txS, marginTop: 6, fontStyle: "italic" }}>{analysis.trend_insight}</div>}
       </div>)}
 
       {[{ label: "Top pattern", value: analysis.top_pattern, color: C.txT }, { label: "Concern", value: analysis.concern, color: C.red }, { label: "Action", value: analysis.recommendation, color: C.green }].map((row, i) => (
         <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: `1px solid ${C.bdr}` }}>
-          <span style={{ fontSize: 10, fontWeight: 600, color: row.color, textTransform: "uppercase", letterSpacing: "0.04em", minWidth: 100, paddingTop: 2, flexShrink: 0, fontFamily: F.sans }}>{row.label}</span>
-          <span style={{ fontSize: 14, color: row.label === "Concern" && row.value === "None" ? C.green : C.tx, lineHeight: 1.5, fontWeight: row.label === "Action" ? 500 : 400 }}>{row.value}</span>
+          <span style={{ fontSize: 11, fontWeight: 600, color: row.color, textTransform: "uppercase", letterSpacing: "0.04em", minWidth: 100, paddingTop: 2, flexShrink: 0, fontFamily: F.sans }}>{row.label}</span>
+          <span style={{ fontSize: 15, color: row.label === "Concern" && row.value === "None" ? C.green : C.tx, lineHeight: 1.5, fontWeight: row.label === "Action" ? 500 : 400 }}>{row.value}</span>
         </div>
       ))}
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 12 }}>
         <div>
-          <div style={{ fontSize: 10, fontWeight: 600, color: C.green, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6, fontFamily: F.sans }}>Wins</div>
-          {(analysis.wins || []).map((w, i) => <div key={i} style={{ fontSize: 13, color: C.tx, padding: "4px 0", borderBottom: `1px solid ${C.bdr}` }}>{w}</div>)}
+          <div style={{ fontSize: 11, fontWeight: 600, color: C.green, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6, fontFamily: F.sans }}>Wins</div>
+          {(analysis.wins || []).map((w, i) => <div key={i} style={{ fontSize: 14, color: C.tx, padding: "4px 0", borderBottom: `1px solid ${C.bdr}` }}>{w}</div>)}
         </div>
         <div>
-          <div style={{ fontSize: 10, fontWeight: 600, color: C.red, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6, fontFamily: F.sans }}>Flags</div>
-          {(analysis.flags || []).length > 0 ? (analysis.flags || []).map((f, i) => <div key={i} style={{ fontSize: 13, color: C.red, padding: "4px 0", borderBottom: `1px solid ${C.bdr}` }}>{f}</div>) : <div style={{ fontSize: 13, color: C.txT }}>None</div>}
+          <div style={{ fontSize: 11, fontWeight: 600, color: C.red, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6, fontFamily: F.sans }}>Flags</div>
+          {(analysis.flags || []).length > 0 ? (analysis.flags || []).map((f, i) => <div key={i} style={{ fontSize: 14, color: C.red, padding: "4px 0", borderBottom: `1px solid ${C.bdr}` }}>{f}</div>) : <div style={{ fontSize: 14, color: C.txT }}>None</div>}
         </div>
       </div>
 
       <div style={{ marginTop: 16 }}>
-        <span onClick={() => setShowRaw(!showRaw)} style={{ fontSize: 11, color: C.txT, cursor: "pointer" }}>{showRaw ? "Hide" : "Show"} raw API response</span>
-        {showRaw && rawJSON && <pre style={{ marginTop: 8, padding: "12px 14px", background: C.bgS, borderRadius: 4, fontSize: 11, color: C.txS, fontFamily: F.mono, whiteSpace: "pre-wrap", lineHeight: 1.6, overflow: "auto" }}>{rawJSON}</pre>}
+        <span onClick={() => setShowRaw(!showRaw)} style={{ fontSize: 12, color: C.txT, cursor: "pointer" }}>{showRaw ? "Hide" : "Show"} raw API response</span>
+        {showRaw && rawJSON && <pre style={{ marginTop: 8, padding: "12px 14px", background: C.bgS, borderRadius: 4, fontSize: 12, color: C.txS, fontFamily: F.mono, whiteSpace: "pre-wrap", lineHeight: 1.6, overflow: "auto" }}>{rawJSON}</pre>}
       </div>
     </div>)}
 
     <div style={{ marginTop: 24, borderTop: `1px solid ${C.bdr}`, paddingTop: 16 }}>
-      <div style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8, fontFamily: F.sans }}>Chat with Health Officer</div>
+      <div style={{ fontSize: 11, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8, fontFamily: F.sans }}>Chat with Health Officer</div>
       <div style={{ maxHeight: 300, overflowY: "auto", marginBottom: 10 }}>
-        {chatMessages.map((m, i) => (<div key={i} style={{ padding: "8px 12px", marginBottom: 4, borderRadius: 6, fontSize: 13, lineHeight: 1.6, background: m.role === "user" ? C.bgS : C.greenBg, color: C.tx, fontFamily: F.sans }}><span style={{ fontSize: 10, fontWeight: 600, color: m.role === "user" ? C.txT : C.green, marginRight: 6 }}>{m.role === "user" ? "You" : "Health Officer"}</span>{m.text}</div>))}
-        {chatLoading && <div style={{ fontSize: 12, color: C.txT, padding: "8px 12px" }}>Thinking...</div>}
+        {chatMessages.map((m, i) => (<div key={i} style={{ padding: "8px 12px", marginBottom: 4, borderRadius: 6, fontSize: 14, lineHeight: 1.6, background: m.role === "user" ? C.bgS : C.greenBg, color: C.tx, fontFamily: F.sans }}><span style={{ fontSize: 11, fontWeight: 600, color: m.role === "user" ? C.txT : C.green, marginRight: 6 }}>{m.role === "user" ? "You" : "Health Officer"}</span>{m.text}</div>))}
+        {chatLoading && <div style={{ fontSize: 13, color: C.txT, padding: "8px 12px" }}>Thinking...</div>}
       </div>
       <div style={{ display: "flex", gap: 8 }}>
-        <input value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendChat()} placeholder="Ask a follow-up question..." style={{ flex: 1, border: `1px solid ${C.bdr}`, borderRadius: 4, padding: "8px 12px", fontSize: 13, color: C.tx, background: C.bgS, outline: "none", fontFamily: F.sans }} />
+        <input value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendChat()} placeholder="Ask a follow-up question..." style={{ flex: 1, border: `1px solid ${C.bdr}`, borderRadius: 4, padding: "8px 12px", fontSize: 14, color: C.tx, background: C.bgS, outline: "none", fontFamily: F.sans }} />
         {osBtn({ children: "Send", onClick: sendChat, disabled: chatLoading || !chatInput.trim(), style: { padding: "8px 14px" } })}
       </div>
     </div>
 
     {history.length > 0 && (<div style={{ marginTop: 24 }}>
-      <div style={{ fontSize: 10, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8, fontFamily: F.sans }}>Previous analyses</div>
+      <div style={{ fontSize: 11, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8, fontFamily: F.sans }}>Previous analyses</div>
       {history.map((h, i) => {
         const d = new Date(h.timestamp); const label = d.toLocaleDateString("en-US", { month: "short", day: "numeric" }) + " " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
         return (<div key={i} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", borderBottom: `1px solid ${C.bdr}` }}>
-          <span onClick={() => { setAnalysis(h.analysis); setAlerts(h.alerts || []); setRawJSON(h.rawJSON || null); }} style={{ fontSize: 13, color: C.blue, cursor: "pointer", flex: 1 }}>{label}</span>
-          {h.source && <span style={{ fontSize: 9, color: C.txT, padding: "1px 6px", borderRadius: 6, background: C.bgS }}>{h.source}</span>}
-          <span style={{ fontSize: 14, fontWeight: 600, color: scoreColor(h.analysis.overall_score) }}>{h.analysis.overall_score}/10</span>
-          <span onClick={() => rateAnalysis(i, "up")} style={{ fontSize: 14, cursor: "pointer", opacity: h.rating === "up" ? 1 : 0.3 }}>&#x1F44D;</span>
-          <span onClick={() => rateAnalysis(i, "down")} style={{ fontSize: 14, cursor: "pointer", opacity: h.rating === "down" ? 1 : 0.3 }}>&#x1F44E;</span>
-          <span onClick={() => deleteHistoryEntry(i)} style={{ fontSize: 11, color: C.txT, cursor: "pointer", padding: "2px 6px" }}>x</span>
+          <span onClick={() => { setAnalysis(h.analysis); setAlerts(h.alerts || []); setRawJSON(h.rawJSON || null); }} style={{ fontSize: 14, color: C.blue, cursor: "pointer", flex: 1 }}>{label}</span>
+          {h.source && <span style={{ fontSize: 10, color: C.txT, padding: "1px 6px", borderRadius: 6, background: C.bgS }}>{h.source}</span>}
+          <span style={{ fontSize: 15, fontWeight: 600, color: scoreColor(h.analysis.overall_score) }}>{h.analysis.overall_score}/10</span>
+          <span onClick={() => rateAnalysis(i, "up")} style={{ fontSize: 15, cursor: "pointer", opacity: h.rating === "up" ? 1 : 0.3 }}>&#x1F44D;</span>
+          <span onClick={() => rateAnalysis(i, "down")} style={{ fontSize: 15, cursor: "pointer", opacity: h.rating === "down" ? 1 : 0.3 }}>&#x1F44E;</span>
+          <span onClick={() => deleteHistoryEntry(i)} style={{ fontSize: 12, color: C.txT, cursor: "pointer", padding: "2px 6px" }}>x</span>
         </div>);
       })}
     </div>)}
 
     <div style={{ marginTop: 24, padding: "12px 16px", background: C.bgS, borderRadius: 4 }}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6, fontFamily: F.sans }}>CCA skills practiced in this tab</div>
-      <div style={{ fontSize: 12, color: C.txS, lineHeight: 1.8, fontFamily: F.sans }}>
+      <div style={{ fontSize: 12, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6, fontFamily: F.sans }}>CCA skills practiced in this tab</div>
+      <div style={{ fontSize: 13, color: C.txS, lineHeight: 1.8, fontFamily: F.sans }}>
         API basics (s1) - messages, model, max_tokens.
         Prompt engineering (s3) - few-shot example, chain-of-thought reasoning field, role assignment.
         Prompt evaluation (s2) - thumbs up/down ratings, A/B prompt comparison.
@@ -1184,12 +1184,12 @@ function BodyPage() {
     { k: "officer", l: "Health Officer" },
   ];
   return (<div>
-    <H1 style={{ fontSize: 28, margin: "0 0 4px" }}>Body</H1>
+    <H1 style={{ fontSize: 30, margin: "0 0 4px" }}>Body</H1>
     <div style={{ display: "flex", gap: 0, borderBottom: `1px solid ${C.bdr}`, marginBottom: 20 }}>
       {tabs.map((t, i) => (
         <button key={t.k} onClick={() => setTab(t.k)} style={{
           padding: `8px 16px 8px ${i === 0 ? 0 : 16}px`, border: "none", background: "none",
-          fontFamily: F.sans, fontSize: 14, fontWeight: tab === t.k ? 600 : 400,
+          fontFamily: F.sans, fontSize: 15, fontWeight: tab === t.k ? 600 : 400,
           color: tab === t.k ? C.tx : C.txT, cursor: "pointer",
           borderBottom: tab === t.k ? `2px solid ${C.tx}` : "2px solid transparent", marginBottom: -1,
         }}>{t.l}</button>
@@ -1208,54 +1208,54 @@ function BodyPage() {
 // ══════════════════════════════════════════════════════════════
 
 function CompassCareer(){
-  const lineR={display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:`1px solid ${C.bdr}`,fontSize:14};
+  const lineR={display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:`1px solid ${C.bdr}`,fontSize:15};
   return(<div>
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,marginBottom:20}}>
       <div style={{background:C.bgS,borderRadius:4,padding:"12px 14px"}}>
-        <div style={{fontSize:10,fontWeight:600,color:C.txT,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:6}}>Now</div>
-        <div style={{fontSize:13,fontWeight:600,color:C.tx,marginBottom:6}}>AI Data Ops Professional</div>
-        {["Team lead","Annotator","QA","Transcriber","Translator"].map((r,i)=>(<div key={i} style={{fontSize:12,color:C.txS,padding:"2px 0"}}>{r}</div>))}
+        <div style={{fontSize:11,fontWeight:600,color:C.txT,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:6}}>Now</div>
+        <div style={{fontSize:14,fontWeight:600,color:C.tx,marginBottom:6}}>AI Data Ops Professional</div>
+        {["Team lead","Annotator","QA","Transcriber","Translator"].map((r,i)=>(<div key={i} style={{fontSize:13,color:C.txS,padding:"2px 0"}}>{r}</div>))}
         <div style={{borderTop:`1px solid ${C.bdr}`,marginTop:6,paddingTop:6}}>
-          {["Starter writer","Starter content creator"].map((r,i)=>(<div key={i} style={{fontSize:12,color:C.txS,padding:"2px 0"}}>{r}</div>))}
+          {["Starter writer","Starter content creator"].map((r,i)=>(<div key={i} style={{fontSize:13,color:C.txS,padding:"2px 0"}}>{r}</div>))}
         </div>
         <div style={{borderTop:`1px solid ${C.bdr}`,marginTop:6,paddingTop:6}}>
-          <div style={{fontSize:12,color:C.orange,fontWeight:500,padding:"2px 0"}}>Handshake AI - SPA i18n (in progress)</div>
+          <div style={{fontSize:13,color:C.orange,fontWeight:500,padding:"2px 0"}}>Handshake AI - SPA i18n (in progress)</div>
         </div>
       </div>
       <div style={{background:C.orangeBg,borderRadius:4,padding:"12px 14px"}}>
-        <div style={{fontSize:10,fontWeight:600,color:C.orange,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:6}}>Building</div>
-        {["Claude CCA learning","Claude CCA certification","Portfolio","Update CV + LinkedIn","Writing skills","Content creation skills","Trading / stock skills","Product design / UX","Personal brand / online presence","Networking / community"].map((r,i)=>(<div key={i} style={{fontSize:12,color:C.tx,padding:"2px 0"}}>{r}</div>))}
+        <div style={{fontSize:11,fontWeight:600,color:C.orange,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:6}}>Building</div>
+        {["Claude CCA learning","Claude CCA certification","Portfolio","Update CV + LinkedIn","Writing skills","Content creation skills","Trading / stock skills","Product design / UX","Personal brand / online presence","Networking / community"].map((r,i)=>(<div key={i} style={{fontSize:13,color:C.tx,padding:"2px 0"}}>{r}</div>))}
       </div>
       <div style={{background:C.greenBg,borderRadius:4,padding:"12px 14px"}}>
-        <div style={{fontSize:10,fontWeight:600,color:C.green,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:6}}>Goal</div>
-        {["Implementation Specialist","Human Data Manager","AI Data Annotation Team Lead","Strategic Project Associate","Investor / Trader","Writer","Creator","Founder"].map((r,i)=>(<div key={i} style={{fontSize:12,color:C.tx,padding:"2px 0",fontWeight:i>=4?600:400}}>{r}</div>))}
+        <div style={{fontSize:11,fontWeight:600,color:C.green,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:6}}>Goal</div>
+        {["Implementation Specialist","Human Data Manager","AI Data Annotation Team Lead","Strategic Project Associate","Investor / Trader","Writer","Creator","Founder"].map((r,i)=>(<div key={i} style={{fontSize:13,color:C.tx,padding:"2px 0",fontWeight:i>=4?600:400}}>{r}</div>))}
       </div>
     </div>
     <H3 style={{margin:"0 0 10px"}}>Growth Timelines</H3>
     <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:0,marginBottom:6}}>
       {[{t:"Y1",p:"Specialist",ps:"$80-120K",f:"Side projects",fs:"First users",c:"First content",cs:"Writing + channel",v:"Learning",vs:"Paper trading"},{t:"Y2",p:"Senior Lead",ps:"$120-160K",f:"First revenue",fs:"$1-5K/mo",c:"Audience building",cs:"Consistent output",v:"Active trading",vs:"Small portfolio"},{t:"Y3-4",p:"Architect",ps:"$160-250K",f:"Product-market fit",fs:"$5-15K/mo",c:"Monetize",cs:"Paid content",v:"Growing portfolio",vs:"Passive income"},{t:"Y5+",p:"Director",ps:"$200-350K+",f:"Independence",fs:"Replaces salary",c:"Brand",cs:"Multiple formats",v:"Financial freedom",vs:"Compounding"}].map((y,i)=>(<div key={i} style={{padding:"14px 16px",borderBottom:`1px solid ${C.bdr}`,borderLeft:i>0?`1px solid ${C.bdr}`:"none"}}>
-        <div style={{fontSize:12,fontWeight:600,color:C.txT,marginBottom:6}}>{y.t}</div>
-        <div style={{fontSize:14,fontWeight:600,color:C.purple,marginBottom:2}}>{y.p}</div>
-        <div style={{fontSize:13,color:C.txS,marginBottom:6}}>{y.ps}</div>
-        <div style={{fontSize:14,fontWeight:600,color:C.gold,marginBottom:2}}>{y.f}</div>
-        <div style={{fontSize:13,color:C.txS,marginBottom:6}}>{y.fs}</div>
-        <div style={{fontSize:14,fontWeight:600,color:C.orange,marginBottom:2}}>{y.c}</div>
-        <div style={{fontSize:13,color:C.txS,marginBottom:6}}>{y.cs}</div>
-        <div style={{fontSize:14,fontWeight:600,color:C.blue,marginBottom:2}}>{y.v}</div>
-        <div style={{fontSize:13,color:C.txS}}>{y.vs}</div>
+        <div style={{fontSize:13,fontWeight:600,color:C.txT,marginBottom:6}}>{y.t}</div>
+        <div style={{fontSize:15,fontWeight:600,color:C.purple,marginBottom:2}}>{y.p}</div>
+        <div style={{fontSize:14,color:C.txS,marginBottom:6}}>{y.ps}</div>
+        <div style={{fontSize:15,fontWeight:600,color:C.gold,marginBottom:2}}>{y.f}</div>
+        <div style={{fontSize:14,color:C.txS,marginBottom:6}}>{y.fs}</div>
+        <div style={{fontSize:15,fontWeight:600,color:C.orange,marginBottom:2}}>{y.c}</div>
+        <div style={{fontSize:14,color:C.txS,marginBottom:6}}>{y.cs}</div>
+        <div style={{fontSize:15,fontWeight:600,color:C.blue,marginBottom:2}}>{y.v}</div>
+        <div style={{fontSize:14,color:C.txS}}>{y.vs}</div>
       </div>))}
     </div>
     <div style={{display:"flex",gap:12,marginBottom:20}}>
-      <span style={{fontSize:10,display:"flex",alignItems:"center",gap:4,color:C.txT}}><span style={{width:8,height:3,background:C.purple,borderRadius:1,display:"inline-block"}}/>Professional</span>
-      <span style={{fontSize:10,display:"flex",alignItems:"center",gap:4,color:C.txT}}><span style={{width:8,height:3,background:C.gold,borderRadius:1,display:"inline-block"}}/>Founder</span>
-      <span style={{fontSize:10,display:"flex",alignItems:"center",gap:4,color:C.txT}}><span style={{width:8,height:3,background:C.orange,borderRadius:1,display:"inline-block"}}/>Creative</span>
-      <span style={{fontSize:10,display:"flex",alignItems:"center",gap:4,color:C.txT}}><span style={{width:8,height:3,background:C.blue,borderRadius:1,display:"inline-block"}}/>Investor</span>
+      <span style={{fontSize:11,display:"flex",alignItems:"center",gap:4,color:C.txT}}><span style={{width:8,height:3,background:C.purple,borderRadius:1,display:"inline-block"}}/>Professional</span>
+      <span style={{fontSize:11,display:"flex",alignItems:"center",gap:4,color:C.txT}}><span style={{width:8,height:3,background:C.gold,borderRadius:1,display:"inline-block"}}/>Founder</span>
+      <span style={{fontSize:11,display:"flex",alignItems:"center",gap:4,color:C.txT}}><span style={{width:8,height:3,background:C.orange,borderRadius:1,display:"inline-block"}}/>Creative</span>
+      <span style={{fontSize:11,display:"flex",alignItems:"center",gap:4,color:C.txT}}><span style={{width:8,height:3,background:C.blue,borderRadius:1,display:"inline-block"}}/>Investor</span>
     </div>
     <H3 style={{margin:"0 0 10px"}}>Two paths</H3>
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
       <div style={{border:`1px solid ${C.bdr}`,borderRadius:4,padding:20}}>
         <Tag color="purple">START HERE</Tag>
-        <div style={{fontFamily:F.sans,fontSize:18,fontWeight:600,color:C.tx,margin:"8px 0 4px"}}>AI Implementation Specialist</div>
+        <div style={{fontFamily:F.sans,fontSize:20,fontWeight:600,color:C.tx,margin:"8px 0 4px"}}>AI Implementation Specialist</div>
         <Ps style={{marginBottom:10}}>The funding path</Ps>
         <div style={lineR}><span style={{color:C.txS}}>Salary</span><span style={{fontWeight:500}}>$80-190K</span></div>
         <div style={lineR}><span style={{color:C.txS}}>Alignment</span><span style={{fontWeight:500,color:C.orange}}>6.2/10</span></div>
@@ -1265,7 +1265,7 @@ function CompassCareer(){
       </div>
       <div style={{border:`1px solid ${C.bdr}`,borderRadius:4,padding:20}}>
         <Tag color="yellow">DESTINATION</Tag>
-        <div style={{fontFamily:F.sans,fontSize:18,fontWeight:600,color:C.tx,margin:"8px 0 4px"}}>Independent Creator / Founder</div>
+        <div style={{fontFamily:F.sans,fontSize:20,fontWeight:600,color:C.tx,margin:"8px 0 4px"}}>Independent Creator / Founder</div>
         <Ps style={{marginBottom:10}}>The destination</Ps>
         <div style={lineR}><span style={{color:C.txS}}>Salary</span><span style={{fontWeight:500,color:C.green}}>Uncapped</span></div>
         <div style={lineR}><span style={{color:C.txS}}>Alignment</span><span style={{fontWeight:500,color:C.green}}>9.8/10</span></div>
@@ -1310,27 +1310,27 @@ function LearningPlan(){const[exp,setExp]=useState("p1");
   const updAction=(phId,aId,field,val)=>{const ph=GP_PHASES.find(p=>p.id===phId);const cur=getPhaseData(phId).actions||ph.actions;const upd=cur.map(a=>a.id===aId?{...a,[field]:val}:a);setPhaseField(phId,"actions",upd);};
   const updSkill=(phId,sId,field,val)=>{const ph=GP_PHASES.find(p=>p.id===phId);const cur=getPhaseData(phId).skills||ph.skills;const upd=cur.map(s=>s.id===sId?{...s,[field]:val}:s);setPhaseField(phId,"skills",upd);};
   const lineS={padding:"5px 0",borderBottom:`1px solid ${C.bdr}`,display:"flex",alignItems:"center",gap:8};
-  const txtS={fontSize:13,color:C.tx,flex:1,background:"transparent",border:"none",outline:"none",fontFamily:F.sans,padding:0,minWidth:0};
+  const txtS={fontSize:14,color:C.tx,flex:1,background:"transparent",border:"none",outline:"none",fontFamily:F.sans,padding:0,minWidth:0};
   const chkBox=<svg width="7" height="5" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
   const totalActions=GP_PHASES.reduce((s,ph)=>s+getActions(ph).length,0);
   const doneActions=GP_PHASES.reduce((s,ph)=>s+getActions(ph).filter(a=>a.done).length,0);
   return(<div>
     <Ps style={{marginBottom:16,color:C.txS}}>Becoming an AI Implementation Specialist</Ps>
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
-      {[{l:"CCA Certification",v:doneActions+"/"+totalActions+" steps",c:doneActions===totalActions?C.green:C.orange},{l:"Product",v:"Evalynn OS v2 or Golden Era v2",c:C.txS},{l:"Portfolio",v:"App + README + Demo video",c:C.txS}].map((g,i)=>(<div key={i} style={{background:C.bgS,borderRadius:4,padding:"10px 12px"}}><div style={{fontSize:10,fontWeight:600,color:C.txT,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:3}}>{g.l}</div><div style={{fontSize:13,fontWeight:500,color:g.c}}>{g.v}</div></div>))}
+      {[{l:"CCA Certification",v:doneActions+"/"+totalActions+" steps",c:doneActions===totalActions?C.green:C.orange},{l:"Product",v:"Evalynn OS v2 or Golden Era v2",c:C.txS},{l:"Portfolio",v:"App + README + Demo video",c:C.txS}].map((g,i)=>(<div key={i} style={{background:C.bgS,borderRadius:4,padding:"10px 12px"}}><div style={{fontSize:11,fontWeight:600,color:C.txT,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:3}}>{g.l}</div><div style={{fontSize:14,fontWeight:500,color:g.c}}>{g.v}</div></div>))}
     </div>
     <div style={{display:"flex",justifyContent:"flex-end",marginBottom:16}}>
       <div style={{display:"flex",alignItems:"center",gap:8}}>
-        <span style={{fontSize:11,color:C.txS}}>Start date</span>
-        <input type="date" value={startDate||""} onChange={e=>setStartDate(e.target.value)} style={{border:`1px solid ${C.bdr}`,borderRadius:3,padding:"4px 8px",fontFamily:F.sans,fontSize:12,color:C.tx,background:"transparent",outline:"none"}}/>
+        <span style={{fontSize:12,color:C.txS}}>Start date</span>
+        <input type="date" value={startDate||""} onChange={e=>setStartDate(e.target.value)} style={{border:`1px solid ${C.bdr}`,borderRadius:3,padding:"4px 8px",fontFamily:F.sans,fontSize:13,color:C.tx,background:"transparent",outline:"none"}}/>
       </div>
     </div>
     {GP_PHASES.map((ph,phIdx)=>{const isO=exp===ph.id;const clr=C[ph.color];const acts=getActions(ph);const skls=getSkills(ph);const dr=getDateRange(phIdx);const doneA=acts.filter(a=>a.done).length;const doneS=skls.filter(s=>s.done).length;return(<div key={ph.id} style={{marginBottom:4,border:`1px solid ${isO?clr+"40":C.bdr}`,borderRadius:4,background:isO?C.bg:C.bgS}}>
       <div onClick={()=>setExp(isO?null:ph.id)} style={{padding:"12px 16px",cursor:"pointer"}}>
         <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
           <Tag color={ph.color}>{ph.ph}</Tag>
-          <span style={{fontFamily:F.mono,fontSize:12,color:C.txS}}>{ph.wk}{dr&&<span style={{marginLeft:6,fontSize:11,color:C.txT}}>{dr}</span>}</span>
-          <span style={{marginLeft:"auto",fontSize:11,color:C.txT}}>{doneA}/{acts.length} steps, {doneS}/{skls.length} skills</span>
+          <span style={{fontFamily:F.mono,fontSize:13,color:C.txS}}>{ph.wk}{dr&&<span style={{marginLeft:6,fontSize:12,color:C.txT}}>{dr}</span>}</span>
+          <span style={{marginLeft:"auto",fontSize:12,color:C.txT}}>{doneA}/{acts.length} steps, {doneS}/{skls.length} skills</span>
         </div>
         <P style={{fontWeight:600,marginBottom:3}}>{ph.title}</P>
         <Ps style={{marginBottom:6}}>{ph.desc}</Ps>
@@ -1339,26 +1339,26 @@ function LearningPlan(){const[exp,setExp]=useState("p1");
       {isO&&<div onClick={e=>e.stopPropagation()} style={{padding:"0 16px 14px",borderTop:`1px solid ${C.bdr}`,paddingTop:12}}>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24,alignItems:"start"}}>
           <div>
-            <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em"}}>Actions</div>
+            <div style={{fontSize:11,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em"}}>Actions</div>
             {acts.map(a=>(<div key={a.id} style={lineS}>
               {a.done?<div onClick={()=>updAction(ph.id,a.id,"done",false)} style={{width:13,height:13,borderRadius:3,background:C.green,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0}}>{chkBox}</div>
               :<div onClick={()=>updAction(ph.id,a.id,"done",true)} style={{width:13,height:13,borderRadius:3,border:`1.5px solid ${C.bdrH}`,cursor:"pointer",flexShrink:0}}/>}
               <span style={{...txtS,textDecoration:a.done?"line-through":"none",color:a.done?C.txT:C.tx}}>{a.text}</span>
-              <input value={a.notes||""} onChange={e=>updAction(ph.id,a.id,"notes",e.target.value)} style={{fontSize:11,color:C.txS,background:"transparent",border:"none",outline:"none",fontFamily:F.sans,width:80,textAlign:"right",flexShrink:0}} placeholder="notes"/>
+              <input value={a.notes||""} onChange={e=>updAction(ph.id,a.id,"notes",e.target.value)} style={{fontSize:12,color:C.txS,background:"transparent",border:"none",outline:"none",fontFamily:F.sans,width:80,textAlign:"right",flexShrink:0}} placeholder="notes"/>
             </div>))}
           </div>
           <div>
-            <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em"}}>Skills to build</div>
+            <div style={{fontSize:11,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em"}}>Skills to build</div>
             {skls.map(s=>(<div key={s.id} style={lineS}>
               {s.done?<div onClick={()=>updSkill(ph.id,s.id,"done",false)} style={{width:13,height:13,borderRadius:3,background:C.green,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0}}>{chkBox}</div>
               :<div onClick={()=>updSkill(ph.id,s.id,"done",true)} style={{width:13,height:13,borderRadius:3,border:`1.5px solid ${C.bdrH}`,cursor:"pointer",flexShrink:0}}/>}
               <span style={{...txtS,textDecoration:s.done?"line-through":"none",color:s.done?C.txT:C.tx}}>{s.text}</span>
             </div>))}
             <div style={{marginTop:12}}>
-              <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:4,textTransform:"uppercase",letterSpacing:"0.04em"}}>CCA domains</div>
-              {ph.dom.map((d,i)=><div key={i} style={{fontSize:12,color:C.purple,padding:"2px 0"}}>{d}</div>)}
-              <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:4,marginTop:8,textTransform:"uppercase",letterSpacing:"0.04em"}}>Milestone</div>
-              <div style={{fontSize:12,color:clr}}>{ph.ms}</div>
+              <div style={{fontSize:11,fontWeight:600,color:C.txT,marginBottom:4,textTransform:"uppercase",letterSpacing:"0.04em"}}>CCA domains</div>
+              {ph.dom.map((d,i)=><div key={i} style={{fontSize:13,color:C.purple,padding:"2px 0"}}>{d}</div>)}
+              <div style={{fontSize:11,fontWeight:600,color:C.txT,marginBottom:4,marginTop:8,textTransform:"uppercase",letterSpacing:"0.04em"}}>Milestone</div>
+              <div style={{fontSize:13,color:clr}}>{ph.ms}</div>
             </div>
           </div>
         </div>
@@ -1389,46 +1389,46 @@ function IncomeTracker(){
   const cycleLogType=(i,cur)=>{const idx=LOG_TYPES.indexOf(cur||"note");const next=LOG_TYPES[(idx+1)%LOG_TYPES.length];updateLog(i,"type",next);};
   const totalEst=streams.reduce((s,r)=>s+r.rate*r.hrs*4,0);const totalEarned=streams.reduce((s,r)=>s+r.earned,0);
   const stabColors={green:{bg:C.greenBg,tx:C.green,label:"Green"},yellow:{bg:C.yellowBg,tx:"#856d0a",label:"Yellow"},orange:{bg:C.orangeBg,tx:C.orange,label:"Orange"},red:{bg:C.redBg,tx:C.red,label:"Red"}};
-  const txtS={fontSize:13,color:C.tx,flex:1,background:"transparent",border:"none",outline:"none",fontFamily:F.sans,padding:0,minWidth:0};
+  const txtS={fontSize:14,color:C.tx,flex:1,background:"transparent",border:"none",outline:"none",fontFamily:F.sans,padding:0,minWidth:0};
   const lineS={padding:"6px 0",borderBottom:`1px solid ${C.bdr}`,display:"flex",alignItems:"center",gap:8};
   const numIn={...txtS,width:50,textAlign:"right"};
   return(<div>
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
-      <div style={{background:C.bgS,borderRadius:4,padding:14}}><div style={{fontFamily:F.sans,fontSize:11,color:C.txS,marginBottom:4}}>Monthly target</div><div style={{display:"flex",alignItems:"baseline",gap:4}}><span style={{fontSize:11,color:C.txS}}>$</span><input type="number" value={target} onChange={e=>setTarget(parseFloat(e.target.value)||0)} style={{fontSize:20,fontWeight:500,width:100,border:"none",padding:0,background:"transparent",outline:"none",fontFamily:F.sans,color:C.tx}}/></div><div style={{fontFamily:F.sans,fontSize:11,color:C.txT,marginTop:2}}>{(target*31).toLocaleString()} THB</div></div>
-      <div style={{background:C.bgS,borderRadius:4,padding:14}}><div style={{fontFamily:F.sans,fontSize:11,color:C.txS,marginBottom:4}}>Estimated monthly</div><div style={{fontSize:20,fontWeight:500,color:totalEst>=target?C.green:C.orange}}>${Math.round(totalEst).toLocaleString()}</div><div style={{fontFamily:F.sans,fontSize:11,color:C.txT,marginTop:2}}>{Math.round(totalEst*31).toLocaleString()} THB</div></div>
-      <div style={{background:C.bgS,borderRadius:4,padding:14}}><div style={{fontFamily:F.sans,fontSize:11,color:C.txS,marginBottom:4}}>Earned this month</div><div style={{fontSize:20,fontWeight:500,color:C.green}}>${Math.round(totalEarned).toLocaleString()}</div><div style={{fontFamily:F.sans,fontSize:11,color:C.txT,marginTop:2}}>{Math.round(totalEarned*31).toLocaleString()} THB</div></div>
+      <div style={{background:C.bgS,borderRadius:4,padding:14}}><div style={{fontFamily:F.sans,fontSize:12,color:C.txS,marginBottom:4}}>Monthly target</div><div style={{display:"flex",alignItems:"baseline",gap:4}}><span style={{fontSize:12,color:C.txS}}>$</span><input type="number" value={target} onChange={e=>setTarget(parseFloat(e.target.value)||0)} style={{fontSize:22,fontWeight:500,width:100,border:"none",padding:0,background:"transparent",outline:"none",fontFamily:F.sans,color:C.tx}}/></div><div style={{fontFamily:F.sans,fontSize:12,color:C.txT,marginTop:2}}>{(target*31).toLocaleString()} THB</div></div>
+      <div style={{background:C.bgS,borderRadius:4,padding:14}}><div style={{fontFamily:F.sans,fontSize:12,color:C.txS,marginBottom:4}}>Estimated monthly</div><div style={{fontSize:22,fontWeight:500,color:totalEst>=target?C.green:C.orange}}>${Math.round(totalEst).toLocaleString()}</div><div style={{fontFamily:F.sans,fontSize:12,color:C.txT,marginTop:2}}>{Math.round(totalEst*31).toLocaleString()} THB</div></div>
+      <div style={{background:C.bgS,borderRadius:4,padding:14}}><div style={{fontFamily:F.sans,fontSize:12,color:C.txS,marginBottom:4}}>Earned this month</div><div style={{fontSize:22,fontWeight:500,color:C.green}}>${Math.round(totalEarned).toLocaleString()}</div><div style={{fontFamily:F.sans,fontSize:12,color:C.txT,marginTop:2}}>{Math.round(totalEarned*31).toLocaleString()} THB</div></div>
     </div>
-    <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between"}}><span>Income streams</span><span onClick={addStream} style={{cursor:"pointer",fontSize:14,fontWeight:400}}>+</span></div>
+    <div style={{fontSize:11,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between"}}><span>Income streams</span><span onClick={addStream} style={{cursor:"pointer",fontSize:15,fontWeight:400}}>+</span></div>
     {streams.map((s,i)=>{const est=Math.round(s.rate*s.hrs*4);const sc=stabColors[s.stability]||stabColors.orange;return(
       <div key={i} style={lineS}>
         <input value={s.name} onChange={e=>updateStream(i,"name",e.target.value)} style={{...txtS,fontWeight:500,flex:2}} placeholder="Source"/>
-        <span style={{fontSize:11,color:C.txT,flexShrink:0}}>$</span>
+        <span style={{fontSize:12,color:C.txT,flexShrink:0}}>$</span>
         <input type="number" value={s.rate} onChange={e=>updateStream(i,"rate",parseFloat(e.target.value)||0)} style={numIn} step="0.01"/>
-        <span style={{fontSize:11,color:C.txT,flexShrink:0}}>/hr</span>
+        <span style={{fontSize:12,color:C.txT,flexShrink:0}}>/hr</span>
         <input type="number" value={s.hrs} onChange={e=>updateStream(i,"hrs",parseFloat(e.target.value)||0)} style={{...numIn,width:30}}/>
-        <span style={{fontSize:11,color:C.txT,flexShrink:0}}>h/w</span>
-        <span onClick={()=>cycleStability(i)} style={{fontSize:9,fontWeight:600,padding:"1px 6px",borderRadius:8,background:sc.bg,color:sc.tx,cursor:"pointer",flexShrink:0}}>{sc.label}</span>
-        <input value={s.status} onChange={e=>updateStream(i,"status",e.target.value)} style={{...txtS,fontSize:11,color:C.txS,flex:1}} placeholder="Status"/>
-        <span style={{fontSize:12,fontWeight:500,color:est>0?C.tx:C.txT,flexShrink:0,minWidth:50,textAlign:"right"}}>${est.toLocaleString()}</span>
-        <span onClick={()=>{if(confirm("Remove "+s.name+"?"))removeStream(i);}} style={{cursor:"pointer",fontSize:11,color:C.txT,flexShrink:0}}>x</span>
+        <span style={{fontSize:12,color:C.txT,flexShrink:0}}>h/w</span>
+        <span onClick={()=>cycleStability(i)} style={{fontSize:10,fontWeight:600,padding:"1px 6px",borderRadius:8,background:sc.bg,color:sc.tx,cursor:"pointer",flexShrink:0}}>{sc.label}</span>
+        <input value={s.status} onChange={e=>updateStream(i,"status",e.target.value)} style={{...txtS,fontSize:12,color:C.txS,flex:1}} placeholder="Status"/>
+        <span style={{fontSize:13,fontWeight:500,color:est>0?C.tx:C.txT,flexShrink:0,minWidth:50,textAlign:"right"}}>${est.toLocaleString()}</span>
+        <span onClick={()=>{if(confirm("Remove "+s.name+"?"))removeStream(i);}} style={{cursor:"pointer",fontSize:12,color:C.txT,flexShrink:0}}>x</span>
       </div>);})}
     <div style={{marginTop:24}}>
-      <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between"}}><span>Next moves</span><span onClick={addMove} style={{cursor:"pointer",fontSize:14,fontWeight:400}}>+</span></div>
+      <div style={{fontSize:11,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between"}}><span>Next moves</span><span onClick={addMove} style={{cursor:"pointer",fontSize:15,fontWeight:400}}>+</span></div>
       {moves.map((m,i)=>{const ms=moveStatusCfg[m.status]||moveStatusCfg.wait;return(
         <div key={i} style={lineS}>
-          <span onClick={()=>cycleMoveStatus(i,m.status)} style={{fontSize:9,fontWeight:600,padding:"1px 6px",borderRadius:8,background:ms.bg,color:ms.c,cursor:"pointer",flexShrink:0,userSelect:"none",minWidth:40,textAlign:"center"}}>{m.status||"wait"}</span>
+          <span onClick={()=>cycleMoveStatus(i,m.status)} style={{fontSize:10,fontWeight:600,padding:"1px 6px",borderRadius:8,background:ms.bg,color:ms.c,cursor:"pointer",flexShrink:0,userSelect:"none",minWidth:40,textAlign:"center"}}>{m.status||"wait"}</span>
           <input value={m.action} onChange={e=>updateMove(i,"action",e.target.value)} style={txtS} placeholder="What's the next move?"/>
-          <span onClick={()=>removeMove(i)} style={{cursor:"pointer",fontSize:11,color:C.txT,flexShrink:0}}>x</span>
+          <span onClick={()=>removeMove(i)} style={{cursor:"pointer",fontSize:12,color:C.txT,flexShrink:0}}>x</span>
         </div>);})}
     </div>
     <div style={{marginTop:24}}>
-      <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between"}}><span>Work log</span><span onClick={addLog} style={{cursor:"pointer",fontSize:14,fontWeight:400}}>+</span></div>
+      <div style={{fontSize:11,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between"}}><span>Work log</span><span onClick={addLog} style={{cursor:"pointer",fontSize:15,fontWeight:400}}>+</span></div>
       {logs.map((lg,i)=>{const tc={win:{bg:C.greenBg,c:C.green},decision:{bg:C.yellowBg,c:"#856d0a"},change:{bg:C.blueBg,c:C.blue},note:{bg:C.bgS,c:C.txS}};const lc=tc[lg.type]||tc.note;return(
         <div key={i} style={lineS}>
-          <span style={{fontSize:11,color:C.txT,flexShrink:0,minWidth:42}}>{lg.date||""}</span>
-          <span onClick={()=>cycleLogType(i,lg.type)} style={{fontSize:9,fontWeight:600,padding:"1px 6px",borderRadius:8,background:lc.bg,color:lc.c,cursor:"pointer",flexShrink:0,userSelect:"none",minWidth:48,textAlign:"center"}}>{lg.type||"note"}</span>
+          <span style={{fontSize:12,color:C.txT,flexShrink:0,minWidth:42}}>{lg.date||""}</span>
+          <span onClick={()=>cycleLogType(i,lg.type)} style={{fontSize:10,fontWeight:600,padding:"1px 6px",borderRadius:8,background:lc.bg,color:lc.c,cursor:"pointer",flexShrink:0,userSelect:"none",minWidth:48,textAlign:"center"}}>{lg.type||"note"}</span>
           <input value={lg.text} onChange={e=>updateLog(i,"text",e.target.value)} style={txtS} placeholder="What happened or changed?"/>
-          <span onClick={()=>removeLog(i)} style={{cursor:"pointer",fontSize:11,color:C.txT,flexShrink:0}}>x</span>
+          <span onClick={()=>removeLog(i)} style={{cursor:"pointer",fontSize:12,color:C.txT,flexShrink:0}}>x</span>
         </div>);})}
     </div>
   </div>);
@@ -1482,26 +1482,26 @@ function SkillMatrix(){
   const sectionColors={purple:{bg:C.purpleBg,c:C.purple},green:{bg:C.greenBg,c:C.green},blue:{bg:C.blueBg,c:C.blue},orange:{bg:C.orangeBg,c:C.orange},yellow:{bg:C.yellowBg,c:"#856d0a"},red:{bg:C.redBg,c:C.red}};
   return(<div>
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10,marginBottom:20}}>
-      {[{l:"Total active",v:activeSkills.length,c:C.tx},{l:"Confident / applied",v:confCount("confident")+confCount("applied"),c:C.green},{l:"Learning",v:confCount("learning"),c:"#856d0a"},{l:"Gap",v:confCount("no idea"),c:C.red}].map((g,i)=>(<div key={i} style={{background:C.bgS,borderRadius:4,padding:"10px 12px"}}><div style={{fontSize:10,fontWeight:600,color:C.txT,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:3}}>{g.l}</div><div style={{fontSize:20,fontWeight:500,color:g.c}}>{g.v}</div></div>))}
+      {[{l:"Total active",v:activeSkills.length,c:C.tx},{l:"Confident / applied",v:confCount("confident")+confCount("applied"),c:C.green},{l:"Learning",v:confCount("learning"),c:"#856d0a"},{l:"Gap",v:confCount("no idea"),c:C.red}].map((g,i)=>(<div key={i} style={{background:C.bgS,borderRadius:4,padding:"10px 12px"}}><div style={{fontSize:11,fontWeight:600,color:C.txT,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:3}}>{g.l}</div><div style={{fontSize:22,fontWeight:500,color:g.c}}>{g.v}</div></div>))}
     </div>
     {SKILL_SECTIONS_SEED.map(section=>{const sc=sectionColors[section.color]||sectionColors.purple;const sectionSkills=section.skills.filter(s=>data.skills.hasOwnProperty(s.id));if(sectionSkills.length===0)return null;return(<div key={section.key}>
-      <div style={{padding:"6px 8px",fontSize:11,fontWeight:500,color:sc.c,background:sc.bg,borderBottom:`0.5px solid ${C.bdr}`,marginTop:8}}>{section.label}</div>
+      <div style={{padding:"6px 8px",fontSize:12,fontWeight:500,color:sc.c,background:sc.bg,borderBottom:`0.5px solid ${C.bdr}`,marginTop:8}}>{section.label}</div>
       {sectionSkills.map(sk=>{const conf=getConf(sk.id);const cc=CONF_CFG[conf]||CONF_CFG["no idea"];const jc=JD_CFG[sk.jd]||JD_CFG.nice;return(
         <div key={sk.id} style={lineS}>
-          <span style={{fontSize:13,color:C.tx,flex:1}}>{sk.text}</span>
-          <span style={{fontSize:10,padding:"2px 8px",borderRadius:4,background:jc.bg,color:jc.c,flexShrink:0}}>{sk.jd}</span>
-          <span onClick={()=>cycleConf(sk.id)} style={{fontSize:10,fontWeight:500,padding:"2px 10px",borderRadius:4,background:cc.bg,color:cc.c,cursor:"pointer",flexShrink:0,minWidth:56,textAlign:"center"}}>{conf}</span>
-          <span onClick={()=>archiveSkill(sk.id)} style={{cursor:"pointer",fontSize:11,color:C.txT,flexShrink:0}}>x</span>
+          <span style={{fontSize:14,color:C.tx,flex:1}}>{sk.text}</span>
+          <span style={{fontSize:11,padding:"2px 8px",borderRadius:4,background:jc.bg,color:jc.c,flexShrink:0}}>{sk.jd}</span>
+          <span onClick={()=>cycleConf(sk.id)} style={{fontSize:11,fontWeight:500,padding:"2px 10px",borderRadius:4,background:cc.bg,color:cc.c,cursor:"pointer",flexShrink:0,minWidth:56,textAlign:"center"}}>{conf}</span>
+          <span onClick={()=>archiveSkill(sk.id)} style={{cursor:"pointer",fontSize:12,color:C.txT,flexShrink:0}}>x</span>
         </div>);})}
     </div>);})}
     {data.archived.length>0&&<div style={{marginTop:20}}>
-      <div style={{padding:"6px 8px",fontSize:11,fontWeight:500,color:C.txT,background:C.bgS,borderBottom:`0.5px solid ${C.bdr}`}}>Archived ({data.archived.length})</div>
+      <div style={{padding:"6px 8px",fontSize:12,fontWeight:500,color:C.txT,background:C.bgS,borderBottom:`0.5px solid ${C.bdr}`}}>Archived ({data.archived.length})</div>
       {data.archived.map((a,i)=>{const cc=CONF_CFG[a.conf]||CONF_CFG["no idea"];return(
         <div key={a.id} style={{...lineS,opacity:0.5}}>
-          <span style={{fontSize:13,color:C.txT,flex:1,textDecoration:"line-through"}}>{a.text}</span>
-          <span style={{fontSize:10,color:C.txT,flexShrink:0}}>{a.date}</span>
-          <span style={{fontSize:10,padding:"2px 10px",borderRadius:4,background:cc.bg,color:cc.c,flexShrink:0}}>{a.conf}</span>
-          <span onClick={()=>unarchive(a.id)} style={{cursor:"pointer",fontSize:11,color:C.blue,flexShrink:0}}>restore</span>
+          <span style={{fontSize:14,color:C.txT,flex:1,textDecoration:"line-through"}}>{a.text}</span>
+          <span style={{fontSize:11,color:C.txT,flexShrink:0}}>{a.date}</span>
+          <span style={{fontSize:11,padding:"2px 10px",borderRadius:4,background:cc.bg,color:cc.c,flexShrink:0}}>{a.conf}</span>
+          <span onClick={()=>unarchive(a.id)} style={{cursor:"pointer",fontSize:12,color:C.blue,flexShrink:0}}>restore</span>
         </div>);})}
     </div>}
   </div>);
@@ -1512,7 +1512,7 @@ function WorkTab(){
   const tabs=[{k:"income",l:"Income Stream"},{k:"skills",l:"Skill Matrix"},{k:"learn",l:"Growth Path"},{k:"career",l:"Career Compass"}];
   return(<div>
     <H1 style={{margin:"0 0 8px"}}>Work</H1>
-    <div style={{display:"flex",gap:0,borderBottom:`1px solid ${C.bdr}`,marginBottom:20}}>{tabs.map((t,i)=>(<button key={t.k} onClick={()=>setView(t.k)} style={{padding:`6px 14px 6px ${i===0?0:14}px`,border:"none",background:"none",fontFamily:F.sans,fontSize:13,fontWeight:view===t.k?600:400,color:view===t.k?C.tx:C.txT,cursor:"pointer",borderBottom:view===t.k?`2px solid ${C.tx}`:"2px solid transparent",marginBottom:-1}}>{t.l}</button>))}</div>
+    <div style={{display:"flex",gap:0,borderBottom:`1px solid ${C.bdr}`,marginBottom:20}}>{tabs.map((t,i)=>(<button key={t.k} onClick={()=>setView(t.k)} style={{padding:`6px 14px 6px ${i===0?0:14}px`,border:"none",background:"none",fontFamily:F.sans,fontSize:14,fontWeight:view===t.k?600:400,color:view===t.k?C.tx:C.txT,cursor:"pointer",borderBottom:view===t.k?`2px solid ${C.tx}`:"2px solid transparent",marginBottom:-1}}>{t.l}</button>))}</div>
     {view==="career"&&<CompassCareer/>}
     {view==="income"&&<IncomeTracker/>}
     {view==="skills"&&<SkillMatrix/>}
@@ -1527,14 +1527,14 @@ function WorkTab(){
 function WhoIAm(){
   const planets=[{p:"Sun",s:"Pisces",d:"28°06'",h:"6th",n:"Final degrees",c:C.pisces},{p:"Moon",s:"Virgo",d:"23°58'",h:"1st",n:"Conj Asc. Opp Pluto",c:C.virgo},{p:"Mercury",s:"Aries",d:"11°10'",h:"7th",n:"RETROGRADE",c:C.aries},{p:"Venus",s:"Pisces",d:"5°30'",h:"6th",n:"EXALTED",c:C.pisces},{p:"Mars",s:"Aquarius",d:"22°33'",h:"5th",n:"Creative warrior",c:C.aquarius},{p:"Jupiter",s:"Virgo",d:"7°21'",h:"12th",n:"Rx. Guardian angel",c:C.virgo},{p:"Saturn",s:"Aquarius",d:"14°41'",h:"5th",n:"Discipline",c:C.aquarius},{p:"Pluto",s:"Scorpio",d:"22°48'",h:"3rd",n:"Rx. X-ray",c:C.scorpio},{p:"N.Node",s:"Capricorn",d:"6°02'",h:"4th",n:"Foundations",c:C.txS},{p:"Chiron",s:"Leo",d:"3°31'",h:"11th",n:"Visibility",c:C.gold}];
   const rules=[{n:"01",t:"Work the Virgo Moon First",d:"When regulated, everything functions.",c:C.virgo,bg:C.virgoBg},{n:"02",t:"Honor Venus Without Losing Yourself",d:"Is love mutual? Is giving reciprocated?",c:C.pisces,bg:C.piscesBg},{n:"03",t:"24-Hour Rule",d:"Impulse to speak? Wait 24 hours.",c:C.aries,bg:C.ariesBg},{n:"04",t:"Create Daily",d:"Four 5th house planets demand daily output.",c:C.aquarius,bg:C.aquariusBg},{n:"05",t:"Solitude Is Not Isolation",d:"12th Jupiter: solitude is a business asset.",c:C.virgo,bg:C.virgoBg},{n:"06",t:"Sprint-and-Rest",d:"Mars-Saturn: bursts then crashes. Stop pathologizing rest.",c:C.aquarius,bg:C.aquariusBg},{n:"07",t:"Tell the Truth Faster",d:"Pluto 3rd: suppressed truth = toxicity.",c:C.scorpio,bg:C.scorpioBg}];
-  const Voice=({pl,q,color,bg})=><Cd accent={color} bg={bg}><div style={{fontFamily:F.mono,fontSize:11,color,fontWeight:700,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.06em"}}>{pl}</div><div style={{fontFamily:F.serif,fontSize:17,color:C.tx,fontStyle:"italic",lineHeight:1.7}}>"{q}"</div></Cd>;
+  const Voice=({pl,q,color,bg})=><Cd accent={color} bg={bg}><div style={{fontFamily:F.mono,fontSize:12,color,fontWeight:700,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.06em"}}>{pl}</div><div style={{fontFamily:F.serif,fontSize:17,color:C.tx,fontStyle:"italic",lineHeight:1.7}}>"{q}"</div></Cd>;
   return(<div><H1 style={{fontSize:30}}>Who I Am</H1><Ps style={{marginBottom:20}}>Sun Pisces - Moon Virgo - Rising Virgo - March 18, 1992</Ps>
-    <Collapse title="Natal Chart" icon="\u2605" color={C.gold} open={true}><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(120px,1fr))",gap:8,marginBottom:16}}>{[{l:"Sun",v:"Pisces 28\u00B0",c:C.pisces,bg:C.piscesBg},{l:"Moon",v:"Virgo 23\u00B0",c:C.virgo,bg:C.virgoBg},{l:"Rising",v:"Virgo 27\u00B0",c:C.virgo,bg:C.virgoBg},{l:"MC",v:"Gemini 27\u00B0",c:C.ocean,bg:C.oceanBg}].map(b=>(<div key={b.l} style={{background:b.bg,borderRadius:3,padding:"8px 14px"}}><div style={{fontFamily:F.mono,fontSize:10,color:b.c,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:3}}>{b.l}</div><div style={{fontFamily:F.sans,fontSize:14,fontWeight:600,color:C.tx}}>{b.v}</div></div>))}</div><div style={{border:`1px solid ${C.bdr}`,borderRadius:4,overflow:"hidden"}}><table style={{width:"100%",borderCollapse:"collapse",fontFamily:F.sans,fontSize:13}}><thead><tr style={{background:C.bgS}}>{["Planet","Sign","Deg","H","Notes"].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",fontWeight:500,fontSize:11,color:C.txS,borderBottom:`1px solid ${C.bdr}`,textTransform:"uppercase",letterSpacing:"0.04em"}}>{h}</th>)}</tr></thead><tbody>{planets.map((p,i)=><tr key={p.p} style={{borderBottom:i<planets.length-1?`1px solid ${C.bdr}`:"none"}}><td style={{padding:"8px 10px",fontWeight:600,color:p.c}}>{p.p}</td><td style={{padding:"8px 10px"}}>{p.s}</td><td style={{padding:"8px 10px",fontFamily:F.mono,fontSize:12,color:C.txS}}>{p.d}</td><td style={{padding:"8px 10px",fontFamily:F.mono,fontSize:12,color:C.txT}}>{p.h}</td><td style={{padding:"8px 10px",color:C.txS}}>{p.n}</td></tr>)}</tbody></table></div></Collapse>
+    <Collapse title="Natal Chart" icon="\u2605" color={C.gold} open={true}><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(120px,1fr))",gap:8,marginBottom:16}}>{[{l:"Sun",v:"Pisces 28\u00B0",c:C.pisces,bg:C.piscesBg},{l:"Moon",v:"Virgo 23\u00B0",c:C.virgo,bg:C.virgoBg},{l:"Rising",v:"Virgo 27\u00B0",c:C.virgo,bg:C.virgoBg},{l:"MC",v:"Gemini 27\u00B0",c:C.ocean,bg:C.oceanBg}].map(b=>(<div key={b.l} style={{background:b.bg,borderRadius:3,padding:"8px 14px"}}><div style={{fontFamily:F.mono,fontSize:11,color:b.c,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:3}}>{b.l}</div><div style={{fontFamily:F.sans,fontSize:15,fontWeight:600,color:C.tx}}>{b.v}</div></div>))}</div><div style={{border:`1px solid ${C.bdr}`,borderRadius:4,overflow:"hidden"}}><table style={{width:"100%",borderCollapse:"collapse",fontFamily:F.sans,fontSize:14}}><thead><tr style={{background:C.bgS}}>{["Planet","Sign","Deg","H","Notes"].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",fontWeight:500,fontSize:12,color:C.txS,borderBottom:`1px solid ${C.bdr}`,textTransform:"uppercase",letterSpacing:"0.04em"}}>{h}</th>)}</tr></thead><tbody>{planets.map((p,i)=><tr key={p.p} style={{borderBottom:i<planets.length-1?`1px solid ${C.bdr}`:"none"}}><td style={{padding:"8px 10px",fontWeight:600,color:p.c}}>{p.p}</td><td style={{padding:"8px 10px"}}>{p.s}</td><td style={{padding:"8px 10px",fontFamily:F.mono,fontSize:13,color:C.txS}}>{p.d}</td><td style={{padding:"8px 10px",fontFamily:F.mono,fontSize:13,color:C.txT}}>{p.h}</td><td style={{padding:"8px 10px",color:C.txS}}>{p.n}</td></tr>)}</tbody></table></div></Collapse>
     <Collapse title="Planetary Signatures" icon="\u263D" color={C.pisces}><H3 color={C.bloodRed}>Moon Opposite Pluto (1\u00B010')</H3><Cd accent={C.bloodRed} bg={C.bloodRedBg}><Ps>Tightest aspect. X-ray perception, obsessive depth. All-or-nothing bonding, hypervigilance, extraordinary resilience. Evalynn OS is Moon-Pluto through Virgo.</Ps></Cd><H3 color={C.pisces}>Venus in Pisces: Exalted</H3><Cd accent={C.pisces} bg={C.piscesBg}><Ps style={{marginBottom:0}}>Most romantic Venus. Growth: boundless love WITH discernment.</Ps></Cd><H3 color={C.aquarius}>5th House Stellium</H3><Cd accent={C.aquarius} bg={C.aquariusBg}><Ps style={{marginBottom:0}}>Mars+Saturn+Uranus+Neptune. Creative expression is not optional.</Ps></Cd></Collapse>
     <Collapse title="Soulmate Blueprint" icon="\u2640" color={C.pisces}><Cd accent={C.pisces} bg={C.piscesBg}><Ps style={{marginBottom:0}}>A deep soul with built structure who can swim in your ocean. Deep-set dark eyes. Angular jaw. Quiet magnetism. <HL color={C.aries}>Southern European or Latin American.</HL> Not fireworks - <HL>Recognition.</HL> "There you are." Jupiter Return 2027-28.</Ps></Cd></Collapse>
     <Collapse title="Seven Operating Rules" icon="\u2699" color={C.virgo}>{rules.map(r=>(<Cd key={r.n} accent={r.c} bg={r.bg}><div style={{display:"flex",gap:12}}><div style={{fontFamily:F.serif,fontSize:22,color:r.c,fontWeight:700,opacity:0.3,minWidth:24}}>{r.n}</div><div><P style={{fontWeight:600,marginBottom:3}}>{r.t}</P><Ps style={{marginBottom:0}}>{r.d}</Ps></div></div></Cd>))}</Collapse>
     <Collapse title="Planetary Voices" icon="\uD83D\uDD2E" color={C.bloodRed}><Voice pl="SATURN" q="Learn it yourself or I'll teach you." color={C.txS} bg={C.bgS}/><Voice pl="PLUTO" q="Be real with me or I will make you don't be anything at all." color={C.bloodRed} bg={C.bloodRedBg}/><Voice pl="MOON IN VIRGO" q="Check the body. Am I fed? Am I rested? Is the space clean?" color={C.virgo} bg={C.virgoBg}/><Voice pl="VENUS IN PISCES" q="I love without condition. But seeing the divine doesn't mean ignoring the human." color={C.pisces} bg={C.piscesBg}/><Voice pl="RAHU" q="I'm hungry. Always. Not for food: for DEPTH. That's quality control." color={C.bloodRed} bg={C.bloodRedBg}/></Collapse>
-    <Collapse title="Crystal Kit" icon="\uD83D\uDC8E" color={C.gold}>{[{n:"Hessonite Garnet",p:"RAHU",d:"Calms hunger.",c:C.bloodRed,bg:C.bloodRedBg,t:"red"},{n:"Amethyst",p:"MOON-PLUTO",d:"Emotional transmutation.",c:C.pisces,bg:C.piscesBg,t:"purple"},{n:"Aquamarine",p:"VENUS",d:"Truth in love.",c:C.ocean,bg:C.oceanBg,t:"blue"},{n:"Carnelian",p:"MARS",d:"Creative fire.",c:C.aries,bg:C.ariesBg,t:"orange"},{n:"Labradorite",p:"ALL",d:"The unifier. Literally you.",c:C.gold,bg:C.goldBg,t:"yellow"}].map(s=>(<Cd key={s.n} accent={s.c} bg={s.bg}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><P style={{fontWeight:600,marginBottom:0}}>{s.n}</P><div style={{fontFamily:F.mono,fontSize:10,color:s.c}}>{s.p}</div></div><Tag color={s.t}>{s.n.split(" ")[0]}</Tag></div><Ps style={{marginTop:6,marginBottom:0}}>{s.d}</Ps></Cd>))}</Collapse>
+    <Collapse title="Crystal Kit" icon="\uD83D\uDC8E" color={C.gold}>{[{n:"Hessonite Garnet",p:"RAHU",d:"Calms hunger.",c:C.bloodRed,bg:C.bloodRedBg,t:"red"},{n:"Amethyst",p:"MOON-PLUTO",d:"Emotional transmutation.",c:C.pisces,bg:C.piscesBg,t:"purple"},{n:"Aquamarine",p:"VENUS",d:"Truth in love.",c:C.ocean,bg:C.oceanBg,t:"blue"},{n:"Carnelian",p:"MARS",d:"Creative fire.",c:C.aries,bg:C.ariesBg,t:"orange"},{n:"Labradorite",p:"ALL",d:"The unifier. Literally you.",c:C.gold,bg:C.goldBg,t:"yellow"}].map(s=>(<Cd key={s.n} accent={s.c} bg={s.bg}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><P style={{fontWeight:600,marginBottom:0}}>{s.n}</P><div style={{fontFamily:F.mono,fontSize:11,color:s.c}}>{s.p}</div></div><Tag color={s.t}>{s.n.split(" ")[0]}</Tag></div><Ps style={{marginTop:6,marginBottom:0}}>{s.d}</Ps></Cd>))}</Collapse>
   </div>);}
 
 function LifeCompass(){
@@ -1542,7 +1542,7 @@ function LifeCompass(){
   const modes=[{state:"When I have cognitive energy",activity:"I build",examples:"Golden Era, health trackers, Evalynn OS, apps that solve real problems"},{state:"When I need something that flows",activity:"I make music",examples:"Vagal Tone, ambient soundscapes, nervous system regulation through sound"},{state:"When I'm feeling creative and emotional",activity:"I write stories",examples:"The Muffin Diaries - processing love and loss through Muffin's voice"},{state:"When I need answers and clarity",activity:"I work on Evalynn OS",examples:"Turning my struggles, my direct experience, into frameworks that could help others too"}];
   const projects=["Golden Era - Helping Angkhana track her metabolic health - practical tools for real transformation","Vagal Tone - Nervous system regulation through ambient sound - bringing people into calm","The Muffin Diaries - Processing love and loss through Muffin's voice - stories that remind people who they are","Evalynn OS - A self-regulation framework born from lived experience - turning struggle into structure","Health Tracker - Personal wellness data made visible and actionable - quality of life, measured","Music & Songwriting - Songs that move people emotionally - Marco, Walter, Mountains, the unnamed ones"];
   const framework=[{label:"The foundation",text:"A life structure that protects my autonomy, health, and pace. Slow mornings, movement, nature, connection. Non-negotiable."},{label:"The work",text:"A rotation of creative and building projects - all circling the same core purpose. Some days writing. Some days building an app. Some days making music. Some days just thinking deeply. The rotation IS the method."},{label:"The income reality",text:"AI ops work may still be part of the picture for now - not as my identity, but as a tool that buys time and freedom to build the things that matter. It funds the life. It doesn't define it."},{label:"The purpose",text:"Everything I build, create, or design serves one function: helping people - including myself - come back to themselves. That's the through-line. That's the answer when someone asks what I do."}];
-  const st={sec:{marginBottom:48},lbl:{fontFamily:F.mono,fontSize:11,letterSpacing:"0.12em",textTransform:"uppercase",color:C.txT,marginBottom:16},hd:{fontFamily:F.serif,fontSize:28,fontWeight:700,color:C.tx,lineHeight:1.3,marginBottom:20,letterSpacing:"-0.01em"},p:{fontFamily:F.sans,fontSize:15,color:C.tx,lineHeight:1.8,marginBottom:16},ps:{fontFamily:F.sans,fontSize:15,color:C.txS,lineHeight:1.8,marginBottom:16},sep:{height:1,background:C.bdr,margin:"48px 0"}};
+  const st={sec:{marginBottom:48},lbl:{fontFamily:F.mono,fontSize:12,letterSpacing:"0.12em",textTransform:"uppercase",color:C.txT,marginBottom:16},hd:{fontFamily:F.serif,fontSize:30,fontWeight:700,color:C.tx,lineHeight:1.3,marginBottom:20,letterSpacing:"-0.01em"},p:{fontFamily:F.sans,fontSize:16,color:C.tx,lineHeight:1.8,marginBottom:16},ps:{fontFamily:F.sans,fontSize:16,color:C.txS,lineHeight:1.8,marginBottom:16},sep:{height:1,background:C.bdr,margin:"48px 0"}};
   return(<div style={{}}>
     <div style={{padding:"60px 0 48px"}}><div style={{opacity:ld?1:0,transition:"all 1s ease 0.3s"}}><p style={st.lbl}>A personal reflection - March 2026</p></div><div style={{opacity:ld?1:0,transition:"all 1s ease 0.6s"}}><h1 style={{fontFamily:F.serif,fontSize:"clamp(28px,5vw,42px)",fontWeight:700,color:C.tx,lineHeight:1.25,marginBottom:20,letterSpacing:"-0.02em",fontStyle:"italic"}}>I build tools, stories, and experiences that help people come back to themselves.</h1></div><div style={{opacity:ld?1:0,transition:"all 1s ease 0.9s"}}><p style={st.ps}>This document is not a plan. It's a compass. Written to remember what I know about myself when the noise gets loud.</p></div></div>
     <div style={st.sep}/>
@@ -1550,13 +1550,13 @@ function LifeCompass(){
     <div style={st.sep}/>
     <div style={st.sec}><p style={st.lbl}>What I actually want</p><h2 style={st.hd}>If everything paid the same, what would I choose?</h2><p style={st.p}><strong>Build things that solve people's problems</strong> - tools, systems, experiences that help people achieve a better quality of life.</p><p style={st.p}><strong>Create things that move people emotionally</strong> - music that calms, stories that remind people who they are, experiences that bring people into a state of being regulated, present, and themselves.</p><p style={st.ps}>These aren't two separate things. They're one purpose expressed in different ways: helping people - including myself - come back to themselves.</p></div>
     <div style={st.sep}/>
-    <div style={st.sec}><p style={st.lbl}>How I actually work</p><h2 style={st.hd}>The rotation is the method.</h2><p style={st.ps}>I don't work in sequence. I work in rotation - moving between projects based on my energy, my mood, my bandwidth. This isn't a flaw. This is my operating system working exactly as designed.</p>{modes.map((m,i)=>(<div key={i} style={{marginBottom:20,paddingBottom:20,borderBottom:i<modes.length-1?`1px solid ${C.bdr}`:"none"}}><p style={{fontFamily:F.sans,fontSize:13,color:C.txT,marginBottom:2}}>{m.state}</p><p style={{fontFamily:F.serif,fontSize:22,color:C.tx,fontWeight:600,marginBottom:4}}>{m.activity}</p><p style={{fontFamily:F.sans,fontSize:14,color:C.txS,lineHeight:1.6,marginBottom:0}}>{m.examples}</p></div>))}<p style={{fontFamily:F.serif,fontSize:18,color:C.tx,lineHeight:1.7,fontStyle:"italic",marginBottom:8}}>"I don't want to think anymore that I'm supposed to finish one project, one by one. I want to do things according to my wellbeing, to my state."</p><p style={{fontFamily:F.mono,fontSize:10,color:C.txT}}>- Evalynn, March 2026</p></div>
+    <div style={st.sec}><p style={st.lbl}>How I actually work</p><h2 style={st.hd}>The rotation is the method.</h2><p style={st.ps}>I don't work in sequence. I work in rotation - moving between projects based on my energy, my mood, my bandwidth. This isn't a flaw. This is my operating system working exactly as designed.</p>{modes.map((m,i)=>(<div key={i} style={{marginBottom:20,paddingBottom:20,borderBottom:i<modes.length-1?`1px solid ${C.bdr}`:"none"}}><p style={{fontFamily:F.sans,fontSize:14,color:C.txT,marginBottom:2}}>{m.state}</p><p style={{fontFamily:F.serif,fontSize:22,color:C.tx,fontWeight:600,marginBottom:4}}>{m.activity}</p><p style={{fontFamily:F.sans,fontSize:15,color:C.txS,lineHeight:1.6,marginBottom:0}}>{m.examples}</p></div>))}<p style={{fontFamily:F.serif,fontSize:20,color:C.tx,lineHeight:1.7,fontStyle:"italic",marginBottom:8}}>"I don't want to think anymore that I'm supposed to finish one project, one by one. I want to do things according to my wellbeing, to my state."</p><p style={{fontFamily:F.mono,fontSize:11,color:C.txT}}>- Evalynn, March 2026</p></div>
     <div style={st.sep}/>
-    <div style={st.sec}><p style={st.lbl}>The through-line</p><h2 style={st.hd}>These aren't side projects. They're the signal.</h2><p style={st.ps}>Every project I naturally gravitate toward is about the same thing. They look different on the surface - an app, an album, a book, a framework. But underneath, they all serve one purpose.</p>{projects.map((p,i)=>(<p key={i} style={{fontFamily:F.sans,fontSize:14,color:C.tx,lineHeight:1.6,padding:"8px 0",borderBottom:i<projects.length-1?`1px solid ${C.bdr}`:"none"}}>{p}</p>))}<div style={{marginTop:32,padding:"24px 0",borderTop:`1px solid ${C.bdr}`}}><p style={{fontFamily:F.serif,fontSize:24,color:C.tx,fontWeight:700,fontStyle:"italic",lineHeight:1.4}}>Helping people - including myself - come back to themselves.</p></div></div>
+    <div style={st.sec}><p style={st.lbl}>The through-line</p><h2 style={st.hd}>These aren't side projects. They're the signal.</h2><p style={st.ps}>Every project I naturally gravitate toward is about the same thing. They look different on the surface - an app, an album, a book, a framework. But underneath, they all serve one purpose.</p>{projects.map((p,i)=>(<p key={i} style={{fontFamily:F.sans,fontSize:15,color:C.tx,lineHeight:1.6,padding:"8px 0",borderBottom:i<projects.length-1?`1px solid ${C.bdr}`:"none"}}>{p}</p>))}<div style={{marginTop:32,padding:"24px 0",borderTop:`1px solid ${C.bdr}`}}><p style={{fontFamily:F.serif,fontSize:24,color:C.tx,fontWeight:700,fontStyle:"italic",lineHeight:1.4}}>Helping people - including myself - come back to themselves.</p></div></div>
     <div style={st.sep}/>
-    <div style={st.sec}><p style={st.lbl}>The life I want to build</p><h2 style={st.hd}>A regular Tuesday</h2><p style={st.ps}>I don't want every Tuesday to be the same. I want the freedom to decide what each one holds. Maybe one Tuesday is a meaningful conversation with a friend. Maybe another is sitting in front of a cafe near the beach, just watching nature and reflecting. Maybe I'm learning kung fu, or a new modality of yoga, or arguing with old philosophers about consciousness.</p><p style={st.ps}>The Tuesday I want is the Tuesday where I have my own agency and freedom to decide what to do, to learn, to experience, to work - without external force dictating it.</p><p style={{fontFamily:F.mono,fontSize:11,color:C.txT,letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:12,marginTop:28}}>The daily foundation</p>{["Slow mornings","Healthy food","Movement - whatever form feels right that day","Connection with people I care about","Time for my own reflections","Freedom to follow my energy into whatever project calls"].map((item,i)=>(<p key={i} style={{fontFamily:F.sans,fontSize:15,color:C.tx,padding:"8px 0",borderBottom:i<5?`1px solid ${C.bdr}`:"none"}}>{item}</p>))}<p style={{...st.p,marginTop:28}}><strong>The people I help:</strong> People who feel lost, stuck, unclear. People who need structure to find their way out of their problems, or toward their goals. People who need someone to help them see what they can't see alone.</p><p style={st.p}><strong>How I want to feel:</strong> Not waiting for someone to validate that my work is good. I want to feel it myself first - a deep, internal knowing that what I built genuinely helps. That's why I keep refining, redesigning, reworking. I'm not being perfectionist. I'm trying to reach the point where I know in my bones that it's true.</p></div>
+    <div style={st.sec}><p style={st.lbl}>The life I want to build</p><h2 style={st.hd}>A regular Tuesday</h2><p style={st.ps}>I don't want every Tuesday to be the same. I want the freedom to decide what each one holds. Maybe one Tuesday is a meaningful conversation with a friend. Maybe another is sitting in front of a cafe near the beach, just watching nature and reflecting. Maybe I'm learning kung fu, or a new modality of yoga, or arguing with old philosophers about consciousness.</p><p style={st.ps}>The Tuesday I want is the Tuesday where I have my own agency and freedom to decide what to do, to learn, to experience, to work - without external force dictating it.</p><p style={{fontFamily:F.mono,fontSize:12,color:C.txT,letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:12,marginTop:28}}>The daily foundation</p>{["Slow mornings","Healthy food","Movement - whatever form feels right that day","Connection with people I care about","Time for my own reflections","Freedom to follow my energy into whatever project calls"].map((item,i)=>(<p key={i} style={{fontFamily:F.sans,fontSize:16,color:C.tx,padding:"8px 0",borderBottom:i<5?`1px solid ${C.bdr}`:"none"}}>{item}</p>))}<p style={{...st.p,marginTop:28}}><strong>The people I help:</strong> People who feel lost, stuck, unclear. People who need structure to find their way out of their problems, or toward their goals. People who need someone to help them see what they can't see alone.</p><p style={st.p}><strong>How I want to feel:</strong> Not waiting for someone to validate that my work is good. I want to feel it myself first - a deep, internal knowing that what I built genuinely helps. That's why I keep refining, redesigning, reworking. I'm not being perfectionist. I'm trying to reach the point where I know in my bones that it's true.</p></div>
     <div style={st.sep}/>
-    <div style={st.sec}><p style={st.lbl}>The framework</p><h2 style={st.hd}>How the pieces fit together</h2>{framework.map((item,i)=>(<div key={i} style={{marginBottom:24,paddingBottom:24,borderBottom:i<3?`1px solid ${C.bdr}`:"none"}}><p style={{fontFamily:F.mono,fontSize:11,letterSpacing:"0.08em",textTransform:"uppercase",color:C.txT,marginBottom:6}}>{item.label}</p><p style={st.p}>{item.text}</p></div>))}</div>
+    <div style={st.sec}><p style={st.lbl}>The framework</p><h2 style={st.hd}>How the pieces fit together</h2>{framework.map((item,i)=>(<div key={i} style={{marginBottom:24,paddingBottom:24,borderBottom:i<3?`1px solid ${C.bdr}`:"none"}}><p style={{fontFamily:F.mono,fontSize:12,letterSpacing:"0.08em",textTransform:"uppercase",color:C.txT,marginBottom:6}}>{item.label}</p><p style={st.p}>{item.text}</p></div>))}</div>
     <div style={st.sep}/>
     <div style={st.sec}><p style={st.lbl}>Career & Wealth in the Stars</p><h2 style={st.hd}>MC Gemini - 6th House Sun - 5th House Stellium</h2><p style={st.ps}>MC 27 Gemini ruled by Mercury Rx in Aries. Communication, data, bold initiative. Work IS identity (6th house Sun). Creative output as career engine (5th stellium). Hidden blessings through solitude (12th Jupiter).</p><p style={{...st.p,marginTop:24}}><strong>Phase 2: Building (2026-28) - NOW</strong></p><p style={st.ps}>Apr 19-20: Triple conjunction. Contract or partnership formalization. Apr 25: Uranus enters Gemini/MC. 7-year career revolution. Jun-Jul: Jupiter in Leo (11th). Network expansion. 2027-28: Jupiter Return. Maximum expansion and income leap.</p><p style={{...st.p,marginTop:16}}><strong>Phase 3: Pluto (2029-32)</strong></p><p style={st.ps}>Creative earning ceiling destroyed and rebuilt higher.</p><p style={{...st.p,marginTop:16}}><strong>Phase 4: Liberation (2033-40)</strong></p><p style={st.ps}>Most dramatic financial transformation of the lifetime.</p></div>
     <div style={st.sep}/>
@@ -1570,15 +1570,15 @@ function LifeCompass(){
     <p style={st.p}>I can be an AI agent architect. I can be an AI implementation lead. I believe in myself. I am good. I'm more than good enough. This is my soul. This is who I am. I have insight into how to build a product, instinctively. And if I get to put my hands into it - to experience it, to fail, to do the trial and error - I can master it.</p>
     <p style={st.ps}>In the past, there were moments I didn't even believe I could achieve what I've achieved. But I made it, every single time. And now I see it clearly - by my guts, by my soul, by my brain, in my bones. I am more than good enough.</p>
     <p style={st.p}>And if I get to work with people, if people use my products - they will appreciate them. They will be grateful for what helps them define themselves, solve their problems. It has value. And I know in my bones that it's going to happen.</p>
-    <p style={{fontFamily:F.serif,fontSize:18,color:C.tx,lineHeight:1.7,fontStyle:"italic",marginBottom:8}}>I will keep going. And I will keep refining what I want to do and what I can do in the future.</p>
+    <p style={{fontFamily:F.serif,fontSize:20,color:C.tx,lineHeight:1.7,fontStyle:"italic",marginBottom:8}}>I will keep going. And I will keep refining what I want to do and what I can do in the future.</p>
     </div>
     <div style={st.sep}/>
-    <div style={{padding:"48px 0 80px"}}><p style={{fontFamily:F.serif,fontSize:"clamp(22px,4vw,30px)",color:C.tx,fontWeight:700,fontStyle:"italic",lineHeight:1.4,marginBottom:24}}>My thing is the space where wellness, creativity, and technology overlap.</p><p style={{fontFamily:F.sans,fontSize:15,color:C.txS,lineHeight:1.7,marginBottom:28}}>This document is a living thing. It will change as I change. But the core won't move. The core is: I help people come back to themselves. Everything else is just the form it takes on any given Tuesday.</p><p style={{fontFamily:F.mono,fontSize:11,color:C.txT,letterSpacing:"0.1em"}}>Evalynn Jetipa</p><p style={{fontFamily:F.mono,fontSize:10,color:C.txT,marginTop:4}}>Bangkok, March 2026</p></div>
+    <div style={{padding:"48px 0 80px"}}><p style={{fontFamily:F.serif,fontSize:"clamp(22px,4vw,30px)",color:C.tx,fontWeight:700,fontStyle:"italic",lineHeight:1.4,marginBottom:24}}>My thing is the space where wellness, creativity, and technology overlap.</p><p style={{fontFamily:F.sans,fontSize:16,color:C.txS,lineHeight:1.7,marginBottom:28}}>This document is a living thing. It will change as I change. But the core won't move. The core is: I help people come back to themselves. Everything else is just the form it takes on any given Tuesday.</p><p style={{fontFamily:F.mono,fontSize:12,color:C.txT,letterSpacing:"0.1em"}}>Evalynn Jetipa</p><p style={{fontFamily:F.mono,fontSize:11,color:C.txT,marginTop:4}}>Bangkok, March 2026</p></div>
   </div>);}
 
 function Year2026({month}){
   const mo=month||"mar";
-  const TH=({children})=><th style={{textAlign:"left",padding:"8px 10px",fontWeight:500,fontSize:11,color:C.txS,borderBottom:`1px solid ${C.bdr}`}}>{children}</th>;
+  const TH=({children})=><th style={{textAlign:"left",padding:"8px 10px",fontWeight:500,fontSize:12,color:C.txS,borderBottom:`1px solid ${C.bdr}`}}>{children}</th>;
   const Row=({dy,hidden,onToggle,checked,onCheck,notes,onNotes,extraGame,onExtraGame,extraActual,onExtraActual})=>{const hasA=dy.actual&&dy.actual.length>0;const bg=dy.lv==="m"?C.goldBg:dy.lv==="s"?C.bgS:"transparent";
     const baseGameItems=dy.game?dy.game.split("\n").filter(l=>l.length>0):[];
     const extraGameItems=extraGame?extraGame.split("\n").filter(l=>l.length>0):[];
@@ -1586,36 +1586,36 @@ function Year2026({month}){
     const checkedItems=allGameItems.map((text,j)=>({text:text.startsWith("+ ")?text.slice(2):text,idx:j})).filter(r=>checked[r.idx]);
     const uncheckedItems=allGameItems.map((text,j)=>({text:text.startsWith("+ ")?text.slice(2):text,idx:j})).filter(r=>!checked[r.idx]);
     const actualLines=hasA?dy.actual.split("\n"):[];
-    const ta={width:"100%",marginTop:6,padding:"4px 6px",border:`1px solid ${C.bdr}`,borderRadius:3,fontFamily:F.sans,fontSize:11,color:C.tx,background:"transparent",resize:"vertical",outline:"none",boxSizing:"border-box",minHeight:28};
+    const ta={width:"100%",marginTop:6,padding:"4px 6px",border:`1px solid ${C.bdr}`,borderRadius:3,fontFamily:F.sans,fontSize:12,color:C.tx,background:"transparent",resize:"vertical",outline:"none",boxSizing:"border-box",minHeight:28};
     return(<>
     <tr style={{borderBottom:hidden?`1px solid ${C.bdr}`:"none",background:hidden?C.bgS:bg,verticalAlign:"top",opacity:hidden?0.5:1,transition:"opacity 0.15s"}}>
       <td onClick={onToggle} style={{padding:hidden?"6px 10px":"8px 10px",borderRight:`1px solid ${C.bdr}`,width:110,minWidth:110,cursor:"pointer"}}>
         <div style={{display:"flex",alignItems:"center",gap:6}}>
-          <span style={{fontSize:10,color:C.txT,transition:"transform 0.15s",transform:hidden?"rotate(0)":"rotate(90deg)"}}>{"\u25B6"}</span>
+          <span style={{fontSize:11,color:C.txT,transition:"transform 0.15s",transform:hidden?"rotate(0)":"rotate(90deg)"}}>{"\u25B6"}</span>
           <div>
-            <div style={{fontFamily:F.sans,fontSize:13,fontWeight:600,color:C.tx}}>{dy.d} <span style={{fontWeight:400,color:C.txT,fontSize:11}}>{dy.day||""}</span></div>
-            {!hidden&&<div style={{fontFamily:F.sans,fontSize:11.5,color:C.txS,lineHeight:1.4,marginTop:2}}>{dy.t}</div>}
+            <div style={{fontFamily:F.sans,fontSize:14,fontWeight:600,color:C.tx}}>{dy.d} <span style={{fontWeight:400,color:C.txT,fontSize:12}}>{dy.day||""}</span></div>
+            {!hidden&&<div style={{fontFamily:F.sans,fontSize:12.5,color:C.txS,lineHeight:1.4,marginTop:2}}>{dy.t}</div>}
             {!hidden&&dy.lv==="m"&&<div style={{marginTop:4}}><Tag color="yellow">major</Tag></div>}
             {!hidden&&dy.lv==="s"&&<div style={{marginTop:4}}><Tag color="blue">key</Tag></div>}
           </div>
         </div>
-        {hidden&&<span style={{fontFamily:F.sans,fontSize:11,color:C.txT,marginLeft:16}}>{dy.t}</span>}
+        {hidden&&<span style={{fontFamily:F.sans,fontSize:12,color:C.txT,marginLeft:16}}>{dy.t}</span>}
       </td>
-      {hidden?<td colSpan={3} style={{padding:"6px 10px",fontSize:12,color:C.txT}}></td>:<>
-        <td style={{padding:"8px 10px",borderRight:`1px solid ${C.bdr}`,fontSize:12,color:C.txS,lineHeight:1.65}}>{dy.pred}</td>
+      {hidden?<td colSpan={3} style={{padding:"6px 10px",fontSize:13,color:C.txT}}></td>:<>
+        <td style={{padding:"8px 10px",borderRight:`1px solid ${C.bdr}`,fontSize:13,color:C.txS,lineHeight:1.65}}>{dy.pred}</td>
         <td style={{padding:"8px 10px",borderRight:`1px solid ${C.bdr}`,background:allGameItems.length>0?C.yellowBg:"transparent"}}>
           {uncheckedItems.length>0?uncheckedItems.map(r=>(
-            <div key={r.idx} onClick={(e)=>{e.stopPropagation();onCheck(r.idx);}} style={{display:"flex",alignItems:"flex-start",gap:6,fontSize:12,color:C.tx,lineHeight:1.6,marginBottom:4,cursor:"pointer"}}>
+            <div key={r.idx} onClick={(e)=>{e.stopPropagation();onCheck(r.idx);}} style={{display:"flex",alignItems:"flex-start",gap:6,fontSize:13,color:C.tx,lineHeight:1.6,marginBottom:4,cursor:"pointer"}}>
               <div style={{width:14,height:14,borderRadius:3,border:`1.5px solid ${C.bdrH}`,background:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2}}></div>
               <span>{r.text}</span>
             </div>
-          )):<span style={{fontSize:12,color:C.txT}}>{allGameItems.length>0?"All done":"\u2014"}</span>}
+          )):<span style={{fontSize:13,color:C.txT}}>{allGameItems.length>0?"All done":"\u2014"}</span>}
           <textarea onClick={e=>e.stopPropagation()} value={extraGame||""} onChange={e=>onExtraGame(e.target.value)} placeholder="+ Add task..." rows={1} style={ta} onFocus={e=>{e.target.style.borderColor=C.blue;if(!e.target.value)e.target.rows=2;}} onBlur={e=>{e.target.style.borderColor=C.bdr;if(!e.target.value)e.target.rows=1;}}/>
         </td>
         <td style={{padding:"8px 10px",background:(hasA||checkedItems.length>0||extraActual||notes)?C.greenBg:""}}>
-          {actualLines.map((l,j)=><div key={"a"+j} style={{fontSize:12,color:C.tx,lineHeight:1.6,marginBottom:1}}>{l}</div>)}
+          {actualLines.map((l,j)=><div key={"a"+j} style={{fontSize:13,color:C.tx,lineHeight:1.6,marginBottom:1}}>{l}</div>)}
           {checkedItems.map((r)=>{const clean=r.text.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{1FA00}-\u{1FAFF}]/gu,"").trim();return(
-            <div key={"c"+r.idx} onClick={(e)=>{e.stopPropagation();onCheck(r.idx);}} style={{fontSize:12,color:C.tx,lineHeight:1.6,marginBottom:1,cursor:"pointer"}}>- {clean}</div>
+            <div key={"c"+r.idx} onClick={(e)=>{e.stopPropagation();onCheck(r.idx);}} style={{fontSize:13,color:C.tx,lineHeight:1.6,marginBottom:1,cursor:"pointer"}}>- {clean}</div>
           );})}
           <textarea onClick={e=>e.stopPropagation()} value={extraActual||""} onChange={e=>onExtraActual(e.target.value)} placeholder="+ Add what happened..." rows={extraActual&&extraActual.trim()?Math.max(2,extraActual.split("\n").length):1} style={ta} onFocus={e=>{e.target.style.borderColor=C.blue;if(!e.target.value)e.target.rows=3;}} onBlur={e=>{e.target.style.borderColor=C.bdr;if(!e.target.value)e.target.rows=1;}}/>
         </td>
@@ -1638,15 +1638,15 @@ function Year2026({month}){
     return(<div>
     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
       <Ps style={{marginBottom:0,flex:1}}>{intro}</Ps>
-      <button onClick={toggleAll} style={{border:`1px solid ${C.bdr}`,background:C.bgS,borderRadius:3,padding:"4px 12px",fontFamily:F.sans,fontSize:12,color:C.txS,cursor:"pointer",whiteSpace:"nowrap",marginLeft:12}}>{hideAll?"Expand all":"Collapse all"}</button>
+      <button onClick={toggleAll} style={{border:`1px solid ${C.bdr}`,background:C.bgS,borderRadius:3,padding:"4px 12px",fontFamily:F.sans,fontSize:13,color:C.txS,cursor:"pointer",whiteSpace:"nowrap",marginLeft:12}}>{hideAll?"Expand all":"Collapse all"}</button>
     </div>
     <div style={{border:`1px solid ${C.bdr}`,borderRadius:4,overflow:"hidden"}}>
-      <table style={{width:"100%",borderCollapse:"collapse",fontFamily:F.sans,fontSize:13,tableLayout:"fixed"}}>
+      <table style={{width:"100%",borderCollapse:"collapse",fontFamily:F.sans,fontSize:14,tableLayout:"fixed"}}>
         <colgroup><col style={{width:"15%"}}/><col style={{width:"30%"}}/><col style={{width:"27.5%"}}/><col style={{width:"27.5%"}}/></colgroup>
         <thead><tr style={{background:C.bgS}}><TH>Date</TH><TH>Prediction</TH><TH>Game plan</TH><TH>What happened</TH></tr></thead>
         <tbody>
           {visible.map(r=><Row key={r.i} dy={r.dy} hidden={false} onToggle={()=>toggleHide(r.i)} checked={getChecked(r.i)} onCheck={(j)=>toggleCheck(r.i,j)} notes={notesMap[r.i]||""} onNotes={(v)=>setNotes(r.i,v)} extraGame={extraGameMap[r.i]||""} onExtraGame={(v)=>setExtraGame(r.i,v)} extraActual={extraActualMap[r.i]||""} onExtraActual={(v)=>setExtraActual(r.i,v)}/>)}
-          {hiddenList.length>0&&<tr><td colSpan={4} style={{padding:"6px 10px",background:C.bgS,fontSize:11,color:C.txT,borderBottom:`1px solid ${C.bdr}`}}>Hidden ({hiddenList.length})</td></tr>}
+          {hiddenList.length>0&&<tr><td colSpan={4} style={{padding:"6px 10px",background:C.bgS,fontSize:12,color:C.txT,borderBottom:`1px solid ${C.bdr}`}}>Hidden ({hiddenList.length})</td></tr>}
           {hiddenList.map(r=><Row key={r.i} dy={r.dy} hidden={true} onToggle={()=>toggleHide(r.i)} checked={getChecked(r.i)} onCheck={(j)=>toggleCheck(r.i,j)} notes={notesMap[r.i]||""} onNotes={(v)=>setNotes(r.i,v)} extraGame={extraGameMap[r.i]||""} onExtraGame={(v)=>setExtraGame(r.i,v)} extraActual={extraActualMap[r.i]||""} onExtraActual={(v)=>setExtraActual(r.i,v)}/>)}
         </tbody>
       </table>
@@ -1713,7 +1713,7 @@ function Year2026({month}){
   return(<div>
     <H1>2026</H1>
     <Collapse title="2025 was demolition. 2026 is architecture." icon="☉" color={C.gold} open={false}>
-    <P style={{fontFamily:F.serif,fontSize:18,lineHeight:1.7,marginBottom:20}}>The structures that couldn't hold your weight anymore - the roles that treated you as disposable, the patterns that kept you small, the identity built around serving others at the cost of yourself - they all came down. Not gently. Saturn in Pisces on your Sun made sure of that. 2026 is architecture. Not rebuilding what was. Building what should have been there all along.</P>
+    <P style={{fontFamily:F.serif,fontSize:20,lineHeight:1.7,marginBottom:20}}>The structures that couldn't hold your weight anymore - the roles that treated you as disposable, the patterns that kept you small, the identity built around serving others at the cost of yourself - they all came down. Not gently. Saturn in Pisces on your Sun made sure of that. 2026 is architecture. Not rebuilding what was. Building what should have been there all along.</P>
     <H3 color={C.bloodRed} style={{marginTop:20}}>Act one: the ending (Jan-Mar)</H3>
     <Ps>Saturn finishes its transit through Pisces and re-enters Aries on Feb 13 - lifting the pressure that's been on your Sun since 2023. The Virgo lunar eclipse on Mar 3 releases whatever identity you've been carrying that no longer fits. Your birthday New Moon on Mar 18 is the most powerful intention-setting day of your year - five planets in your Sun sign, Solar Return chart seeded with fresh lunar energy. By month's end, Mercury goes direct, Saturn gives you a blueprint, and you're standing on completely new ground.</Ps>
     <H3 color={C.ocean} style={{marginTop:16}}>Act two: the activation (Apr-Jul)</H3>
@@ -1731,12 +1731,12 @@ function UniversePage(){
   const[sub2,setSub2]=useState("mar");
   const tabs=[{k:"y2026",l:"2026 Calendar"},{k:"compass",l:"Life Compass"},{k:"who",l:"Who I Am"}];
   return(<div>
-    <H1 style={{fontSize:28,margin:"0 0 4px"}}>My Universe</H1>
+    <H1 style={{fontSize:30,margin:"0 0 4px"}}>My Universe</H1>
     <div style={{display:"flex",gap:0,borderBottom:`1px solid ${C.bdr}`,marginBottom:20}}>
-      {tabs.map((t,i)=>(<button key={t.k} onClick={()=>setTab(t.k)} style={{padding:`8px 16px 8px ${i===0?0:16}px`,border:"none",background:"none",fontFamily:F.sans,fontSize:14,fontWeight:tab===t.k?600:400,color:tab===t.k?C.tx:C.txT,cursor:"pointer",borderBottom:tab===t.k?`2px solid ${C.tx}`:"2px solid transparent",marginBottom:-1}}>{t.l}</button>))}
+      {tabs.map((t,i)=>(<button key={t.k} onClick={()=>setTab(t.k)} style={{padding:`8px 16px 8px ${i===0?0:16}px`,border:"none",background:"none",fontFamily:F.sans,fontSize:15,fontWeight:tab===t.k?600:400,color:tab===t.k?C.tx:C.txT,cursor:"pointer",borderBottom:tab===t.k?`2px solid ${C.tx}`:"2px solid transparent",marginBottom:-1}}>{t.l}</button>))}
     </div>
     {tab==="y2026"&&<div>
-      <div style={{display:"flex",gap:0,marginBottom:16}}>{[{k:"mar",l:"March"},{k:"apr",l:"April"},{k:"may",l:"May"}].map((m,i)=>(<button key={m.k} onClick={()=>setSub2(m.k)} style={{padding:"5px 12px",border:"none",background:sub2===m.k?C.bgS:"transparent",borderRadius:4,fontFamily:F.sans,fontSize:13,fontWeight:sub2===m.k?600:400,color:sub2===m.k?C.tx:C.txT,cursor:"pointer"}}>{m.l}</button>))}</div>
+      <div style={{display:"flex",gap:0,marginBottom:16}}>{[{k:"mar",l:"March"},{k:"apr",l:"April"},{k:"may",l:"May"}].map((m,i)=>(<button key={m.k} onClick={()=>setSub2(m.k)} style={{padding:"5px 12px",border:"none",background:sub2===m.k?C.bgS:"transparent",borderRadius:4,fontFamily:F.sans,fontSize:14,fontWeight:sub2===m.k?600:400,color:sub2===m.k?C.tx:C.txT,cursor:"pointer"}}>{m.l}</button>))}</div>
       <Year2026 month={sub2}/>
     </div>}
     {tab==="compass"&&<LifeCompass/>}
@@ -1777,7 +1777,7 @@ function AppInner({ dark, toggle, theme }) {
         padding: "20px 0", position: "sticky", top: 0, height: "100vh", overflowY: "auto", flexShrink: 0
       }}>
         <div style={{
-          padding: "12px 20px 20px", fontFamily: F.serif, fontSize: 18, fontWeight: 700, color: C.tx,
+          padding: "12px 20px 20px", fontFamily: F.serif, fontSize: 20, fontWeight: 700, color: C.tx,
           borderBottom: `1px solid ${C.bdr}`, marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center"
         }}>
           <span>Evalynn</span>
@@ -1800,7 +1800,7 @@ function AppInner({ dark, toggle, theme }) {
               display: "block", width: "100%", padding: "10px 20px", border: "none",
               background: isActive ? C.bg : "transparent",
               borderLeft: isActive ? `3px solid ${C.tx}` : "3px solid transparent",
-              fontFamily: F.sans, fontSize: 14, fontWeight: isActive ? 600 : 400,
+              fontFamily: F.sans, fontSize: 15, fontWeight: isActive ? 600 : 400,
               color: isActive ? C.tx : C.txS, cursor: "pointer", textAlign: "left",
               transition: "all 0.1s"
             }}>
