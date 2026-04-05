@@ -594,6 +594,7 @@ const COND_COLORS = { monitoring: { bg: C.yellowBg, c: "#856d0a" }, good: { bg: 
 
 function MetricsTab() {
   const [data, setData] = useState({ entries: [], bodyEntries: [], targets: {}, conditions: {} });
+  const [customMarkers, setCustomMarkers] = useState([]);
   const [loaded, setLoaded] = useState(false);
   const [canSave, setCanSave] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -608,8 +609,8 @@ function MetricsTab() {
   const fileInputRef = useRef(null);
   const dropRef = useRef(null);
 
-  useEffect(()=>{(async()=>{const d=await osLoad("metrics_v1",{entries:[],bodyEntries:[],targets:{},conditions:{}});setData(d);setLoaded(true);setTimeout(()=>setCanSave(true),500);})();},[]);
-  useEffect(()=>{if(!loaded||!canSave)return;osSave("metrics_v1",data);},[data,loaded,canSave]);
+  useEffect(()=>{(async()=>{const d=await osLoad("metrics_v1",{entries:[],bodyEntries:[],targets:{},conditions:{}});setData(d);const cm=await osLoad("custom-markers",[]);setCustomMarkers(cm);setLoaded(true);setTimeout(()=>setCanSave(true),500);})();},[]);
+  useEffect(()=>{if(!loaded||!canSave)return;osSave("metrics_v1",data);osSave("custom-markers",customMarkers);},[data,customMarkers,loaded,canSave]);
 
   const set=(field,val)=>setData(p=>({...p,[field]:val}));
   const deleteEntry=(id)=>{if(confirm("Delete this blood work entry?"))set("entries",(data.entries||[]).filter(e=>e.id!==id));};
@@ -617,6 +618,17 @@ function MetricsTab() {
 
   const entries=data.entries||[];
   const getMarkerColor=(marker,val)=>{if(!val&&val!==0)return C.txT;if(typeof val==="string"&&isNaN(parseFloat(val)))return C.green;const n=parseFloat(val);if(isNaN(n))return C.txT;if(marker.good(n))return C.green;if(marker.warn(n))return"#856d0a";return C.red;};
+
+  const mergedGroups=React.useMemo(()=>{
+    const groups=BLOOD_GROUPS.map(g=>({...g,markers:[...g.markers]}));
+    customMarkers.forEach(cm=>{
+      const grp=groups.find(g=>g.label===cm.group);
+      const markerDef={id:cm.id,label:cm.name,norm:cm.norm||"-",good:()=>true,warn:()=>true,isText:typeof cm.value==="string"&&isNaN(parseFloat(cm.value))};
+      if(grp){grp.markers.push(markerDef);}else{groups.push({key:"custom_"+cm.group.toLowerCase().replace(/\s/g,"_"),label:cm.group,markers:[markerDef]});}
+    });
+    return groups;
+  },[customMarkers]);
+  const allMarkers=mergedGroups.flatMap(g=>g.markers);
 
   const openModal=()=>{setShowModal(true);setModalTab("upload");setModalFiles([]);setModalDate(new Date().toISOString().slice(0,10));setExtractedValues(null);setNewMarkers([]);setExtractError(null);setManualValues({});};
   const closeModal=()=>{setShowModal(false);setExtractedValues(null);setNewMarkers([]);setExtractError(null);setModalFiles([]);setManualValues({});};
@@ -658,17 +670,29 @@ function MetricsTab() {
 
   const saveEntry=()=>{
     const vals=modalTab==="upload"?(extractedValues||{}):manualValues;
-    const vc=Object.keys(vals).filter(k=>vals[k]!==""&&vals[k]!==undefined&&vals[k]!==null).length;
+    const finalVals={...vals};
+    const checkedNew=newMarkers.filter(m=>m.checked);
+    checkedNew.forEach(nm=>{if(nm.value!==undefined&&nm.value!=="")finalVals[nm.id]=typeof nm.value==="string"&&!isNaN(parseFloat(nm.value))?parseFloat(nm.value):nm.value;});
+    const vc=Object.keys(finalVals).filter(k=>finalVals[k]!==""&&finalVals[k]!==undefined&&finalVals[k]!==null).length;
     if(vc===0)return;
-    const newEntry={id:Date.now(),date:modalDate,values:{...vals}};
+    if(checkedNew.length>0){
+      const newCm=checkedNew.filter(nm=>!customMarkers.some(cm=>cm.id===nm.id)&&!BLOOD_MARKERS.some(bm=>bm.id===nm.id));
+      if(newCm.length>0)setCustomMarkers(p=>[...p,...newCm.map(nm=>({id:nm.id,name:nm.name,group:nm.group,norm:nm.norm||"-",value:nm.value}))]);
+    }
+    const newEntry={id:Date.now(),date:modalDate,values:finalVals};
     set("entries",[newEntry,...(data.entries||[])]);
     closeModal();
   };
 
-  const valCount=modalTab==="upload"?Object.keys(extractedValues||{}).filter(k=>(extractedValues||{})[k]!==""&&(extractedValues||{})[k]!==undefined).length:Object.keys(manualValues).filter(k=>manualValues[k]!==""&&manualValues[k]!==undefined).length;
+  const valCount=React.useMemo(()=>{
+    const vals=modalTab==="upload"?(extractedValues||{}):manualValues;
+    const baseCount=Object.keys(vals).filter(k=>vals[k]!==""&&vals[k]!==undefined).length;
+    const newCount=newMarkers.filter(m=>m.checked&&m.value!==""&&m.value!==undefined).length;
+    return baseCount+newCount;
+  },[modalTab,extractedValues,manualValues,newMarkers]);
 
-  const grpS={flex:"0 0 100px",fontSize:12,fontWeight:500,padding:"4px 10px",background:C.bgS,color:C.txS,alignSelf:"stretch",display:"flex",alignItems:"center"};
-  const grpE={flex:"0 0 100px",padding:"4px 10px",background:C.bgS};
+  const grpS={flex:"0 0 100px",fontSize:13,fontWeight:600,padding:"4px 10px",color:C.tx,alignSelf:"stretch",display:"flex",alignItems:"center"};
+  const grpE={flex:"0 0 100px",padding:"4px 10px"};
   const nameS={flex:"0 0 160px",paddingLeft:8,color:C.tx,fontSize:13};
   const normS={flex:"0 0 90px",fontSize:12,textAlign:"left",color:C.txT,paddingLeft:4};
   const valS={flex:"0 0 54px",textAlign:"center",fontSize:13,fontWeight:500};
@@ -711,7 +735,7 @@ function MetricsTab() {
       </React.Fragment>))}
     </div>
 
-    {BLOOD_GROUPS.map((grp,gi)=>(<React.Fragment key={grp.key}>
+    {mergedGroups.map((grp,gi)=>(<React.Fragment key={grp.key}>
       {grp.markers.map((m,mi)=>{
         const isFirst=mi===0;
         return(<div key={m.id} style={{...rowS,paddingTop:isFirst&&gi>0?8:3}}>
@@ -796,7 +820,7 @@ function MetricsTab() {
       </div>}
 
       {modalTab==="type"&&<div style={{maxHeight:300,overflowY:"auto",marginBottom:12}}>
-        {BLOOD_GROUPS.map((grp,gi)=>(<div key={grp.key}>
+        {mergedGroups.map((grp,gi)=>(<div key={grp.key}>
           {grp.markers.map((m,mi)=>(
             <div key={m.id} style={{display:"flex",alignItems:"center",gap:8,padding:"3px 0"}}>
               {mi===0?<span style={{flex:"0 0 80px",fontSize:11,fontWeight:500,color:C.txS}}>{grp.label}</span>:<span style={{flex:"0 0 80px"}}></span>}
@@ -819,7 +843,7 @@ function MetricsTab() {
           <span style={{fontSize:11,color:C.green}}>{Object.keys(extractedValues).filter(k=>extractedValues[k]!==""&&extractedValues[k]!==undefined).length} markers found</span>
         </div>
         <div style={{background:C.bgS,borderRadius:4,padding:"8px 12px",marginBottom:8,maxHeight:200,overflowY:"auto"}}>
-          {BLOOD_GROUPS.map(grp=>{
+          {mergedGroups.map(grp=>{
             const grpVals=grp.markers.filter(m=>extractedValues[m.id]!==undefined&&extractedValues[m.id]!=="");
             if(grpVals.length===0)return null;
             return(<div key={grp.key}>
