@@ -1294,9 +1294,9 @@ function LearningPlan(){const[exp,setExp]=useState("p1");
 function IncomeTracker(){
   const defaultStreams=[{name:"Outlier (Scale AI)",rate:17.04,hrs:5,status:"Drying up",stability:"red",earned:0},{name:"Onyx / Micro1",rate:52,hrs:7,status:"Uncertain batches",stability:"orange",earned:0},{name:"Turing (Google)",rate:15,hrs:0,status:"No Thai work yet",stability:"orange",earned:0},{name:"Handshake AI",rate:0,hrs:0,status:"Call with Jad scheduled",stability:"yellow",earned:0},{name:"Deeptune (via Marc)",rate:25,hrs:0,status:"Onboarding 2-3 weeks",stability:"orange",earned:0},{name:"Aligner",rate:17,hrs:0,status:"Stuck in review",stability:"red",earned:0}];
   const defaultMoves=[{action:"Handshake AI - Book 15 min call with Jad",status:"working"},{action:"Handshake AI - Prepare for call: align experience to JD",status:"wait"},{action:"Deeptune - Onboarding in 2-3 weeks via Marc",status:"wait"},{action:"Onyx / Micro1 - Watch for batch announcement this week",status:"wait"},{action:"Turing - No Thai work yet, monitor",status:"wait"},{action:"CCA courses during low-income window",status:"working"}];
-  const[streams,setStreams]=useState(defaultStreams);const[target,setTarget]=useState(2500);const[moves,setMoves]=useState(defaultMoves);const[loaded,setLoaded]=useState(false);
-  useEffect(()=>{(async()=>{const d=await osLoad("income-tracker",null);if(d){if(d.streams)setStreams(d.streams);if(d.target)setTarget(d.target);if(d.moves)setMoves(d.moves);}setLoaded(true);})();},[]);
-  useEffect(()=>{if(!loaded)return;osSave("income-tracker",{streams,target,moves});},[streams,target,moves,loaded]);
+  const[streams,setStreams]=useState(defaultStreams);const[target,setTarget]=useState(2500);const[moves,setMoves]=useState(defaultMoves);const[logs,setLogs]=useState([]);const[loaded,setLoaded]=useState(false);
+  useEffect(()=>{(async()=>{const d=await osLoad("income-tracker",null);if(d){if(d.streams)setStreams(d.streams);if(d.target)setTarget(d.target);if(d.moves)setMoves(d.moves);if(d.logs)setLogs(d.logs);}setLoaded(true);})();},[]);
+  useEffect(()=>{if(!loaded)return;osSave("income-tracker",{streams,target,moves,logs});},[streams,target,moves,logs,loaded]);
   const updateStream=(i,field,val)=>setStreams(p=>p.map((s,j)=>j===i?{...s,[field]:val}:s));
   const addStream=()=>setStreams(p=>[...p,{name:"New source",rate:0,hrs:0,status:"",stability:"orange",earned:0}]);
   const removeStream=(i)=>setStreams(p=>p.filter((_,j)=>j!==i));
@@ -1307,6 +1307,11 @@ function IncomeTracker(){
   const MOVE_STATUS=["wait","working","testing","drop"];
   const moveStatusCfg={wait:{bg:C.bgS,c:C.txS},working:{bg:C.yellowBg,c:"#856d0a"},testing:{bg:C.blueBg,c:C.blue},drop:{bg:C.bgS,c:C.txT}};
   const cycleMoveStatus=(i,cur)=>{const idx=MOVE_STATUS.indexOf(cur||"wait");const next=MOVE_STATUS[(idx+1)%MOVE_STATUS.length];updateMove(i,"status",next);};
+  const LOG_TYPES=["note","decision","win","change"];
+  const addLog=()=>{const d=new Date();const ds=d.toLocaleDateString("en-US",{month:"short",day:"numeric"});setLogs(p=>[{date:ds,type:"note",text:""},...p]);};
+  const updateLog=(i,field,val)=>setLogs(p=>p.map((l,j)=>j===i?{...l,[field]:val}:l));
+  const removeLog=(i)=>setLogs(p=>p.filter((_,j)=>j!==i));
+  const cycleLogType=(i,cur)=>{const idx=LOG_TYPES.indexOf(cur||"note");const next=LOG_TYPES[(idx+1)%LOG_TYPES.length];updateLog(i,"type",next);};
   const totalEst=streams.reduce((s,r)=>s+r.rate*r.hrs*4,0);const totalEarned=streams.reduce((s,r)=>s+r.earned,0);
   const stabColors={green:{bg:C.greenBg,tx:C.green,label:"Green"},yellow:{bg:C.yellowBg,tx:"#856d0a",label:"Yellow"},orange:{bg:C.orangeBg,tx:C.orange,label:"Orange"},red:{bg:C.redBg,tx:C.red,label:"Red"}};
   const txtS={fontSize:13,color:C.tx,flex:1,background:"transparent",border:"none",outline:"none",fontFamily:F.sans,padding:0,minWidth:0};
@@ -1341,17 +1346,101 @@ function IncomeTracker(){
           <span onClick={()=>removeMove(i)} style={{cursor:"pointer",fontSize:11,color:C.txT,flexShrink:0}}>x</span>
         </div>);})}
     </div>
+    <div style={{marginTop:24}}>
+      <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between"}}><span>Work log</span><span onClick={addLog} style={{cursor:"pointer",fontSize:14,fontWeight:400}}>+</span></div>
+      {logs.map((lg,i)=>{const tc={win:{bg:C.greenBg,c:C.green},decision:{bg:C.yellowBg,c:"#856d0a"},change:{bg:C.blueBg,c:C.blue},note:{bg:C.bgS,c:C.txS}};const lc=tc[lg.type]||tc.note;return(
+        <div key={i} style={lineS}>
+          <span style={{fontSize:11,color:C.txT,flexShrink:0,minWidth:42}}>{lg.date||""}</span>
+          <span onClick={()=>cycleLogType(i,lg.type)} style={{fontSize:9,fontWeight:600,padding:"1px 6px",borderRadius:8,background:lc.bg,color:lc.c,cursor:"pointer",flexShrink:0,userSelect:"none",minWidth:48,textAlign:"center"}}>{lg.type||"note"}</span>
+          <input value={lg.text} onChange={e=>updateLog(i,"text",e.target.value)} style={txtS} placeholder="What happened or changed?"/>
+          <span onClick={()=>removeLog(i)} style={{cursor:"pointer",fontSize:11,color:C.txT,flexShrink:0}}>x</span>
+        </div>);})}
+    </div>
+  </div>);
+}
+
+// ══════════════════════════════════════════════════════════════
+// SKILL MATRIX - Handshake AI role skills + confidence tracking
+// ══════════════════════════════════════════════════════════════
+
+const SKILL_SECTIONS_SEED=[
+  {key:"ops",label:"Queue and operations management",color:"purple",skills:[
+    {id:"sk1",text:"Manage contributor queues across AI data workflows",jd:"core"},{id:"sk2",text:"Own quality, speed, and operational reliability",jd:"core"},{id:"sk3",text:"Identify quality issues, root cause, implement fixes",jd:"core"},{id:"sk4",text:"Build processes to prevent repeat errors",jd:"core"},{id:"sk5",text:"Escalate risks early, solve ops issues quickly",jd:"expected"}]},
+  {key:"people",label:"People and team building",color:"green",skills:[
+    {id:"sk6",text:"Recruit, screen, calibrate language contributors",jd:"core"},{id:"sk7",text:"Match contributors to right work, improve team quality",jd:"core"},{id:"sk8",text:"Give feedback, set expectations, drive accountability",jd:"expected"},{id:"sk9",text:"Scale the language team as demand grows",jd:"expected"},{id:"sk10",text:"Build language team into a strong, reliable function",jd:"core"}]},
+  {key:"comms",label:"Communication and coordination",color:"blue",skills:[
+    {id:"sk11",text:"Communicate workflow and policy changes to contributors",jd:"core"},{id:"sk12",text:"Strong written communication and attention to detail",jd:"expected"},{id:"sk13",text:"Work across multilingual / globally distributed teams",jd:"nice"}]},
+  {key:"domain",label:"Domain knowledge",color:"orange",skills:[
+    {id:"sk14",text:"RLHF workflows",jd:"nice"},{id:"sk15",text:"Evals and annotation workflows",jd:"nice"},{id:"sk16",text:"QA and localization workflows",jd:"nice"},{id:"sk17",text:"Thai language fluency + cultural judgment",jd:"core"}]},
+  {key:"tech",label:"Technical and analytical",color:"yellow",skills:[
+    {id:"sk18",text:"Analytical mindset (data-driven ops decisions)",jd:"expected"},{id:"sk19",text:"Python basics",jd:"nice"},{id:"sk20",text:"Ops metrics and reporting",jd:"expected"}]},
+  {key:"gaps",label:"Handshake-specific (onboarding)",color:"red",skills:[
+    {id:"sk21",text:"Handshake AI platform and tooling",jd:"core"},{id:"sk22",text:"Jad's operating style and team norms",jd:"core"},{id:"sk23",text:"Handshake-specific quality rubrics and workflows",jd:"core"}]},
+];
+const CONF_LEVELS=["confident","applied","learning","no idea"];
+const CONF_CFG={confident:{bg:C.greenBg,c:C.green},applied:{bg:C.blueBg,c:C.blue},learning:{bg:C.yellowBg,c:"#856d0a"},"no idea":{bg:C.bgS,c:C.txT}};
+const JD_CFG={core:{bg:C.redBg,c:C.red},expected:{bg:C.yellowBg,c:"#856d0a"},nice:{bg:C.bgS,c:C.txS}};
+
+function SkillMatrix(){
+  const[data,setData]=useState({skills:{},archived:[]});const[loaded,setLoaded]=useState(false);
+  useEffect(()=>{(async()=>{const d=await osLoad("skill-matrix",null);
+    if(d){setData(d);}else{
+      const seed={skills:{},archived:[]};
+      seed.skills.sk1="confident";seed.skills.sk2="confident";seed.skills.sk3="confident";seed.skills.sk4="confident";seed.skills.sk5="confident";
+      seed.skills.sk6="confident";seed.skills.sk7="confident";seed.skills.sk8="confident";seed.skills.sk9="confident";seed.skills.sk10="applied";
+      seed.skills.sk11="confident";seed.skills.sk12="confident";seed.skills.sk13="confident";
+      seed.skills.sk14="applied";seed.skills.sk15="confident";seed.skills.sk16="applied";seed.skills.sk17="confident";
+      seed.skills.sk18="learning";seed.skills.sk19="learning";seed.skills.sk20="learning";
+      seed.skills.sk21="no idea";seed.skills.sk22="no idea";seed.skills.sk23="no idea";
+      setData(seed);osSave("skill-matrix",seed);
+    }setLoaded(true);})();},[]);
+  useEffect(()=>{if(!loaded)return;osSave("skill-matrix",data);},[data,loaded]);
+  const getConf=(id)=>data.skills[id]||"no idea";
+  const cycleConf=(id)=>{const cur=getConf(id);const idx=CONF_LEVELS.indexOf(cur);const next=CONF_LEVELS[(idx+1)%CONF_LEVELS.length];setData(p=>({...p,skills:{...p.skills,[id]:next}}));};
+  const archiveSkill=(id)=>{setData(p=>{const s={...p.skills};const conf=s[id]||"no idea";delete s[id];const allSkills=SKILL_SECTIONS_SEED.flatMap(sec=>sec.skills);const sk=allSkills.find(x=>x.id===id);return{...p,skills:s,archived:[...p.archived,{id,text:sk?.text||id,conf,date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})}]};});};
+  const unarchive=(id)=>{setData(p=>{const item=p.archived.find(a=>a.id===id);const newArchived=p.archived.filter(a=>a.id!==id);return{...p,skills:{...p.skills,[id]:item?.conf||"no idea"},archived:newArchived};});};
+  const isArchived=(id)=>!data.skills.hasOwnProperty(id);
+  const allSkills=SKILL_SECTIONS_SEED.flatMap(s=>s.skills);
+  const activeSkills=allSkills.filter(s=>data.skills.hasOwnProperty(s.id));
+  const confCount=(level)=>activeSkills.filter(s=>getConf(s.id)===level).length;
+  const lineS={display:"flex",alignItems:"center",gap:8,padding:"7px 0",borderBottom:`1px solid ${C.bdr}`};
+  const sectionColors={purple:{bg:C.purpleBg,c:C.purple},green:{bg:C.greenBg,c:C.green},blue:{bg:C.blueBg,c:C.blue},orange:{bg:C.orangeBg,c:C.orange},yellow:{bg:C.yellowBg,c:"#856d0a"},red:{bg:C.redBg,c:C.red}};
+  return(<div>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10,marginBottom:20}}>
+      {[{l:"Total active",v:activeSkills.length,c:C.tx},{l:"Confident / applied",v:confCount("confident")+confCount("applied"),c:C.green},{l:"Learning",v:confCount("learning"),c:"#856d0a"},{l:"Gap",v:confCount("no idea"),c:C.red}].map((g,i)=>(<div key={i} style={{background:C.bgS,borderRadius:4,padding:"10px 12px"}}><div style={{fontSize:10,fontWeight:600,color:C.txT,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:3}}>{g.l}</div><div style={{fontSize:20,fontWeight:500,color:g.c}}>{g.v}</div></div>))}
+    </div>
+    {SKILL_SECTIONS_SEED.map(section=>{const sc=sectionColors[section.color]||sectionColors.purple;const sectionSkills=section.skills.filter(s=>data.skills.hasOwnProperty(s.id));if(sectionSkills.length===0)return null;return(<div key={section.key}>
+      <div style={{padding:"6px 8px",fontSize:11,fontWeight:500,color:sc.c,background:sc.bg,borderBottom:`0.5px solid ${C.bdr}`,marginTop:8}}>{section.label}</div>
+      {sectionSkills.map(sk=>{const conf=getConf(sk.id);const cc=CONF_CFG[conf]||CONF_CFG["no idea"];const jc=JD_CFG[sk.jd]||JD_CFG.nice;return(
+        <div key={sk.id} style={lineS}>
+          <span style={{fontSize:13,color:C.tx,flex:1}}>{sk.text}</span>
+          <span style={{fontSize:10,padding:"2px 8px",borderRadius:4,background:jc.bg,color:jc.c,flexShrink:0}}>{sk.jd}</span>
+          <span onClick={()=>cycleConf(sk.id)} style={{fontSize:10,fontWeight:500,padding:"2px 10px",borderRadius:4,background:cc.bg,color:cc.c,cursor:"pointer",flexShrink:0,minWidth:56,textAlign:"center"}}>{conf}</span>
+          <span onClick={()=>archiveSkill(sk.id)} style={{cursor:"pointer",fontSize:11,color:C.txT,flexShrink:0}}>x</span>
+        </div>);})}
+    </div>);})}
+    {data.archived.length>0&&<div style={{marginTop:20}}>
+      <div style={{padding:"6px 8px",fontSize:11,fontWeight:500,color:C.txT,background:C.bgS,borderBottom:`0.5px solid ${C.bdr}`}}>Archived ({data.archived.length})</div>
+      {data.archived.map((a,i)=>{const cc=CONF_CFG[a.conf]||CONF_CFG["no idea"];return(
+        <div key={a.id} style={{...lineS,opacity:0.5}}>
+          <span style={{fontSize:13,color:C.txT,flex:1,textDecoration:"line-through"}}>{a.text}</span>
+          <span style={{fontSize:10,color:C.txT,flexShrink:0}}>{a.date}</span>
+          <span style={{fontSize:10,padding:"2px 10px",borderRadius:4,background:cc.bg,color:cc.c,flexShrink:0}}>{a.conf}</span>
+          <span onClick={()=>unarchive(a.id)} style={{cursor:"pointer",fontSize:11,color:C.blue,flexShrink:0}}>restore</span>
+        </div>);})}
+    </div>}
   </div>);
 }
 
 function WorkTab(){
   const[view,setView]=useState("income");
-  const tabs=[{k:"income",l:"Income Stream"},{k:"learn",l:"Growth Path"},{k:"career",l:"Career Compass"}];
+  const tabs=[{k:"income",l:"Income Stream"},{k:"skills",l:"Skill Matrix"},{k:"learn",l:"Growth Path"},{k:"career",l:"Career Compass"}];
   return(<div>
     <H1 style={{margin:"0 0 8px"}}>Work</H1>
     <div style={{display:"flex",gap:0,borderBottom:`1px solid ${C.bdr}`,marginBottom:20}}>{tabs.map((t,i)=>(<button key={t.k} onClick={()=>setView(t.k)} style={{padding:`6px 14px 6px ${i===0?0:14}px`,border:"none",background:"none",fontFamily:F.sans,fontSize:13,fontWeight:view===t.k?600:400,color:view===t.k?C.tx:C.txT,cursor:"pointer",borderBottom:view===t.k?`2px solid ${C.tx}`:"2px solid transparent",marginBottom:-1}}>{t.l}</button>))}</div>
     {view==="career"&&<CompassCareer/>}
     {view==="income"&&<IncomeTracker/>}
+    {view==="skills"&&<SkillMatrix/>}
     {view==="learn"&&<LearningPlan/>}
   </div>);
 }
