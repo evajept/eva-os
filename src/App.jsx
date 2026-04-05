@@ -596,189 +596,261 @@ function MetricsTab() {
   const [data, setData] = useState({ entries: [], bodyEntries: [], targets: {}, conditions: {} });
   const [loaded, setLoaded] = useState(false);
   const [canSave, setCanSave] = useState(false);
-
-  useEffect(() => { (async () => {
-    const d = await osLoad("metrics_v1", { entries: [], bodyEntries: [], targets: {}, conditions: {} });
-    setData(d);
-    setLoaded(true);
-    setTimeout(() => setCanSave(true), 500);
-  })(); }, []);
-
-  useEffect(() => {
-    if (!loaded || !canSave) return;
-    osSave("metrics_v1", data);
-  }, [data, loaded, canSave]);
-
-  const set = (field, val) => setData((p) => ({ ...p, [field]: val }));
-  const addEntry = () => { const entry = { id: Date.now(), date: new Date().toISOString().slice(0, 10), values: {} }; set("entries", [entry, ...(data.entries || [])]); };
-  const updateEntryValue = (entryId, markerId, val) => set("entries", (data.entries || []).map((e) => e.id === entryId ? { ...e, values: { ...e.values, [markerId]: markerId.startsWith("urine_") && isNaN(parseFloat(val)) ? val : (parseFloat(val) || "") } } : e));
-  const updateEntryDate = (id, val) => set("entries", (data.entries || []).map((e) => e.id === id ? { ...e, date: val } : e));
-  const deleteEntry = (id) => { if (confirm("Delete this blood work entry?")) set("entries", (data.entries || []).filter((e) => e.id !== id)); };
-  const cycleCondition = (id) => { const cur = (data.conditions || {})[id] || "monitoring"; const idx = COND_STATUSES.indexOf(cur); const next = COND_STATUSES[(idx + 1) % COND_STATUSES.length]; set("conditions", { ...(data.conditions || {}), [id]: next }); };
-
-  const entries = data.entries || [];
-  const getMarkerColor = (marker, val) => {
-    if (!val && val !== 0) return C.txT;
-    if (typeof val === "string" && isNaN(parseFloat(val))) return C.green;
-    const n = parseFloat(val);
-    if (isNaN(n)) return C.txT;
-    if (marker.good(n)) return C.green;
-    if (marker.warn(n)) return "#856d0a";
-    return C.red;
-  };
-
-  const grpS = { flex: "0 0 100px", fontSize: 12, fontWeight: 500, padding: "4px 10px", background: C.bgS, color: C.txS, alignSelf: "stretch", display: "flex", alignItems: "center" };
-  const grpE = { flex: "0 0 100px", padding: "4px 10px", background: C.bgS };
-  const nameS = { flex: "0 0 160px", paddingLeft: 8, color: C.tx, fontSize: 13 };
-  const normS = { flex: "0 0 90px", fontSize: 12, textAlign: "left", color: C.txT, paddingLeft: 4 };
-  const valS = { flex: "0 0 54px", textAlign: "center", fontSize: 13, fontWeight: 500 };
-  const dotS = { width: 5, height: 5, borderRadius: 3, flexShrink: 0, margin: "0 4px 0 2px" };
-  const rowS = { display: "flex", alignItems: "center", padding: "3px 0", fontSize: 13 };
-  const futureS = { ...valS, color: C.txT, fontWeight: 400, fontSize: 12 };
-  const hdrValS = { ...valS, fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em", color: C.txT };
-
-  const fmtDate = (d) => { if (!d) return "-"; const dt = new Date(d); return dt.toLocaleDateString("en-US", { month: "short", day: "numeric" }); };
-
-  const dateColumns = [];
-  for (let i = 0; i < 4; i++) { dateColumns.push(entries[i] || null); }
-
-  const [showAddMenu, setShowAddMenu] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalTab, setModalTab] = useState("upload");
+  const [modalFiles, setModalFiles] = useState([]);
+  const [modalDate, setModalDate] = useState(new Date().toISOString().slice(0,10));
   const [extracting, setExtracting] = useState(false);
+  const [extractedValues, setExtractedValues] = useState(null);
+  const [newMarkers, setNewMarkers] = useState([]);
+  const [extractError, setExtractError] = useState(null);
+  const [manualValues, setManualValues] = useState({});
   const fileInputRef = useRef(null);
-  const fileInputMode = useRef("image");
+  const dropRef = useRef(null);
 
-  const handleFileUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setShowAddMenu(false);
-    setExtracting(true);
-    try {
-      const base64 = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result.split(",")[1]); r.onerror = () => rej(new Error("Read failed")); r.readAsDataURL(file); });
-      const isPdf = file.type === "application/pdf";
-      const mediaType = isPdf ? "application/pdf" : (file.type || "image/jpeg");
-      const contentBlock = isPdf
-        ? { type: "document", source: { type: "base64", media_type: mediaType, data: base64 } }
-        : { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } };
-      const markerIds = BLOOD_MARKERS.map(m => m.id).join(", ");
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 2000,
-          messages: [{ role: "user", content: [
-            contentBlock,
-            { type: "text", text: `Extract all lab values from this blood work report. Return ONLY a JSON object (no markdown, no backticks) with this structure: {"date":"YYYY-MM-DD","values":{"marker_id":number_value},"new_markers":[{"name":"...","value":"...","group":"..."}]}. The known marker IDs are: ${markerIds}. For text-based results like urine protein, use the string value. For the date, extract the collection/test date from the report. If you find markers NOT in the known list, add them to new_markers with a suggested group name. Only include markers that have actual values in the report.` }
-          ]}]
-        })
-      });
-      const result = await response.json();
-      const text = result.content?.find(b => b.type === "text")?.text || "";
-      const clean = text.replace(/```json/g, "").replace(/```/g, "").trim();
-      const parsed = JSON.parse(clean);
-      const newEntry = { id: Date.now(), date: parsed.date || new Date().toISOString().slice(0, 10), values: parsed.values || {} };
-      set("entries", [newEntry, ...(data.entries || [])]);
-      if (parsed.new_markers && parsed.new_markers.length > 0) {
-        const names = parsed.new_markers.map(m => m.name + ": " + m.value).join("\n");
-        alert("New markers detected that aren't in your tracker yet:\n\n" + names + "\n\nThese values were not added. To include them, ask Claude to add these markers to your app.");
+  useEffect(()=>{(async()=>{const d=await osLoad("metrics_v1",{entries:[],bodyEntries:[],targets:{},conditions:{}});setData(d);setLoaded(true);setTimeout(()=>setCanSave(true),500);})();},[]);
+  useEffect(()=>{if(!loaded||!canSave)return;osSave("metrics_v1",data);},[data,loaded,canSave]);
+
+  const set=(field,val)=>setData(p=>({...p,[field]:val}));
+  const deleteEntry=(id)=>{if(confirm("Delete this blood work entry?"))set("entries",(data.entries||[]).filter(e=>e.id!==id));};
+  const cycleCondition=(id)=>{const cur=(data.conditions||{})[id]||"monitoring";const idx=COND_STATUSES.indexOf(cur);const next=COND_STATUSES[(idx+1)%COND_STATUSES.length];set("conditions",{...(data.conditions||{}),[id]:next});};
+
+  const entries=data.entries||[];
+  const getMarkerColor=(marker,val)=>{if(!val&&val!==0)return C.txT;if(typeof val==="string"&&isNaN(parseFloat(val)))return C.green;const n=parseFloat(val);if(isNaN(n))return C.txT;if(marker.good(n))return C.green;if(marker.warn(n))return"#856d0a";return C.red;};
+
+  const openModal=()=>{setShowModal(true);setModalTab("upload");setModalFiles([]);setModalDate(new Date().toISOString().slice(0,10));setExtractedValues(null);setNewMarkers([]);setExtractError(null);setManualValues({});};
+  const closeModal=()=>{setShowModal(false);setExtractedValues(null);setNewMarkers([]);setExtractError(null);setModalFiles([]);setManualValues({});};
+
+  const addFiles=(files)=>{const valid=Array.from(files).filter(f=>f.size<=10*1024*1024&&(f.type.startsWith("image/")||f.type==="application/pdf"));setModalFiles(p=>[...p,...valid]);};
+  const handleDrop=(e)=>{e.preventDefault();e.stopPropagation();addFiles(e.dataTransfer.files);};
+  const handleDragOver=(e)=>{e.preventDefault();e.stopPropagation();};
+  const handlePaste=React.useCallback((e)=>{if(showModal&&e.clipboardData?.files?.length>0){e.preventDefault();addFiles(e.clipboardData.files);}},[showModal]);
+  useEffect(()=>{document.addEventListener("paste",handlePaste);return()=>document.removeEventListener("paste",handlePaste);},[handlePaste]);
+  const removeFile=(idx)=>setModalFiles(p=>p.filter((_,i)=>i!==idx));
+
+  const runExtraction=async()=>{
+    if(modalFiles.length===0)return;
+    setExtracting(true);setExtractError(null);setExtractedValues(null);setNewMarkers([]);
+    try{
+      const contentBlocks=[];
+      for(const file of modalFiles){
+        const base64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(",")[1]);r.onerror=()=>rej(new Error("Read failed"));r.readAsDataURL(file);});
+        const isPdf=file.type==="application/pdf";
+        const mediaType=isPdf?"application/pdf":(file.type||"image/jpeg");
+        contentBlocks.push(isPdf?{type:"document",source:{type:"base64",media_type:mediaType,data:base64}}:{type:"image",source:{type:"base64",media_type:mediaType,data:base64}});
       }
-    } catch (err) { alert("Extraction failed: " + err.message); }
+      const markerIds=BLOOD_MARKERS.map(m=>m.id+"("+m.label+")").join(", ");
+      contentBlocks.push({type:"text",text:`Extract ALL lab values from these blood work report pages. Return ONLY a JSON object (no markdown, no backticks): {"date":"YYYY-MM-DD","values":{"marker_id":number_or_string},"new_markers":[{"id":"suggested_id","name":"Full Name","value":"...","group":"Glucose|Lipid profile|Thyroid|Liver|Kidney|Blood count|Urine|Body","norm":"normal range"}]}. Known markers: ${markerIds}. Extract the test/collection date. For text results (e.g. urine protein = Negative), use the string. For markers NOT in the known list, add to new_markers with a suggested group. Include ALL markers found across all pages.`});
+      const response=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3000,messages:[{role:"user",content:contentBlocks}]})});
+      const result=await response.json();
+      const text=result.content?.find(b=>b.type==="text")?.text||"";
+      const clean=text.replace(/```json/g,"").replace(/```/g,"").trim();
+      const parsed=JSON.parse(clean);
+      if(parsed.date)setModalDate(parsed.date);
+      setExtractedValues(parsed.values||{});
+      setNewMarkers((parsed.new_markers||[]).map(m=>({...m,checked:true})));
+    }catch(err){setExtractError("Extraction failed: "+err.message);}
     setExtracting(false);
-    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const lineS = { display: "flex", alignItems: "center", padding: "5px 0", gap: 10 };
+  const prevFileCount=useRef(0);
+  useEffect(()=>{if(modalFiles.length>0&&modalFiles.length!==prevFileCount.current&&modalTab==="upload"){prevFileCount.current=modalFiles.length;runExtraction();}},[modalFiles.length]);
 
-  return (<div>
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
+  const saveEntry=()=>{
+    const vals=modalTab==="upload"?(extractedValues||{}):manualValues;
+    const vc=Object.keys(vals).filter(k=>vals[k]!==""&&vals[k]!==undefined&&vals[k]!==null).length;
+    if(vc===0)return;
+    const newEntry={id:Date.now(),date:modalDate,values:{...vals}};
+    set("entries",[newEntry,...(data.entries||[])]);
+    closeModal();
+  };
+
+  const valCount=modalTab==="upload"?Object.keys(extractedValues||{}).filter(k=>(extractedValues||{})[k]!==""&&(extractedValues||{})[k]!==undefined).length:Object.keys(manualValues).filter(k=>manualValues[k]!==""&&manualValues[k]!==undefined).length;
+
+  const grpS={flex:"0 0 100px",fontSize:12,fontWeight:500,padding:"4px 10px",background:C.bgS,color:C.txS,alignSelf:"stretch",display:"flex",alignItems:"center"};
+  const grpE={flex:"0 0 100px",padding:"4px 10px",background:C.bgS};
+  const nameS={flex:"0 0 160px",paddingLeft:8,color:C.tx,fontSize:13};
+  const normS={flex:"0 0 90px",fontSize:12,textAlign:"left",color:C.txT,paddingLeft:4};
+  const valS={flex:"0 0 54px",textAlign:"center",fontSize:13,fontWeight:500};
+  const dotS={width:5,height:5,borderRadius:3,flexShrink:0,margin:"0 4px 0 2px"};
+  const rowS={display:"flex",alignItems:"center",padding:"3px 0",fontSize:13};
+  const futureS={...valS,color:C.txT,fontWeight:400,fontSize:12};
+  const hdrValS={...valS,fontSize:11,fontWeight:500,textTransform:"uppercase",letterSpacing:"0.04em",color:C.txT};
+  const fmtDate=(d)=>{if(!d)return"-";const dt=new Date(d);return dt.toLocaleDateString("en-US",{month:"short",day:"numeric"});};
+  const dateColumns=[];for(let i=0;i<4;i++){dateColumns.push(entries[i]||null);}
+  const lineS={display:"flex",alignItems:"center",padding:"5px 0",gap:10};
+  const modalOverlay={position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.4)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center"};
+  const modalBox={background:C.bg,borderRadius:8,padding:"24px 28px",width:520,maxWidth:"90vw",maxHeight:"85vh",overflowY:"auto",border:`1px solid ${C.bdr}`};
+
+  return(<div>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10,marginBottom:20}}>
       {[
-        { l: "Weight", v: (() => { const we = entries.find(e => e.values?.weight); return we ? we.values.weight + " kg" : "-"; })(), c: C.tx, sub: "Target: 50 kg" },
-        { l: "Fasting glucose", v: (() => { const e = entries.find(e => e.values?.glucose); return e ? e.values.glucose + "" : "-"; })(), c: (() => { const e = entries.find(e => e.values?.glucose); const m = BLOOD_MARKERS.find(x => x.id === "glucose"); return e && m ? getMarkerColor(m, e.values.glucose) : C.txT; })(), sub: "Target: <100" },
-        { l: "TSH", v: (() => { const e = entries.find(e => e.values?.tsh); return e ? e.values.tsh + "" : "-"; })(), c: (() => { const e = entries.find(e => e.values?.tsh); const m = BLOOD_MARKERS.find(x => x.id === "tsh"); return e && m ? getMarkerColor(m, e.values.tsh) : C.txT; })(), sub: "Range: 0.4-4.0" },
-        { l: "Anti-TPO", v: (() => { const e = entries.find(e => e.values?.antitpo); return e ? e.values.antitpo + "" : "-"; })(), c: (() => { const e = entries.find(e => e.values?.antitpo); const m = BLOOD_MARKERS.find(x => x.id === "antitpo"); return e && m ? getMarkerColor(m, e.values.antitpo) : C.txT; })(), sub: "Ref: <5.61" },
-      ].map((g, i) => (<div key={i} style={{ background: C.bgS, borderRadius: 4, padding: "10px 12px" }}>
-        <div style={{ fontSize: 11, fontWeight: 600, color: C.txT, textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 3 }}>{g.l}</div>
-        <div style={{ fontSize: 20, fontWeight: 500, color: g.c }}>{g.v}</div>
-        <div style={{ fontSize: 11, color: C.txT, marginTop: 2 }}>{g.sub}</div>
+        {l:"Weight",v:(()=>{const we=entries.find(e=>e.values?.weight);return we?we.values.weight+" kg":"-";})(),c:C.tx,sub:"Target: 50 kg"},
+        {l:"Fasting glucose",v:(()=>{const e=entries.find(e=>e.values?.glucose);return e?e.values.glucose+"":"-";})(),c:(()=>{const e=entries.find(e=>e.values?.glucose);const m=BLOOD_MARKERS.find(x=>x.id==="glucose");return e&&m?getMarkerColor(m,e.values.glucose):C.txT;})(),sub:"Target: <100"},
+        {l:"TSH",v:(()=>{const e=entries.find(e=>e.values?.tsh);return e?e.values.tsh+"":"-";})(),c:(()=>{const e=entries.find(e=>e.values?.tsh);const m=BLOOD_MARKERS.find(x=>x.id==="tsh");return e&&m?getMarkerColor(m,e.values.tsh):C.txT;})(),sub:"Range: 0.4-4.0"},
+        {l:"Anti-TPO",v:(()=>{const e=entries.find(e=>e.values?.antitpo);return e?e.values.antitpo+"":"-";})(),c:(()=>{const e=entries.find(e=>e.values?.antitpo);const m=BLOOD_MARKERS.find(x=>x.id==="antitpo");return e&&m?getMarkerColor(m,e.values.antitpo):C.txT;})(),sub:"Ref: <5.61"},
+      ].map((g,i)=>(<div key={i} style={{background:C.bgS,borderRadius:4,padding:"10px 12px"}}>
+        <div style={{fontSize:11,fontWeight:600,color:C.txT,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:3}}>{g.l}</div>
+        <div style={{fontSize:20,fontWeight:500,color:g.c}}>{g.v}</div>
+        <div style={{fontSize:11,color:C.txT,marginTop:2}}>{g.sub}</div>
       </div>))}
     </div>
 
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, position: "relative" }}>
-      <span style={{ fontSize: 15, fontWeight: 600, color: C.tx }}>Markers</span>
-      <div style={{ position: "relative" }}>
-        <input ref={fileInputRef} type="file" accept="image/*,.pdf" onChange={handleFileUpload} style={{ display: "none" }} />
-        <span onClick={() => setShowAddMenu(!showAddMenu)} style={{ padding: "5px 12px", fontSize: 12, fontWeight: 600, background: C.green, color: "#fff", borderRadius: 4, cursor: "pointer" }}>{extracting ? "Extracting..." : "+ Add blood work"}</span>
-        {showAddMenu && !extracting && <div style={{ position: "absolute", right: 0, top: 32, background: C.bg, border: `1px solid ${C.bdr}`, borderRadius: 4, zIndex: 10, minWidth: 180 }}>
-          <div onClick={() => { addEntry(); setShowAddMenu(false); }} style={{ padding: "8px 14px", fontSize: 13, cursor: "pointer", color: C.tx, borderBottom: `1px solid ${C.bdr}` }}>Manual entry</div>
-          <div onClick={() => { fileInputMode.current = "image"; fileInputRef.current.accept = "image/*"; fileInputRef.current.click(); }} style={{ padding: "8px 14px", fontSize: 13, cursor: "pointer", color: C.tx, borderBottom: `1px solid ${C.bdr}` }}>From screenshot</div>
-          <div onClick={() => { fileInputMode.current = "pdf"; fileInputRef.current.accept = ".pdf"; fileInputRef.current.click(); }} style={{ padding: "8px 14px", fontSize: 13, cursor: "pointer", color: C.tx }}>From PDF</div>
-        </div>}
-      </div>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+      <span style={{fontSize:15,fontWeight:600,color:C.tx}}>Markers</span>
+      <span onClick={openModal} style={{padding:"5px 12px",fontSize:12,fontWeight:600,background:C.green,color:"#fff",borderRadius:4,cursor:"pointer"}}>+ Add blood work</span>
     </div>
 
-    <div style={{ display: "flex", alignItems: "center", padding: "6px 0", borderBottom: `0.5px solid ${C.bdr}` }}>
+    <div style={{display:"flex",alignItems:"center",padding:"6px 0",borderBottom:`0.5px solid ${C.bdr}`}}>
       <span style={grpE}></span>
-      <span style={{ ...nameS, fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em", color: C.txT }}>Marker</span>
-      <span style={{ ...normS, fontSize: 11, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.04em" }}>Normal</span>
-      {dateColumns.map((entry, i) => (<React.Fragment key={i}>
-        <span style={i === 0 ? { ...hdrValS, color: C.tx } : hdrValS}>{entry ? fmtDate(entry.date) : i === 0 ? "-" : "Day " + (i * 30)}</span>
-        <span style={{ width: 9 }}></span>
+      <span style={{...nameS,fontSize:11,fontWeight:500,textTransform:"uppercase",letterSpacing:"0.04em",color:C.txT}}>Marker</span>
+      <span style={{...normS,fontSize:11,fontWeight:500,textTransform:"uppercase",letterSpacing:"0.04em"}}>Normal</span>
+      {dateColumns.map((entry,i)=>(<React.Fragment key={i}>
+        <span style={i===0&&entry?{...hdrValS,color:C.tx}:hdrValS}>{entry?fmtDate(entry.date):i===0?"-":"Day "+(i*30)}</span>
+        <span style={{width:9}}></span>
       </React.Fragment>))}
     </div>
 
-    {BLOOD_GROUPS.map((grp, gi) => (<React.Fragment key={grp.key}>
-      {grp.markers.map((m, mi) => {
-        const isFirst = mi === 0;
-        return (<div key={m.id} style={{ ...rowS, paddingTop: isFirst && gi > 0 ? 8 : 3 }}>
-          <span style={isFirst ? grpS : grpE}>{isFirst ? grp.label : ""}</span>
+    {BLOOD_GROUPS.map((grp,gi)=>(<React.Fragment key={grp.key}>
+      {grp.markers.map((m,mi)=>{
+        const isFirst=mi===0;
+        return(<div key={m.id} style={{...rowS,paddingTop:isFirst&&gi>0?8:3}}>
+          <span style={isFirst?grpS:grpE}>{isFirst?grp.label:""}</span>
           <span style={nameS}>{m.label}</span>
           <span style={normS}>{m.norm}</span>
-          {dateColumns.map((entry, ei) => {
-            const val = entry?.values?.[m.id];
-            const hasVal = val !== undefined && val !== "" && val !== null;
-            const color = hasVal ? getMarkerColor(m, val) : C.txT;
-            const display = hasVal ? (typeof val === "string" && isNaN(parseFloat(val)) ? val.slice(0, 3) : val) : "-";
-            return (<React.Fragment key={ei}>
-              {ei === 0 ? (
-                <input type={m.isText ? "text" : "number"} step="0.01" value={val || ""} onChange={(e) => entry && updateEntryValue(entry.id, m.id, e.target.value)} placeholder="-" style={{ flex: "0 0 54px", textAlign: "center", fontSize: 13, fontWeight: hasVal ? 500 : 400, color, border: "none", background: "transparent", outline: "none", fontFamily: F.sans, padding: 0 }} />
-              ) : (
-                <span style={hasVal ? { ...valS, color } : futureS}>{display}</span>
-              )}
-              <span style={{ ...dotS, background: hasVal ? color : "transparent" }}></span>
+          {dateColumns.map((entry,ei)=>{
+            const val=entry?.values?.[m.id];
+            const hasVal=val!==undefined&&val!==""&&val!==null;
+            const color=hasVal?getMarkerColor(m,val):C.txT;
+            const display=hasVal?(typeof val==="string"&&isNaN(parseFloat(val))?val.slice(0,3):val):"-";
+            return(<React.Fragment key={ei}>
+              <span style={hasVal?{...valS,color}:futureS}>{display}</span>
+              <span style={{...dotS,background:hasVal?color:"transparent"}}></span>
             </React.Fragment>);
           })}
         </div>);
       })}
     </React.Fragment>))}
 
-    {entries.length > 0 && <div style={{ marginTop: 8, display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-      {entries.map((entry, i) => (<div key={entry.id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: C.txT }}>
-        <input type="date" value={entry.date} onChange={(e) => updateEntryDate(entry.id, e.target.value)} style={{ border: `1px solid ${C.bdr}`, borderRadius: 3, padding: "3px 6px", fontFamily: F.sans, fontSize: 12, color: C.tx, background: "transparent", outline: "none" }} />
-        {i === 0 && <span style={{ fontSize: 10, fontWeight: 600, padding: "1px 6px", borderRadius: 8, background: C.greenBg, color: C.green }}>latest</span>}
-        <span onClick={() => deleteEntry(entry.id)} style={{ cursor: "pointer", fontSize: 11, color: C.txT }}>x</span>
+    {entries.length>0&&<div style={{marginTop:8,display:"flex",gap:12,alignItems:"center",flexWrap:"wrap"}}>
+      {entries.map((entry,i)=>(<div key={entry.id} style={{display:"flex",alignItems:"center",gap:6,fontSize:12,color:C.txT}}>
+        <span style={{fontSize:12,color:i===0?C.tx:C.txT,fontWeight:i===0?500:400}}>{fmtDate(entry.date)}</span>
+        {i===0&&<span style={{fontSize:10,fontWeight:600,padding:"1px 6px",borderRadius:8,background:C.greenBg,color:C.green}}>latest</span>}
+        <span onClick={()=>deleteEntry(entry.id)} style={{cursor:"pointer",fontSize:11,color:C.txT}}>x</span>
       </div>))}
     </div>}
 
-    <div style={{ height: 24 }} />
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, alignItems: "start" }}>
+    <div style={{height:24}}/>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24,alignItems:"start"}}>
       <div>
-        <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}><span style={{ fontSize: 15, fontWeight: 600, color: C.tx }}>Health conditions</span></div>
-        {CONDITIONS.map((c) => { const status = (data.conditions || {})[c.id] || "monitoring"; const sc = COND_COLORS[status] || COND_COLORS.monitoring; return (
+        <div style={{background:C.bgS,padding:"10px 16px",borderBottom:`1px solid ${C.bdr}`}}><span style={{fontSize:15,fontWeight:600,color:C.tx}}>Health conditions</span></div>
+        {CONDITIONS.map(c=>{const status=(data.conditions||{})[c.id]||"monitoring";const sc=COND_COLORS[status]||COND_COLORS.monitoring;return(
           <div key={c.id} style={lineS}>
-            <span style={{ fontSize: 14, color: C.tx, flex: 1, paddingLeft: 16 }}>{c.label}</span>
-            <span onClick={() => cycleCondition(c.id)} style={{ fontSize: 11, fontWeight: 500, padding: "2px 10px", borderRadius: 10, background: sc.bg, color: sc.c, cursor: "pointer", userSelect: "none" }}>{status}</span>
-            <span style={{ fontSize: 12, color: C.txT, width: 80, textAlign: "right" }}>{c.target}</span>
-          </div>); })}
+            <span style={{fontSize:14,color:C.tx,flex:1,paddingLeft:16}}>{c.label}</span>
+            <span onClick={()=>cycleCondition(c.id)} style={{fontSize:11,fontWeight:500,padding:"2px 10px",borderRadius:10,background:sc.bg,color:sc.c,cursor:"pointer",userSelect:"none"}}>{status}</span>
+            <span style={{fontSize:12,color:C.txT,width:80,textAlign:"right"}}>{c.target}</span>
+          </div>);})}
       </div>
       <div>
-        <div style={{ background: C.bgS, padding: "10px 16px", borderBottom: `1px solid ${C.bdr}` }}><span style={{ fontSize: 15, fontWeight: 600, color: C.tx }}>Supplement protocol</span></div>
-        {SUPPLEMENTS.map((s, i) => (<div key={i} style={lineS}>
-          <span style={{ fontSize: 14, color: C.tx, flex: 1, paddingLeft: 16 }}>{s.name}</span>
-          <span style={{ fontSize: 12, color: C.txS, width: 60 }}>{s.dose}</span>
-          <span style={{ fontSize: 12, color: C.txT, width: 60 }}>{s.time}</span>
+        <div style={{background:C.bgS,padding:"10px 16px",borderBottom:`1px solid ${C.bdr}`}}><span style={{fontSize:15,fontWeight:600,color:C.tx}}>Supplement protocol</span></div>
+        {SUPPLEMENTS.map((s,i)=>(<div key={i} style={lineS}>
+          <span style={{fontSize:14,color:C.tx,flex:1,paddingLeft:16}}>{s.name}</span>
+          <span style={{fontSize:12,color:C.txS,width:60}}>{s.dose}</span>
+          <span style={{fontSize:12,color:C.txT,width:60}}>{s.time}</span>
         </div>))}
       </div>
     </div>
+
+    {showModal&&<div style={modalOverlay} onClick={closeModal}><div style={modalBox} onClick={e=>e.stopPropagation()}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
+        <span style={{fontSize:18,fontWeight:500,fontFamily:F.serif,color:C.tx}}>Add blood work</span>
+        <span onClick={closeModal} style={{fontSize:14,color:C.txT,cursor:"pointer"}}>x</span>
+      </div>
+      <div style={{display:"flex",gap:8,marginBottom:20}}>
+        {[{k:"upload",l:"Upload"},{k:"type",l:"Type values"}].map(t=>(
+          <div key={t.k} onClick={()=>{setModalTab(t.k);setExtractedValues(null);setExtractError(null);}} style={{flex:1,padding:"10px 12px",borderRadius:4,border:modalTab===t.k?`2px solid ${C.blue}`:`1px solid ${C.bdr}`,textAlign:"center",cursor:"pointer",background:modalTab===t.k?C.blueBg:"transparent"}}>
+            <div style={{fontSize:13,fontWeight:500,color:modalTab===t.k?C.blue:C.tx}}>{t.l}</div>
+          </div>
+        ))}
+      </div>
+
+      {modalTab==="upload"&&<div>
+        <input ref={fileInputRef} type="file" accept="image/*,.pdf" multiple onChange={e=>addFiles(e.target.files)} style={{display:"none"}}/>
+        <div ref={dropRef} onDrop={handleDrop} onDragOver={handleDragOver} onClick={()=>fileInputRef.current?.click()} style={{border:`2px dashed ${C.bdrH}`,borderRadius:4,padding:"24px 20px",textAlign:"center",marginBottom:12,cursor:"pointer"}}>
+          <div style={{fontSize:14,color:C.txS,marginBottom:4}}>Drop, paste, or click to browse</div>
+          <div style={{fontSize:12,color:C.txT}}>JPG, PNG, PDF - max 10MB per file</div>
+        </div>
+        {modalFiles.length>0&&<div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap"}}>
+          {modalFiles.map((f,i)=>(
+            <div key={i} style={{flex:"0 0 80px",height:50,borderRadius:4,background:C.bgS,border:`1px solid ${C.bdr}`,display:"flex",alignItems:"center",justifyContent:"center",position:"relative"}}>
+              <div style={{fontSize:11,color:C.txS,textAlign:"center",padding:"0 4px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:72}}>{f.name.length>12?f.name.slice(0,10)+"..":f.name}</div>
+              <span onClick={()=>removeFile(i)} style={{position:"absolute",top:-6,right:-6,width:16,height:16,borderRadius:8,background:C.redBg,color:C.red,fontSize:10,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}>x</span>
+            </div>
+          ))}
+          <div onClick={()=>fileInputRef.current?.click()} style={{flex:"0 0 50px",height:50,borderRadius:4,border:`1px dashed ${C.bdr}`,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer"}}>
+            <span style={{fontSize:18,color:C.txT}}>+</span>
+          </div>
+        </div>}
+        {extracting&&<div style={{padding:16,textAlign:"center",fontSize:13,color:C.txS}}>Extracting values...</div>}
+        {extractError&&<div style={{padding:10,background:C.redBg,borderRadius:4,fontSize:12,color:C.red,marginBottom:12}}>{extractError}</div>}
+      </div>}
+
+      {modalTab==="type"&&<div style={{maxHeight:300,overflowY:"auto",marginBottom:12}}>
+        {BLOOD_GROUPS.map((grp,gi)=>(<div key={grp.key}>
+          {grp.markers.map((m,mi)=>(
+            <div key={m.id} style={{display:"flex",alignItems:"center",gap:8,padding:"3px 0"}}>
+              {mi===0?<span style={{flex:"0 0 80px",fontSize:11,fontWeight:500,color:C.txS}}>{grp.label}</span>:<span style={{flex:"0 0 80px"}}></span>}
+              <span style={{flex:1,fontSize:13,color:C.tx}}>{m.label}</span>
+              <input type={m.isText?"text":"number"} step="0.01" value={manualValues[m.id]||""} onChange={e=>setManualValues(p=>({...p,[m.id]:m.isText?e.target.value:(parseFloat(e.target.value)||"")}))} placeholder="-" style={{width:60,textAlign:"center",border:`1px solid ${C.bdr}`,borderRadius:3,padding:"3px 4px",fontSize:12,fontFamily:F.sans,color:C.tx,background:"transparent",outline:"none"}}/>
+            </div>
+          ))}
+          {gi<BLOOD_GROUPS.length-1&&<div style={{height:6}}></div>}
+        </div>))}
+      </div>}
+
+      <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+        <span style={{fontSize:12,color:C.txS}}>Date</span>
+        <input type="date" value={modalDate} onChange={e=>setModalDate(e.target.value)} style={{flex:1,border:`1px solid ${C.bdr}`,borderRadius:3,padding:"6px 8px",fontSize:12,fontFamily:F.sans,color:C.tx,background:"transparent",outline:"none"}}/>
+      </div>
+
+      {extractedValues&&<div>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
+          <span style={{fontSize:11,fontWeight:500,color:C.txT,textTransform:"uppercase",letterSpacing:"0.04em"}}>Extracted values</span>
+          <span style={{fontSize:11,color:C.green}}>{Object.keys(extractedValues).filter(k=>extractedValues[k]!==""&&extractedValues[k]!==undefined).length} markers found</span>
+        </div>
+        <div style={{background:C.bgS,borderRadius:4,padding:"8px 12px",marginBottom:8,maxHeight:200,overflowY:"auto"}}>
+          {BLOOD_GROUPS.map(grp=>{
+            const grpVals=grp.markers.filter(m=>extractedValues[m.id]!==undefined&&extractedValues[m.id]!=="");
+            if(grpVals.length===0)return null;
+            return(<div key={grp.key}>
+              {grpVals.map((m,mi)=>{const val=extractedValues[m.id];const color=getMarkerColor(m,val);return(<div key={m.id} style={{display:"flex",alignItems:"center",padding:"2px 0",fontSize:12}}>
+                {mi===0?<span style={{flex:"0 0 80px",fontSize:11,fontWeight:500,color:C.txS}}>{grp.label}</span>:<span style={{flex:"0 0 80px"}}></span>}
+                <span style={{flex:1}}>{m.label}</span>
+                <span style={{flex:"0 0 50px",textAlign:"right",fontWeight:500,color}}>{val}</span>
+                <span style={{width:6,height:6,borderRadius:3,background:color,marginLeft:6,flexShrink:0}}></span>
+              </div>);})}
+              <div style={{height:4}}></div>
+            </div>);
+          })}
+        </div>
+        {newMarkers.length>0&&<div style={{background:C.yellowBg,borderRadius:4,padding:"8px 12px",marginBottom:8}}>
+          <div style={{fontSize:12,fontWeight:500,color:"#856d0a",marginBottom:4}}>{newMarkers.length} new marker{newMarkers.length>1?"s":""} detected</div>
+          {newMarkers.map((nm,i)=>(
+            <div key={i} style={{display:"flex",alignItems:"center",gap:8,padding:"2px 0",fontSize:12}}>
+              <input type="checkbox" checked={nm.checked} onChange={()=>setNewMarkers(p=>p.map((m,j)=>j===i?{...m,checked:!m.checked}:m))} style={{margin:0}}/>
+              <span>{nm.name}: {nm.value}</span>
+              <span style={{fontSize:11,color:C.txT}}>({nm.group})</span>
+            </div>
+          ))}
+          <div style={{fontSize:11,color:"#856d0a",marginTop:4}}>Check to add these markers to your tracker</div>
+        </div>}
+      </div>}
+
+      <div style={{display:"flex",gap:8,justifyContent:"flex-end",marginTop:8}}>
+        <span onClick={closeModal} style={{padding:"7px 16px",fontSize:13,color:C.txS,cursor:"pointer",border:`1px solid ${C.bdr}`,borderRadius:4}}>Cancel</span>
+        <span onClick={saveEntry} style={{padding:"7px 16px",fontSize:13,fontWeight:600,color:valCount>0?"#fff":C.txT,background:valCount>0?C.green:C.bgS,borderRadius:4,cursor:valCount>0?"pointer":"default"}}>{valCount>0?"Save "+valCount+" markers":"Save"}</span>
+      </div>
+    </div></div>}
   </div>);
 }
 
