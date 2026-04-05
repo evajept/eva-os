@@ -643,7 +643,49 @@ function MetricsTab() {
   for (let i = 0; i < 4; i++) { dateColumns.push(entries[i] || null); }
 
   const [showAddMenu, setShowAddMenu] = useState(false);
+  const [extracting, setExtracting] = useState(false);
   const fileInputRef = useRef(null);
+  const fileInputMode = useRef("image");
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setShowAddMenu(false);
+    setExtracting(true);
+    try {
+      const base64 = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result.split(",")[1]); r.onerror = () => rej(new Error("Read failed")); r.readAsDataURL(file); });
+      const isPdf = file.type === "application/pdf";
+      const mediaType = isPdf ? "application/pdf" : (file.type || "image/jpeg");
+      const contentBlock = isPdf
+        ? { type: "document", source: { type: "base64", media_type: mediaType, data: base64 } }
+        : { type: "image", source: { type: "base64", media_type: mediaType, data: base64 } };
+      const markerIds = BLOOD_MARKERS.map(m => m.id).join(", ");
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 2000,
+          messages: [{ role: "user", content: [
+            contentBlock,
+            { type: "text", text: `Extract all lab values from this blood work report. Return ONLY a JSON object (no markdown, no backticks) with this structure: {"date":"YYYY-MM-DD","values":{"marker_id":number_value},"new_markers":[{"name":"...","value":"...","group":"..."}]}. The known marker IDs are: ${markerIds}. For text-based results like urine protein, use the string value. For the date, extract the collection/test date from the report. If you find markers NOT in the known list, add them to new_markers with a suggested group name. Only include markers that have actual values in the report.` }
+          ]}]
+        })
+      });
+      const result = await response.json();
+      const text = result.content?.find(b => b.type === "text")?.text || "";
+      const clean = text.replace(/```json/g, "").replace(/```/g, "").trim();
+      const parsed = JSON.parse(clean);
+      const newEntry = { id: Date.now(), date: parsed.date || new Date().toISOString().slice(0, 10), values: parsed.values || {} };
+      set("entries", [newEntry, ...(data.entries || [])]);
+      if (parsed.new_markers && parsed.new_markers.length > 0) {
+        const names = parsed.new_markers.map(m => m.name + ": " + m.value).join("\n");
+        alert("New markers detected that aren't in your tracker yet:\n\n" + names + "\n\nThese values were not added. To include them, ask Claude to add these markers to your app.");
+      }
+    } catch (err) { alert("Extraction failed: " + err.message); }
+    setExtracting(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const lineS = { display: "flex", alignItems: "center", padding: "5px 0", gap: 10 };
 
@@ -664,11 +706,12 @@ function MetricsTab() {
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, position: "relative" }}>
       <span style={{ fontSize: 15, fontWeight: 600, color: C.tx }}>Markers</span>
       <div style={{ position: "relative" }}>
-        <span onClick={() => setShowAddMenu(!showAddMenu)} style={{ padding: "5px 12px", fontSize: 12, fontWeight: 600, background: C.green, color: "#fff", borderRadius: 4, cursor: "pointer" }}>+ Add blood work</span>
-        {showAddMenu && <div style={{ position: "absolute", right: 0, top: 32, background: C.bg, border: `1px solid ${C.bdr}`, borderRadius: 4, zIndex: 10, minWidth: 160 }}>
+        <input ref={fileInputRef} type="file" accept="image/*,.pdf" onChange={handleFileUpload} style={{ display: "none" }} />
+        <span onClick={() => setShowAddMenu(!showAddMenu)} style={{ padding: "5px 12px", fontSize: 12, fontWeight: 600, background: C.green, color: "#fff", borderRadius: 4, cursor: "pointer" }}>{extracting ? "Extracting..." : "+ Add blood work"}</span>
+        {showAddMenu && !extracting && <div style={{ position: "absolute", right: 0, top: 32, background: C.bg, border: `1px solid ${C.bdr}`, borderRadius: 4, zIndex: 10, minWidth: 180 }}>
           <div onClick={() => { addEntry(); setShowAddMenu(false); }} style={{ padding: "8px 14px", fontSize: 13, cursor: "pointer", color: C.tx, borderBottom: `1px solid ${C.bdr}` }}>Manual entry</div>
-          <div style={{ padding: "8px 14px", fontSize: 13, color: C.txT, borderBottom: `1px solid ${C.bdr}` }}>From screenshot <span style={{ fontSize: 10, color: C.txT, fontStyle: "italic" }}>soon</span></div>
-          <div style={{ padding: "8px 14px", fontSize: 13, color: C.txT }}>From PDF <span style={{ fontSize: 10, color: C.txT, fontStyle: "italic" }}>soon</span></div>
+          <div onClick={() => { fileInputMode.current = "image"; fileInputRef.current.accept = "image/*"; fileInputRef.current.click(); }} style={{ padding: "8px 14px", fontSize: 13, cursor: "pointer", color: C.tx, borderBottom: `1px solid ${C.bdr}` }}>From screenshot</div>
+          <div onClick={() => { fileInputMode.current = "pdf"; fileInputRef.current.accept = ".pdf"; fileInputRef.current.click(); }} style={{ padding: "8px 14px", fontSize: 13, cursor: "pointer", color: C.tx }}>From PDF</div>
         </div>}
       </div>
     </div>
@@ -684,10 +727,9 @@ function MetricsTab() {
     </div>
 
     {BLOOD_GROUPS.map((grp, gi) => (<React.Fragment key={grp.key}>
-      {gi > 0 && <div style={{ height: 6 }}></div>}
       {grp.markers.map((m, mi) => {
         const isFirst = mi === 0;
-        return (<div key={m.id} style={rowS}>
+        return (<div key={m.id} style={{ ...rowS, paddingTop: isFirst && gi > 0 ? 8 : 3 }}>
           <span style={isFirst ? grpS : grpE}>{isFirst ? grp.label : ""}</span>
           <span style={nameS}>{m.label}</span>
           <span style={normS}>{m.norm}</span>
