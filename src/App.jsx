@@ -1129,12 +1129,389 @@ function BodyPage() {
 
 
 // ══════════════════════════════════════════════════════════════
-// MAIN APP - Left sidebar with Goals + Body
+// WORK TAB - Career Compass, Learning Plan, Income Tracker
+// ══════════════════════════════════════════════════════════════
+
+function CompassCareer(){
+  const lineR={display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:`1px solid ${C.bdr}`,fontSize:14};
+  return(<div>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,marginBottom:20}}>
+      <div style={{background:C.bgS,borderRadius:4,padding:"12px 14px"}}>
+        <div style={{fontSize:10,fontWeight:600,color:C.txT,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:6}}>Now</div>
+        <div style={{fontSize:13,fontWeight:600,color:C.tx,marginBottom:6}}>AI Data Ops Professional</div>
+        {["Team lead","Annotator","QA","Transcriber","Translator"].map((r,i)=>(<div key={i} style={{fontSize:12,color:C.txS,padding:"2px 0"}}>{r}</div>))}
+        <div style={{borderTop:`1px solid ${C.bdr}`,marginTop:6,paddingTop:6}}>
+          {["Starter writer","Starter content creator"].map((r,i)=>(<div key={i} style={{fontSize:12,color:C.txS,padding:"2px 0"}}>{r}</div>))}
+        </div>
+        <div style={{borderTop:`1px solid ${C.bdr}`,marginTop:6,paddingTop:6}}>
+          <div style={{fontSize:12,color:C.orange,fontWeight:500,padding:"2px 0"}}>Handshake AI - SPA i18n (in progress)</div>
+        </div>
+      </div>
+      <div style={{background:C.orangeBg,borderRadius:4,padding:"12px 14px"}}>
+        <div style={{fontSize:10,fontWeight:600,color:C.orange,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:6}}>Building</div>
+        {["Claude CCA learning","Claude CCA certification","Portfolio","Update CV + LinkedIn","Writing skills","Content creation skills","Trading / stock skills","Product design / UX","Personal brand / online presence","Networking / community"].map((r,i)=>(<div key={i} style={{fontSize:12,color:C.tx,padding:"2px 0"}}>{r}</div>))}
+      </div>
+      <div style={{background:C.greenBg,borderRadius:4,padding:"12px 14px"}}>
+        <div style={{fontSize:10,fontWeight:600,color:C.green,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:6}}>Goal</div>
+        {["Implementation Specialist","Human Data Manager","AI Data Annotation Team Lead","Strategic Project Associate","Investor / Trader","Writer","Creator","Founder"].map((r,i)=>(<div key={i} style={{fontSize:12,color:C.tx,padding:"2px 0",fontWeight:i>=4?600:400}}>{r}</div>))}
+      </div>
+    </div>
+    <H3 style={{margin:"0 0 10px"}}>Growth Timelines</H3>
+    <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:0,marginBottom:6}}>
+      {[{t:"Y1",p:"Specialist",ps:"$80-120K",f:"Side projects",fs:"First users",c:"First content",cs:"Writing + channel",v:"Learning",vs:"Paper trading"},{t:"Y2",p:"Senior Lead",ps:"$120-160K",f:"First revenue",fs:"$1-5K/mo",c:"Audience building",cs:"Consistent output",v:"Active trading",vs:"Small portfolio"},{t:"Y3-4",p:"Architect",ps:"$160-250K",f:"Product-market fit",fs:"$5-15K/mo",c:"Monetize",cs:"Paid content",v:"Growing portfolio",vs:"Passive income"},{t:"Y5+",p:"Director",ps:"$200-350K+",f:"Independence",fs:"Replaces salary",c:"Brand",cs:"Multiple formats",v:"Financial freedom",vs:"Compounding"}].map((y,i)=>(<div key={i} style={{padding:"14px 16px",borderBottom:`1px solid ${C.bdr}`,borderLeft:i>0?`1px solid ${C.bdr}`:"none"}}>
+        <div style={{fontSize:12,fontWeight:600,color:C.txT,marginBottom:6}}>{y.t}</div>
+        <div style={{fontSize:14,fontWeight:600,color:C.purple,marginBottom:2}}>{y.p}</div>
+        <div style={{fontSize:13,color:C.txS,marginBottom:6}}>{y.ps}</div>
+        <div style={{fontSize:14,fontWeight:600,color:C.gold,marginBottom:2}}>{y.f}</div>
+        <div style={{fontSize:13,color:C.txS,marginBottom:6}}>{y.fs}</div>
+        <div style={{fontSize:14,fontWeight:600,color:C.orange,marginBottom:2}}>{y.c}</div>
+        <div style={{fontSize:13,color:C.txS,marginBottom:6}}>{y.cs}</div>
+        <div style={{fontSize:14,fontWeight:600,color:C.blue,marginBottom:2}}>{y.v}</div>
+        <div style={{fontSize:13,color:C.txS}}>{y.vs}</div>
+      </div>))}
+    </div>
+    <div style={{display:"flex",gap:12,marginBottom:20}}>
+      <span style={{fontSize:10,display:"flex",alignItems:"center",gap:4,color:C.txT}}><span style={{width:8,height:3,background:C.purple,borderRadius:1,display:"inline-block"}}/>Professional</span>
+      <span style={{fontSize:10,display:"flex",alignItems:"center",gap:4,color:C.txT}}><span style={{width:8,height:3,background:C.gold,borderRadius:1,display:"inline-block"}}/>Founder</span>
+      <span style={{fontSize:10,display:"flex",alignItems:"center",gap:4,color:C.txT}}><span style={{width:8,height:3,background:C.orange,borderRadius:1,display:"inline-block"}}/>Creative</span>
+      <span style={{fontSize:10,display:"flex",alignItems:"center",gap:4,color:C.txT}}><span style={{width:8,height:3,background:C.blue,borderRadius:1,display:"inline-block"}}/>Investor</span>
+    </div>
+    <H3 style={{margin:"0 0 10px"}}>Two paths</H3>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+      <div style={{border:`1px solid ${C.bdr}`,borderRadius:4,padding:20}}>
+        <Tag color="purple">START HERE</Tag>
+        <div style={{fontFamily:F.sans,fontSize:18,fontWeight:600,color:C.tx,margin:"8px 0 4px"}}>AI Implementation Specialist</div>
+        <Ps style={{marginBottom:10}}>The funding path</Ps>
+        <div style={lineR}><span style={{color:C.txS}}>Salary</span><span style={{fontWeight:500}}>$80-190K</span></div>
+        <div style={lineR}><span style={{color:C.txS}}>Alignment</span><span style={{fontWeight:500,color:C.orange}}>6.2/10</span></div>
+        <div style={lineR}><span style={{color:C.txS}}>Why</span><span style={{fontWeight:500}}>Funds the founder path</span></div>
+        <div style={{...lineR,borderBottom:"none"}}><span style={{color:C.txS}}>Tension</span><span style={{fontWeight:500}}>Tuesdays aren't yours yet</span></div>
+        <Ps style={{marginTop:10,paddingTop:10,borderTop:`1px solid ${C.bdr}`,marginBottom:0}}>Immediate income. Real experience. Credibility. Every project feeds product ideas.</Ps>
+      </div>
+      <div style={{border:`1px solid ${C.bdr}`,borderRadius:4,padding:20}}>
+        <Tag color="yellow">DESTINATION</Tag>
+        <div style={{fontFamily:F.sans,fontSize:18,fontWeight:600,color:C.tx,margin:"8px 0 4px"}}>Independent Creator / Founder</div>
+        <Ps style={{marginBottom:10}}>The destination</Ps>
+        <div style={lineR}><span style={{color:C.txS}}>Salary</span><span style={{fontWeight:500,color:C.green}}>Uncapped</span></div>
+        <div style={lineR}><span style={{color:C.txS}}>Alignment</span><span style={{fontWeight:500,color:C.green}}>9.8/10</span></div>
+        <div style={lineR}><span style={{color:C.txS}}>Why</span><span style={{fontWeight:500}}>Full agency, the actual life</span></div>
+        <div style={{...lineR,borderBottom:"none"}}><span style={{color:C.txS}}>Tension</span><span style={{fontWeight:500}}>No salary until you build it</span></div>
+        <Ps style={{marginTop:10,paddingTop:10,borderTop:`1px solid ${C.bdr}`,marginBottom:0}}>Evalynn OS, Vagal Tone, Golden Era. Specialist work feeds ideas. They reinforce each other.</Ps>
+      </div>
+    </div>
+  </div>);
+}
+
+const GP_PHASES=[
+  {id:"p1",ph:"Phase 1",title:"Foundation Sprint",wk:"Week 1-3",color:"red",desc:"Learn API + Claude Code by rebuilding Evalynn OS.",
+    actions:[{id:"a1",text:"Set up project. Install Claude Code",date:"",done:false,notes:""},{id:"a2",text:"First API call - hello world",date:"",done:false,notes:""},{id:"a3",text:"Rebuild Health module - streaming, structured output",date:"",done:false,notes:""},{id:"a4",text:"Claude Code as dev tool. CLAUDE.md. Slash commands",date:"",done:false,notes:""},{id:"a5",text:"JSON schemas. Error handling. Retry patterns",date:"",done:false,notes:""}],
+    skills:[{id:"s1",text:"Prompt engineering fundamentals",done:false},{id:"s2",text:"Claude Code configuration",done:false},{id:"s3",text:"API streaming & structured output",done:false},{id:"s4",text:"Error handling & retry patterns",done:false}],
+    courses:["Building with Claude API (8.1 hrs)","Claude Code in Action (~3 hrs)"],dom:["Prompt Engineering (20%)","Claude Code Config (20%)"],ms:"Working app on Claude API, built with Claude Code."},
+  {id:"p2",ph:"Phase 2",title:"Integration Sprint",wk:"Week 4-6",color:"orange",desc:"Wire app to real data through MCP. Add tool use.",
+    actions:[{id:"b1",text:"MCP server to Google Sheets",date:"",done:false,notes:""},{id:"b2",text:"Tool use - live data, calculations",date:"",done:false,notes:""},{id:"b3",text:"Evalynn OS rules as Agent Skills",date:"",done:false,notes:""},{id:"b4",text:"End-to-end testing",date:"",done:false,notes:""}],
+    skills:[{id:"s5",text:"MCP server setup & connection",done:false},{id:"s6",text:"Tool use design patterns",done:false},{id:"s7",text:"Agent Skills configuration",done:false}],
+    courses:["Intro to MCP (~2 hrs)","Agent Skills (~2 hrs)","GitHub: Tool Use (Self-paced)"],dom:["Tool Design & MCP (18%)"],ms:"Live MCP connections, tool calling, Skills."},
+  {id:"p3",ph:"Phase 3",title:"Architecture Sprint",wk:"Week 7-9",color:"green",desc:"Multi-agent orchestration. Highest CCA weight.",
+    actions:[{id:"c1",text:"Sub-agents: Health, Finance, Reflection, Habits",date:"",done:false,notes:""},{id:"c2",text:"Hub-and-spoke coordinator. Handoffs",date:"",done:false,notes:""},{id:"c3",text:"HITL checkpoints. Graceful degradation",date:"",done:false,notes:""}],
+    skills:[{id:"s8",text:"Multi-agent orchestration",done:false},{id:"s9",text:"Sub-agent delegation patterns",done:false},{id:"s10",text:"Human-in-the-loop design",done:false},{id:"s11",text:"Context management & reliability",done:false}],
+    courses:["MCP Advanced (~3 hrs)","Sub-agents (~2 hrs)"],dom:["Agentic Architecture (27%)","Context & Reliability (15%)"],ms:"Multi-agent system. All 5 CCA domains covered."},
+  {id:"p4",ph:"Phase 4",title:"Cert + Portfolio",wk:"Week 10-12",color:"purple",desc:"Polish, anti-patterns, take the CCA.",
+    actions:[{id:"d1",text:"Polish app. README. Deploy",date:"",done:false,notes:""},{id:"d2",text:"Record demo video",date:"",done:false,notes:""},{id:"d3",text:"Anti-patterns and exam scenarios",date:"",done:false,notes:""},{id:"d4",text:"Take the CCA exam",date:"",done:false,notes:""}],
+    skills:[{id:"s12",text:"Enterprise deployment patterns",done:false},{id:"s13",text:"Anti-pattern recognition",done:false},{id:"s14",text:"Portfolio presentation",done:false}],
+    courses:["Enterprise Adoption (~2 hrs)","Train-the-Trainer (~2 hrs)","CCA Prep (~5 hrs)"],dom:["All 5 domains - review"],ms:"CCA certified. Portfolio deployed."},
+];
+
+function LearningPlan(){const[exp,setExp]=useState("p1");
+  const[startDate,setStartDate]=useState(null);const[lpLoaded,setLpLoaded]=useState(false);
+  const[gpData,setGpData]=useState({});
+  useEffect(()=>{(async()=>{const sd=await osLoad("growth-path-start",null);if(sd)setStartDate(sd);const gd=await osLoad("growth-path-data",{});setGpData(gd);setLpLoaded(true);})();},[]);
+  useEffect(()=>{if(!lpLoaded)return;osSave("growth-path-start",startDate);osSave("growth-path-data",gpData);},[startDate,gpData,lpLoaded]);
+  const phaseWeeks=[0,3,6,9];
+  const getDateRange=(phIdx)=>{if(!startDate)return null;const sd=new Date(startDate);const ws=new Date(sd);ws.setDate(ws.getDate()+phaseWeeks[phIdx]*7);const we=new Date(ws);we.setDate(we.getDate()+20);const fmt=(d)=>d.toLocaleDateString("en-US",{month:"short",day:"numeric"});return fmt(ws)+" - "+fmt(we);};
+  const getPhaseData=(phId)=>gpData[phId]||{};
+  const setPhaseField=(phId,field,val)=>setGpData(p=>({...p,[phId]:{...p[phId],[field]:val}}));
+  const getActions=(ph)=>{const pd=getPhaseData(ph.id);return pd.actions||ph.actions;};
+  const getSkills=(ph)=>{const pd=getPhaseData(ph.id);return pd.skills||ph.skills;};
+  const updAction=(phId,aId,field,val)=>{const ph=GP_PHASES.find(p=>p.id===phId);const cur=getPhaseData(phId).actions||ph.actions;const upd=cur.map(a=>a.id===aId?{...a,[field]:val}:a);setPhaseField(phId,"actions",upd);};
+  const updSkill=(phId,sId,field,val)=>{const ph=GP_PHASES.find(p=>p.id===phId);const cur=getPhaseData(phId).skills||ph.skills;const upd=cur.map(s=>s.id===sId?{...s,[field]:val}:s);setPhaseField(phId,"skills",upd);};
+  const lineS={padding:"5px 0",borderBottom:`1px solid ${C.bdr}`,display:"flex",alignItems:"center",gap:8};
+  const txtS={fontSize:13,color:C.tx,flex:1,background:"transparent",border:"none",outline:"none",fontFamily:F.sans,padding:0,minWidth:0};
+  const chkBox=<svg width="7" height="5" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+  const totalActions=GP_PHASES.reduce((s,ph)=>s+getActions(ph).length,0);
+  const doneActions=GP_PHASES.reduce((s,ph)=>s+getActions(ph).filter(a=>a.done).length,0);
+  return(<div>
+    <Ps style={{marginBottom:16,color:C.txS}}>Becoming an AI Implementation Specialist</Ps>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
+      {[{l:"CCA Certification",v:doneActions+"/"+totalActions+" steps",c:doneActions===totalActions?C.green:C.orange},{l:"Product",v:"Evalynn OS v2 or Golden Era v2",c:C.txS},{l:"Portfolio",v:"App + README + Demo video",c:C.txS}].map((g,i)=>(<div key={i} style={{background:C.bgS,borderRadius:4,padding:"10px 12px"}}><div style={{fontSize:10,fontWeight:600,color:C.txT,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:3}}>{g.l}</div><div style={{fontSize:13,fontWeight:500,color:g.c}}>{g.v}</div></div>))}
+    </div>
+    <div style={{display:"flex",justifyContent:"flex-end",marginBottom:16}}>
+      <div style={{display:"flex",alignItems:"center",gap:8}}>
+        <span style={{fontSize:11,color:C.txS}}>Start date</span>
+        <input type="date" value={startDate||""} onChange={e=>setStartDate(e.target.value)} style={{border:`1px solid ${C.bdr}`,borderRadius:3,padding:"4px 8px",fontFamily:F.sans,fontSize:12,color:C.tx,background:"transparent",outline:"none"}}/>
+      </div>
+    </div>
+    {GP_PHASES.map((ph,phIdx)=>{const isO=exp===ph.id;const clr=C[ph.color];const acts=getActions(ph);const skls=getSkills(ph);const dr=getDateRange(phIdx);const doneA=acts.filter(a=>a.done).length;const doneS=skls.filter(s=>s.done).length;return(<div key={ph.id} style={{marginBottom:4,border:`1px solid ${isO?clr+"40":C.bdr}`,borderRadius:4,background:isO?C.bg:C.bgS}}>
+      <div onClick={()=>setExp(isO?null:ph.id)} style={{padding:"12px 16px",cursor:"pointer"}}>
+        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+          <Tag color={ph.color}>{ph.ph}</Tag>
+          <span style={{fontFamily:F.mono,fontSize:12,color:C.txS}}>{ph.wk}{dr&&<span style={{marginLeft:6,fontSize:11,color:C.txT}}>{dr}</span>}</span>
+          <span style={{marginLeft:"auto",fontSize:11,color:C.txT}}>{doneA}/{acts.length} steps, {doneS}/{skls.length} skills</span>
+        </div>
+        <P style={{fontWeight:600,marginBottom:3}}>{ph.title}</P>
+        <Ps style={{marginBottom:6}}>{ph.desc}</Ps>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{ph.courses.map((c,i)=>(<Pill key={i} color={C.blue} bg={C.blueBg}>{c}</Pill>))}</div>
+      </div>
+      {isO&&<div onClick={e=>e.stopPropagation()} style={{padding:"0 16px 14px",borderTop:`1px solid ${C.bdr}`,paddingTop:12}}>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24,alignItems:"start"}}>
+          <div>
+            <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em"}}>Actions</div>
+            {acts.map(a=>(<div key={a.id} style={lineS}>
+              {a.done?<div onClick={()=>updAction(ph.id,a.id,"done",false)} style={{width:13,height:13,borderRadius:3,background:C.green,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0}}>{chkBox}</div>
+              :<div onClick={()=>updAction(ph.id,a.id,"done",true)} style={{width:13,height:13,borderRadius:3,border:`1.5px solid ${C.bdrH}`,cursor:"pointer",flexShrink:0}}/>}
+              <span style={{...txtS,textDecoration:a.done?"line-through":"none",color:a.done?C.txT:C.tx}}>{a.text}</span>
+              <input value={a.notes||""} onChange={e=>updAction(ph.id,a.id,"notes",e.target.value)} style={{fontSize:11,color:C.txS,background:"transparent",border:"none",outline:"none",fontFamily:F.sans,width:80,textAlign:"right",flexShrink:0}} placeholder="notes"/>
+            </div>))}
+          </div>
+          <div>
+            <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em"}}>Skills to build</div>
+            {skls.map(s=>(<div key={s.id} style={lineS}>
+              {s.done?<div onClick={()=>updSkill(ph.id,s.id,"done",false)} style={{width:13,height:13,borderRadius:3,background:C.green,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0}}>{chkBox}</div>
+              :<div onClick={()=>updSkill(ph.id,s.id,"done",true)} style={{width:13,height:13,borderRadius:3,border:`1.5px solid ${C.bdrH}`,cursor:"pointer",flexShrink:0}}/>}
+              <span style={{...txtS,textDecoration:s.done?"line-through":"none",color:s.done?C.txT:C.tx}}>{s.text}</span>
+            </div>))}
+            <div style={{marginTop:12}}>
+              <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:4,textTransform:"uppercase",letterSpacing:"0.04em"}}>CCA domains</div>
+              {ph.dom.map((d,i)=><div key={i} style={{fontSize:12,color:C.purple,padding:"2px 0"}}>{d}</div>)}
+              <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:4,marginTop:8,textTransform:"uppercase",letterSpacing:"0.04em"}}>Milestone</div>
+              <div style={{fontSize:12,color:clr}}>{ph.ms}</div>
+            </div>
+          </div>
+        </div>
+      </div>}
+    </div>);})}
+  </div>);}
+
+function IncomeTracker(){
+  const defaultStreams=[{name:"Outlier (Scale AI)",rate:17.04,hrs:5,status:"Drying up",stability:"red",earned:0},{name:"Onyx / Micro1",rate:52,hrs:7,status:"Uncertain batches",stability:"orange",earned:0},{name:"Turing (Google)",rate:15,hrs:0,status:"No Thai work yet",stability:"orange",earned:0},{name:"Handshake AI",rate:0,hrs:0,status:"Call with Jad scheduled",stability:"yellow",earned:0},{name:"Deeptune (via Marc)",rate:25,hrs:0,status:"Onboarding 2-3 weeks",stability:"orange",earned:0},{name:"Aligner",rate:17,hrs:0,status:"Stuck in review",stability:"red",earned:0}];
+  const defaultMoves=[{action:"Handshake AI - Book 15 min call with Jad",status:"working"},{action:"Handshake AI - Prepare for call: align experience to JD",status:"wait"},{action:"Deeptune - Onboarding in 2-3 weeks via Marc",status:"wait"},{action:"Onyx / Micro1 - Watch for batch announcement this week",status:"wait"},{action:"Turing - No Thai work yet, monitor",status:"wait"},{action:"CCA courses during low-income window",status:"working"}];
+  const[streams,setStreams]=useState(defaultStreams);const[target,setTarget]=useState(2500);const[moves,setMoves]=useState(defaultMoves);const[loaded,setLoaded]=useState(false);
+  useEffect(()=>{(async()=>{const d=await osLoad("income-tracker",null);if(d){if(d.streams)setStreams(d.streams);if(d.target)setTarget(d.target);if(d.moves)setMoves(d.moves);}setLoaded(true);})();},[]);
+  useEffect(()=>{if(!loaded)return;osSave("income-tracker",{streams,target,moves});},[streams,target,moves,loaded]);
+  const updateStream=(i,field,val)=>setStreams(p=>p.map((s,j)=>j===i?{...s,[field]:val}:s));
+  const addStream=()=>setStreams(p=>[...p,{name:"New source",rate:0,hrs:0,status:"",stability:"orange",earned:0}]);
+  const removeStream=(i)=>setStreams(p=>p.filter((_,j)=>j!==i));
+  const cycleStability=(i)=>{const order=["green","yellow","orange","red"];setStreams(p=>p.map((s,j)=>{if(j!==i)return s;const cur=order.indexOf(s.stability);const next=order[(cur+1)%4];return{...s,stability:next};}));};
+  const addMove=()=>setMoves(p=>[...p,{action:"",status:"wait"}]);
+  const updateMove=(i,field,val)=>setMoves(p=>p.map((m,j)=>j===i?{...m,[field]:val}:m));
+  const removeMove=(i)=>setMoves(p=>p.filter((_,j)=>j!==i));
+  const MOVE_STATUS=["wait","working","testing","drop"];
+  const moveStatusCfg={wait:{bg:C.bgS,c:C.txS},working:{bg:C.yellowBg,c:"#856d0a"},testing:{bg:C.blueBg,c:C.blue},drop:{bg:C.bgS,c:C.txT}};
+  const cycleMoveStatus=(i,cur)=>{const idx=MOVE_STATUS.indexOf(cur||"wait");const next=MOVE_STATUS[(idx+1)%MOVE_STATUS.length];updateMove(i,"status",next);};
+  const totalEst=streams.reduce((s,r)=>s+r.rate*r.hrs*4,0);const totalEarned=streams.reduce((s,r)=>s+r.earned,0);
+  const stabColors={green:{bg:C.greenBg,tx:C.green,label:"Green"},yellow:{bg:C.yellowBg,tx:"#856d0a",label:"Yellow"},orange:{bg:C.orangeBg,tx:C.orange,label:"Orange"},red:{bg:C.redBg,tx:C.red,label:"Red"}};
+  const txtS={fontSize:13,color:C.tx,flex:1,background:"transparent",border:"none",outline:"none",fontFamily:F.sans,padding:0,minWidth:0};
+  const lineS={padding:"6px 0",borderBottom:`1px solid ${C.bdr}`,display:"flex",alignItems:"center",gap:8};
+  const numIn={...txtS,width:50,textAlign:"right"};
+  return(<div>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:20}}>
+      <div style={{background:C.bgS,borderRadius:4,padding:14}}><div style={{fontFamily:F.sans,fontSize:11,color:C.txS,marginBottom:4}}>Monthly target</div><div style={{display:"flex",alignItems:"baseline",gap:4}}><span style={{fontSize:11,color:C.txS}}>$</span><input type="number" value={target} onChange={e=>setTarget(parseFloat(e.target.value)||0)} style={{fontSize:20,fontWeight:500,width:100,border:"none",padding:0,background:"transparent",outline:"none",fontFamily:F.sans,color:C.tx}}/></div><div style={{fontFamily:F.sans,fontSize:11,color:C.txT,marginTop:2}}>{(target*31).toLocaleString()} THB</div></div>
+      <div style={{background:C.bgS,borderRadius:4,padding:14}}><div style={{fontFamily:F.sans,fontSize:11,color:C.txS,marginBottom:4}}>Estimated monthly</div><div style={{fontSize:20,fontWeight:500,color:totalEst>=target?C.green:C.orange}}>${Math.round(totalEst).toLocaleString()}</div><div style={{fontFamily:F.sans,fontSize:11,color:C.txT,marginTop:2}}>{Math.round(totalEst*31).toLocaleString()} THB</div></div>
+      <div style={{background:C.bgS,borderRadius:4,padding:14}}><div style={{fontFamily:F.sans,fontSize:11,color:C.txS,marginBottom:4}}>Earned this month</div><div style={{fontSize:20,fontWeight:500,color:C.green}}>${Math.round(totalEarned).toLocaleString()}</div><div style={{fontFamily:F.sans,fontSize:11,color:C.txT,marginTop:2}}>{Math.round(totalEarned*31).toLocaleString()} THB</div></div>
+    </div>
+    <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between"}}><span>Income streams</span><span onClick={addStream} style={{cursor:"pointer",fontSize:14,fontWeight:400}}>+</span></div>
+    {streams.map((s,i)=>{const est=Math.round(s.rate*s.hrs*4);const sc=stabColors[s.stability]||stabColors.orange;return(
+      <div key={i} style={lineS}>
+        <input value={s.name} onChange={e=>updateStream(i,"name",e.target.value)} style={{...txtS,fontWeight:500,flex:2}} placeholder="Source"/>
+        <span style={{fontSize:11,color:C.txT,flexShrink:0}}>$</span>
+        <input type="number" value={s.rate} onChange={e=>updateStream(i,"rate",parseFloat(e.target.value)||0)} style={numIn} step="0.01"/>
+        <span style={{fontSize:11,color:C.txT,flexShrink:0}}>/hr</span>
+        <input type="number" value={s.hrs} onChange={e=>updateStream(i,"hrs",parseFloat(e.target.value)||0)} style={{...numIn,width:30}}/>
+        <span style={{fontSize:11,color:C.txT,flexShrink:0}}>h/w</span>
+        <span onClick={()=>cycleStability(i)} style={{fontSize:9,fontWeight:600,padding:"1px 6px",borderRadius:8,background:sc.bg,color:sc.tx,cursor:"pointer",flexShrink:0}}>{sc.label}</span>
+        <input value={s.status} onChange={e=>updateStream(i,"status",e.target.value)} style={{...txtS,fontSize:11,color:C.txS,flex:1}} placeholder="Status"/>
+        <span style={{fontSize:12,fontWeight:500,color:est>0?C.tx:C.txT,flexShrink:0,minWidth:50,textAlign:"right"}}>${est.toLocaleString()}</span>
+        <span onClick={()=>{if(confirm("Remove "+s.name+"?"))removeStream(i);}} style={{cursor:"pointer",fontSize:11,color:C.txT,flexShrink:0}}>x</span>
+      </div>);})}
+    <div style={{marginTop:24}}>
+      <div style={{fontSize:10,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em",display:"flex",justifyContent:"space-between"}}><span>Next moves</span><span onClick={addMove} style={{cursor:"pointer",fontSize:14,fontWeight:400}}>+</span></div>
+      {moves.map((m,i)=>{const ms=moveStatusCfg[m.status]||moveStatusCfg.wait;return(
+        <div key={i} style={lineS}>
+          <span onClick={()=>cycleMoveStatus(i,m.status)} style={{fontSize:9,fontWeight:600,padding:"1px 6px",borderRadius:8,background:ms.bg,color:ms.c,cursor:"pointer",flexShrink:0,userSelect:"none",minWidth:40,textAlign:"center"}}>{m.status||"wait"}</span>
+          <input value={m.action} onChange={e=>updateMove(i,"action",e.target.value)} style={txtS} placeholder="What's the next move?"/>
+          <span onClick={()=>removeMove(i)} style={{cursor:"pointer",fontSize:11,color:C.txT,flexShrink:0}}>x</span>
+        </div>);})}
+    </div>
+  </div>);
+}
+
+function WorkTab(){
+  const[view,setView]=useState("income");
+  const tabs=[{k:"income",l:"Income Stream"},{k:"learn",l:"Growth Path"},{k:"career",l:"Career Compass"}];
+  return(<div>
+    <H1 style={{margin:"0 0 8px"}}>Work</H1>
+    <div style={{display:"flex",gap:0,borderBottom:`1px solid ${C.bdr}`,marginBottom:20}}>{tabs.map((t,i)=>(<button key={t.k} onClick={()=>setView(t.k)} style={{padding:`6px 14px 6px ${i===0?0:14}px`,border:"none",background:"none",fontFamily:F.sans,fontSize:13,fontWeight:view===t.k?600:400,color:view===t.k?C.tx:C.txT,cursor:"pointer",borderBottom:view===t.k?`2px solid ${C.tx}`:"2px solid transparent",marginBottom:-1}}>{t.l}</button>))}</div>
+    {view==="career"&&<CompassCareer/>}
+    {view==="income"&&<IncomeTracker/>}
+    {view==="learn"&&<LearningPlan/>}
+  </div>);
+}
+
+// ══════════════════════════════════════════════════════════════
+// MY UNIVERSE - Who I Am, Life Compass, 2026 Calendar
+// ══════════════════════════════════════════════════════════════
+
+function WhoIAm(){
+  const planets=[{p:"Sun",s:"Pisces",d:"28\u00B006'",h:"6th",n:"Final degrees",c:C.pisces},{p:"Moon",s:"Virgo",d:"23\u00B058'",h:"1st",n:"Conj Asc. Opp Pluto",c:C.virgo},{p:"Mercury",s:"Aries",d:"11\u00B010'",h:"7th",n:"RETROGRADE",c:C.aries},{p:"Venus",s:"Pisces",d:"5\u00B030'",h:"6th",n:"EXALTED",c:C.pisces},{p:"Mars",s:"Aquarius",d:"22\u00B033'",h:"5th",n:"Creative warrior",c:C.aquarius},{p:"Jupiter",s:"Virgo",d:"7\u00B021'",h:"12th",n:"Rx. Guardian angel",c:C.virgo},{p:"Saturn",s:"Aquarius",d:"14\u00B041'",h:"5th",n:"Discipline",c:C.aquarius},{p:"Pluto",s:"Scorpio",d:"22\u00B048'",h:"3rd",n:"Rx. X-ray",c:C.scorpio},{p:"N.Node",s:"Capricorn",d:"6\u00B002'",h:"4th",n:"Foundations",c:C.txS},{p:"Chiron",s:"Leo",d:"3\u00B031'",h:"11th",n:"Visibility",c:C.gold}];
+  const rules=[{n:"01",t:"Work the Virgo Moon First",d:"When regulated, everything functions.",c:C.virgo,bg:C.virgoBg},{n:"02",t:"Honor Venus Without Losing Yourself",d:"Is love mutual? Is giving reciprocated?",c:C.pisces,bg:C.piscesBg},{n:"03",t:"24-Hour Rule",d:"Impulse to speak? Wait 24 hours.",c:C.aries,bg:C.ariesBg},{n:"04",t:"Create Daily",d:"Four 5th house planets demand daily output.",c:C.aquarius,bg:C.aquariusBg},{n:"05",t:"Solitude Is Not Isolation",d:"12th Jupiter: solitude is a business asset.",c:C.virgo,bg:C.virgoBg},{n:"06",t:"Sprint-and-Rest",d:"Mars-Saturn: bursts then crashes. Stop pathologizing rest.",c:C.aquarius,bg:C.aquariusBg},{n:"07",t:"Tell the Truth Faster",d:"Pluto 3rd: suppressed truth = toxicity.",c:C.scorpio,bg:C.scorpioBg}];
+  const Voice=({pl,q,color,bg})=><Cd accent={color} bg={bg}><div style={{fontFamily:F.mono,fontSize:11,color,fontWeight:700,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.06em"}}>{pl}</div><div style={{fontFamily:F.serif,fontSize:17,color:C.tx,fontStyle:"italic",lineHeight:1.7}}>"{q}"</div></Cd>;
+  return(<div><H1 style={{fontSize:30}}>Who I Am</H1><Ps style={{marginBottom:20}}>Sun Pisces - Moon Virgo - Rising Virgo - March 18, 1992</Ps>
+    <Collapse title="Natal Chart" icon="\u2605" color={C.gold} open={true}><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(120px,1fr))",gap:8,marginBottom:16}}>{[{l:"Sun",v:"Pisces 28\u00B0",c:C.pisces,bg:C.piscesBg},{l:"Moon",v:"Virgo 23\u00B0",c:C.virgo,bg:C.virgoBg},{l:"Rising",v:"Virgo 27\u00B0",c:C.virgo,bg:C.virgoBg},{l:"MC",v:"Gemini 27\u00B0",c:C.ocean,bg:C.oceanBg}].map(b=>(<div key={b.l} style={{background:b.bg,borderRadius:3,padding:"8px 14px"}}><div style={{fontFamily:F.mono,fontSize:10,color:b.c,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:3}}>{b.l}</div><div style={{fontFamily:F.sans,fontSize:14,fontWeight:600,color:C.tx}}>{b.v}</div></div>))}</div><div style={{border:`1px solid ${C.bdr}`,borderRadius:4,overflow:"hidden"}}><table style={{width:"100%",borderCollapse:"collapse",fontFamily:F.sans,fontSize:13}}><thead><tr style={{background:C.bgS}}>{["Planet","Sign","Deg","H","Notes"].map(h=><th key={h} style={{textAlign:"left",padding:"6px 10px",fontWeight:500,fontSize:11,color:C.txS,borderBottom:`1px solid ${C.bdr}`,textTransform:"uppercase",letterSpacing:"0.04em"}}>{h}</th>)}</tr></thead><tbody>{planets.map((p,i)=><tr key={p.p} style={{borderBottom:i<planets.length-1?`1px solid ${C.bdr}`:"none"}}><td style={{padding:"8px 10px",fontWeight:600,color:p.c}}>{p.p}</td><td style={{padding:"8px 10px"}}>{p.s}</td><td style={{padding:"8px 10px",fontFamily:F.mono,fontSize:12,color:C.txS}}>{p.d}</td><td style={{padding:"8px 10px",fontFamily:F.mono,fontSize:12,color:C.txT}}>{p.h}</td><td style={{padding:"8px 10px",color:C.txS}}>{p.n}</td></tr>)}</tbody></table></div></Collapse>
+    <Collapse title="Planetary Signatures" icon="\u263D" color={C.pisces}><H3 color={C.bloodRed}>Moon Opposite Pluto (1\u00B010')</H3><Cd accent={C.bloodRed} bg={C.bloodRedBg}><Ps>Tightest aspect. X-ray perception, obsessive depth. All-or-nothing bonding, hypervigilance, extraordinary resilience. Evalynn OS is Moon-Pluto through Virgo.</Ps></Cd><H3 color={C.pisces}>Venus in Pisces: Exalted</H3><Cd accent={C.pisces} bg={C.piscesBg}><Ps style={{marginBottom:0}}>Most romantic Venus. Growth: boundless love WITH discernment.</Ps></Cd><H3 color={C.aquarius}>5th House Stellium</H3><Cd accent={C.aquarius} bg={C.aquariusBg}><Ps style={{marginBottom:0}}>Mars+Saturn+Uranus+Neptune. Creative expression is not optional.</Ps></Cd></Collapse>
+    <Collapse title="Soulmate Blueprint" icon="\u2640" color={C.pisces}><Cd accent={C.pisces} bg={C.piscesBg}><Ps style={{marginBottom:0}}>A deep soul with built structure who can swim in your ocean. Deep-set dark eyes. Angular jaw. Quiet magnetism. <HL color={C.aries}>Southern European or Latin American.</HL> Not fireworks - <HL>Recognition.</HL> "There you are." Jupiter Return 2027-28.</Ps></Cd></Collapse>
+    <Collapse title="Seven Operating Rules" icon="\u2699" color={C.virgo}>{rules.map(r=>(<Cd key={r.n} accent={r.c} bg={r.bg}><div style={{display:"flex",gap:12}}><div style={{fontFamily:F.serif,fontSize:22,color:r.c,fontWeight:700,opacity:0.3,minWidth:24}}>{r.n}</div><div><P style={{fontWeight:600,marginBottom:3}}>{r.t}</P><Ps style={{marginBottom:0}}>{r.d}</Ps></div></div></Cd>))}</Collapse>
+    <Collapse title="Planetary Voices" icon="\uD83D\uDD2E" color={C.bloodRed}><Voice pl="SATURN" q="Learn it yourself or I'll teach you." color={C.txS} bg={C.bgS}/><Voice pl="PLUTO" q="Be real with me or I will make you don't be anything at all." color={C.bloodRed} bg={C.bloodRedBg}/><Voice pl="MOON IN VIRGO" q="Check the body. Am I fed? Am I rested? Is the space clean?" color={C.virgo} bg={C.virgoBg}/><Voice pl="VENUS IN PISCES" q="I love without condition. But seeing the divine doesn't mean ignoring the human." color={C.pisces} bg={C.piscesBg}/><Voice pl="RAHU" q="I'm hungry. Always. Not for food: for DEPTH. That's quality control." color={C.bloodRed} bg={C.bloodRedBg}/></Collapse>
+    <Collapse title="Crystal Kit" icon="\uD83D\uDC8E" color={C.gold}>{[{n:"Hessonite Garnet",p:"RAHU",d:"Calms hunger.",c:C.bloodRed,bg:C.bloodRedBg,t:"red"},{n:"Amethyst",p:"MOON-PLUTO",d:"Emotional transmutation.",c:C.pisces,bg:C.piscesBg,t:"purple"},{n:"Aquamarine",p:"VENUS",d:"Truth in love.",c:C.ocean,bg:C.oceanBg,t:"blue"},{n:"Carnelian",p:"MARS",d:"Creative fire.",c:C.aries,bg:C.ariesBg,t:"orange"},{n:"Labradorite",p:"ALL",d:"The unifier. Literally you.",c:C.gold,bg:C.goldBg,t:"yellow"}].map(s=>(<Cd key={s.n} accent={s.c} bg={s.bg}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}><div><P style={{fontWeight:600,marginBottom:0}}>{s.n}</P><div style={{fontFamily:F.mono,fontSize:10,color:s.c}}>{s.p}</div></div><Tag color={s.t}>{s.n.split(" ")[0]}</Tag></div><Ps style={{marginTop:6,marginBottom:0}}>{s.d}</Ps></Cd>))}</Collapse>
+  </div>);}
+
+function LifeCompass(){
+  const[ld,setLd]=useState(false);useEffect(()=>{setTimeout(()=>setLd(true),300);},[]);
+  const modes=[{state:"When I have cognitive energy",activity:"I build",examples:"Golden Era, health trackers, Evalynn OS, apps that solve real problems"},{state:"When I need something that flows",activity:"I make music",examples:"Vagal Tone, ambient soundscapes, nervous system regulation through sound"},{state:"When I'm feeling creative and emotional",activity:"I write stories",examples:"The Muffin Diaries - processing love and loss through Muffin's voice"},{state:"When I need answers and clarity",activity:"I work on Evalynn OS",examples:"Turning my struggles, my direct experience, into frameworks that could help others too"}];
+  const projects=["Golden Era - Helping Angkhana track her metabolic health - practical tools for real transformation","Vagal Tone - Nervous system regulation through ambient sound - bringing people into calm","The Muffin Diaries - Processing love and loss through Muffin's voice - stories that remind people who they are","Evalynn OS - A self-regulation framework born from lived experience - turning struggle into structure","Health Tracker - Personal wellness data made visible and actionable - quality of life, measured","Music & Songwriting - Songs that move people emotionally - Marco, Walter, Mountains, the unnamed ones"];
+  const framework=[{label:"The foundation",text:"A life structure that protects my autonomy, health, and pace. Slow mornings, movement, nature, connection. Non-negotiable."},{label:"The work",text:"A rotation of creative and building projects - all circling the same core purpose. Some days writing. Some days building an app. Some days making music. Some days just thinking deeply. The rotation IS the method."},{label:"The income reality",text:"AI ops work may still be part of the picture for now - not as my identity, but as a tool that buys time and freedom to build the things that matter. It funds the life. It doesn't define it."},{label:"The purpose",text:"Everything I build, create, or design serves one function: helping people - including myself - come back to themselves. That's the through-line. That's the answer when someone asks what I do."}];
+  const st={sec:{marginBottom:48},lbl:{fontFamily:F.mono,fontSize:11,letterSpacing:"0.12em",textTransform:"uppercase",color:C.txT,marginBottom:16},hd:{fontFamily:F.serif,fontSize:28,fontWeight:700,color:C.tx,lineHeight:1.3,marginBottom:20,letterSpacing:"-0.01em"},p:{fontFamily:F.sans,fontSize:15,color:C.tx,lineHeight:1.8,marginBottom:16},ps:{fontFamily:F.sans,fontSize:15,color:C.txS,lineHeight:1.8,marginBottom:16},sep:{height:1,background:C.bdr,margin:"48px 0"}};
+  return(<div>
+    <div style={{padding:"60px 0 48px"}}><div style={{opacity:ld?1:0,transition:"all 1s ease 0.3s"}}><p style={st.lbl}>A personal reflection - March 2026</p></div><div style={{opacity:ld?1:0,transition:"all 1s ease 0.6s"}}><h1 style={{fontFamily:F.serif,fontSize:"clamp(28px,5vw,42px)",fontWeight:700,color:C.tx,lineHeight:1.25,marginBottom:20,letterSpacing:"-0.02em",fontStyle:"italic"}}>I build tools, stories, and experiences that help people come back to themselves.</h1></div><div style={{opacity:ld?1:0,transition:"all 1s ease 0.9s"}}><p style={st.ps}>This document is not a plan. It's a compass. Written to remember what I know about myself when the noise gets loud.</p></div></div>
+    <div style={st.sep}/>
+    <div style={st.sec}><p style={st.lbl}>The honest truth</p><p style={st.p}>I'm good at what I do in AI operations. I can lead teams, navigate chaos, adapt to anything. I've done it for 2.5 years across 30+ projects.</p><p style={st.p}>But being good at something doesn't mean it's where I belong.</p><p style={st.ps}>The AI industry treats people as disposable. Contractors get ramped up and dumped. The pace prioritizes technology advancement over human wellbeing. I've been shaping myself to fit environments that don't protect me - pitching my adaptability as a strength when what I was really saying was: "I'm ready to be discarded gracefully."</p><p style={st.ps}>I don't want to trade my wellbeing for someone else's success and then be dumped later. I don't want to be shaped by others, boxed by others, or made to trade who I am for what the market needs this quarter. I want to do things according to my wellbeing, my state, my own rhythm.</p></div>
+    <div style={st.sep}/>
+    <div style={st.sec}><p style={st.lbl}>What I actually want</p><h2 style={st.hd}>If everything paid the same, what would I choose?</h2><p style={st.p}><strong>Build things that solve people's problems</strong> - tools, systems, experiences that help people achieve a better quality of life.</p><p style={st.p}><strong>Create things that move people emotionally</strong> - music that calms, stories that remind people who they are, experiences that bring people into a state of being regulated, present, and themselves.</p><p style={st.ps}>These aren't two separate things. They're one purpose expressed in different ways: helping people - including myself - come back to themselves.</p></div>
+    <div style={st.sep}/>
+    <div style={st.sec}><p style={st.lbl}>How I actually work</p><h2 style={st.hd}>The rotation is the method.</h2><p style={st.ps}>I don't work in sequence. I work in rotation - moving between projects based on my energy, my mood, my bandwidth. This isn't a flaw. This is my operating system working exactly as designed.</p>{modes.map((m,i)=>(<div key={i} style={{marginBottom:20,paddingBottom:20,borderBottom:i<modes.length-1?`1px solid ${C.bdr}`:"none"}}><p style={{fontFamily:F.sans,fontSize:13,color:C.txT,marginBottom:2}}>{m.state}</p><p style={{fontFamily:F.serif,fontSize:22,color:C.tx,fontWeight:600,marginBottom:4}}>{m.activity}</p><p style={{fontFamily:F.sans,fontSize:14,color:C.txS,lineHeight:1.6,marginBottom:0}}>{m.examples}</p></div>))}<p style={{fontFamily:F.serif,fontSize:18,color:C.tx,lineHeight:1.7,fontStyle:"italic",marginBottom:8}}>"I don't want to think anymore that I'm supposed to finish one project, one by one. I want to do things according to my wellbeing, to my state."</p><p style={{fontFamily:F.mono,fontSize:10,color:C.txT}}>- Evalynn, March 2026</p></div>
+    <div style={st.sep}/>
+    <div style={st.sec}><p style={st.lbl}>The through-line</p><h2 style={st.hd}>These aren't side projects. They're the signal.</h2><p style={st.ps}>Every project I naturally gravitate toward is about the same thing. They look different on the surface - an app, an album, a book, a framework. But underneath, they all serve one purpose.</p>{projects.map((p,i)=>(<p key={i} style={{fontFamily:F.sans,fontSize:14,color:C.tx,lineHeight:1.6,padding:"8px 0",borderBottom:i<projects.length-1?`1px solid ${C.bdr}`:"none"}}>{p}</p>))}<div style={{marginTop:32,padding:"24px 0",borderTop:`1px solid ${C.bdr}`}}><p style={{fontFamily:F.serif,fontSize:24,color:C.tx,fontWeight:700,fontStyle:"italic",lineHeight:1.4}}>Helping people - including myself - come back to themselves.</p></div></div>
+    <div style={st.sep}/>
+    <div style={st.sec}><p style={st.lbl}>The life I want to build</p><h2 style={st.hd}>A regular Tuesday</h2><p style={st.ps}>I don't want every Tuesday to be the same. I want the freedom to decide what each one holds.</p><p style={{fontFamily:F.mono,fontSize:11,color:C.txT,letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:12,marginTop:28}}>The daily foundation</p>{["Slow mornings","Healthy food","Movement - whatever form feels right that day","Connection with people I care about","Time for my own reflections","Freedom to follow my energy into whatever project calls"].map((item,i)=>(<p key={i} style={{fontFamily:F.sans,fontSize:15,color:C.tx,padding:"8px 0",borderBottom:i<5?`1px solid ${C.bdr}`:"none"}}>{item}</p>))}</div>
+    <div style={st.sep}/>
+    <div style={st.sec}><p style={st.lbl}>The framework</p><h2 style={st.hd}>How the pieces fit together</h2>{framework.map((item,i)=>(<div key={i} style={{marginBottom:24,paddingBottom:24,borderBottom:i<3?`1px solid ${C.bdr}`:"none"}}><p style={{fontFamily:F.mono,fontSize:11,letterSpacing:"0.08em",textTransform:"uppercase",color:C.txT,marginBottom:6}}>{item.label}</p><p style={st.p}>{item.text}</p></div>))}</div>
+    <div style={st.sep}/>
+    <div style={{padding:"48px 0 80px"}}><p style={{fontFamily:F.serif,fontSize:"clamp(22px,4vw,30px)",color:C.tx,fontWeight:700,fontStyle:"italic",lineHeight:1.4,marginBottom:24}}>My thing is the space where wellness, creativity, and technology overlap.</p><p style={{fontFamily:F.sans,fontSize:15,color:C.txS,lineHeight:1.7,marginBottom:28}}>This document is a living thing. It will change as I change. But the core won't move. The core is: I help people come back to themselves. Everything else is just the form it takes on any given Tuesday.</p><p style={{fontFamily:F.mono,fontSize:11,color:C.txT,letterSpacing:"0.1em"}}>Evalynn Jetipa</p><p style={{fontFamily:F.mono,fontSize:10,color:C.txT,marginTop:4}}>Bangkok, March 2026</p></div>
+  </div>);}
+
+function Year2026({month}){
+  const mo=month||"mar";
+  const TH=({children})=><th style={{textAlign:"left",padding:"8px 10px",fontWeight:500,fontSize:11,color:C.txS,borderBottom:`1px solid ${C.bdr}`}}>{children}</th>;
+  const Row=({dy,hidden,onToggle,checked,onCheck,extraGame,onExtraGame,extraActual,onExtraActual})=>{const hasA=dy.actual&&dy.actual.length>0;const bg=dy.lv==="m"?C.goldBg:dy.lv==="s"?C.bgS:"transparent";
+    const baseGameItems=dy.game?dy.game.split("\n").filter(l=>l.length>0):[];
+    const extraGameItems=extraGame?extraGame.split("\n").filter(l=>l.length>0):[];
+    const allGameItems=[...baseGameItems,...extraGameItems.map(t=>"+ "+t)];
+    const checkedItems=allGameItems.map((text,j)=>({text:text.startsWith("+ ")?text.slice(2):text,idx:j})).filter(r=>checked[r.idx]);
+    const uncheckedItems=allGameItems.map((text,j)=>({text:text.startsWith("+ ")?text.slice(2):text,idx:j})).filter(r=>!checked[r.idx]);
+    const actualLines=hasA?dy.actual.split("\n"):[];
+    const ta={width:"100%",marginTop:6,padding:"4px 6px",border:`1px solid ${C.bdr}`,borderRadius:3,fontFamily:F.sans,fontSize:11,color:C.tx,background:"transparent",resize:"vertical",outline:"none",boxSizing:"border-box",minHeight:28};
+    return(<>
+    <tr style={{borderBottom:hidden?`1px solid ${C.bdr}`:"none",background:hidden?C.bgS:bg,verticalAlign:"top",opacity:hidden?0.5:1,transition:"opacity 0.15s"}}>
+      <td onClick={onToggle} style={{padding:hidden?"6px 10px":"8px 10px",borderRight:`1px solid ${C.bdr}`,width:110,minWidth:110,cursor:"pointer"}}>
+        <div style={{display:"flex",alignItems:"center",gap:6}}>
+          <span style={{fontSize:10,color:C.txT,transition:"transform 0.15s",transform:hidden?"rotate(0)":"rotate(90deg)"}}>{"\u25B6"}</span>
+          <div>
+            <div style={{fontFamily:F.sans,fontSize:13,fontWeight:600,color:C.tx}}>{dy.d} <span style={{fontWeight:400,color:C.txT,fontSize:11}}>{dy.day||""}</span></div>
+            {!hidden&&<div style={{fontFamily:F.sans,fontSize:11.5,color:C.txS,lineHeight:1.4,marginTop:2}}>{dy.t}</div>}
+            {!hidden&&dy.lv==="m"&&<div style={{marginTop:4}}><Tag color="yellow">major</Tag></div>}
+            {!hidden&&dy.lv==="s"&&<div style={{marginTop:4}}><Tag color="blue">key</Tag></div>}
+          </div>
+        </div>
+        {hidden&&<span style={{fontFamily:F.sans,fontSize:11,color:C.txT,marginLeft:16}}>{dy.t}</span>}
+      </td>
+      {hidden?<td colSpan={3} style={{padding:"6px 10px",fontSize:12,color:C.txT}}></td>:<>
+        <td style={{padding:"8px 10px",borderRight:`1px solid ${C.bdr}`,fontSize:12,color:C.txS,lineHeight:1.65}}>{dy.pred}</td>
+        <td style={{padding:"8px 10px",borderRight:`1px solid ${C.bdr}`,background:allGameItems.length>0?C.yellowBg:"transparent"}}>
+          {uncheckedItems.length>0?uncheckedItems.map(r=>(
+            <div key={r.idx} onClick={(e)=>{e.stopPropagation();onCheck(r.idx);}} style={{display:"flex",alignItems:"flex-start",gap:6,fontSize:12,color:C.tx,lineHeight:1.6,marginBottom:4,cursor:"pointer"}}>
+              <div style={{width:14,height:14,borderRadius:3,border:`1.5px solid ${C.bdrH}`,background:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,marginTop:2}}></div>
+              <span>{r.text}</span>
+            </div>
+          )):<span style={{fontSize:12,color:C.txT}}>{allGameItems.length>0?"All done":"\u2014"}</span>}
+          <textarea onClick={e=>e.stopPropagation()} value={extraGame||""} onChange={e=>onExtraGame(e.target.value)} placeholder="+ Add task..." rows={1} style={ta} onFocus={e=>{e.target.style.borderColor=C.blue;if(!e.target.value)e.target.rows=2;}} onBlur={e=>{e.target.style.borderColor=C.bdr;if(!e.target.value)e.target.rows=1;}}/>
+        </td>
+        <td style={{padding:"8px 10px",background:(hasA||checkedItems.length>0||extraActual)?C.greenBg:""}}>
+          {actualLines.map((l,j)=><div key={"a"+j} style={{fontSize:12,color:C.tx,lineHeight:1.6,marginBottom:1}}>{l}</div>)}
+          {checkedItems.map((r)=>{const clean=r.text.replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{1FA00}-\u{1FAFF}]/gu,"").trim();return(
+            <div key={"c"+r.idx} onClick={(e)=>{e.stopPropagation();onCheck(r.idx);}} style={{fontSize:12,color:C.tx,lineHeight:1.6,marginBottom:1,cursor:"pointer"}}>- {clean}</div>
+          );})}
+          <textarea onClick={e=>e.stopPropagation()} value={extraActual||""} onChange={e=>onExtraActual(e.target.value)} placeholder="+ Add what happened..." rows={extraActual&&extraActual.trim()?Math.max(2,extraActual.split("\n").length):1} style={ta} onFocus={e=>{e.target.style.borderColor=C.blue;if(!e.target.value)e.target.rows=3;}} onBlur={e=>{e.target.style.borderColor=C.bdr;if(!e.target.value)e.target.rows=1;}}/>
+        </td>
+      </>}
+    </tr>
+    {!hidden&&<tr style={{borderBottom:`1px solid ${C.bdr}`}}><td colSpan={4} style={{height:0}}></td></tr>}
+  </>);};
+  const Tbl=({rows,intro,storageKey})=>{const[hiddenRows,setHiddenRows]=useState({});const[checkedMap,setCheckedMap]=useState({});const[extraGameMap,setExtraGameMap]=useState({});const[extraActualMap,setExtraActualMap]=useState({});const[loaded,setLoaded]=useState(false);const[hideAll,setHideAll]=useState(false);
+    useEffect(()=>{(async()=>{const d=await osLoad("cal-state-"+storageKey,{});setHiddenRows(d.hidden||{});setCheckedMap(d.checked||{});setExtraGameMap(d.extraGame||{});setExtraActualMap(d.extraActual||{});setLoaded(true);})();},[storageKey]);
+    useEffect(()=>{if(!loaded)return;osSave("cal-state-"+storageKey,{hidden:hiddenRows,checked:checkedMap,extraGame:extraGameMap,extraActual:extraActualMap});},[hiddenRows,checkedMap,extraGameMap,extraActualMap,loaded,storageKey]);
+    const toggleHide=(i)=>setHiddenRows(p=>{const n={...p};if(n[i])delete n[i];else n[i]=true;return n;});
+    const toggleCheck=(rowIdx,itemIdx)=>setCheckedMap(p=>{const k=rowIdx+"-"+itemIdx;const n={...p};if(n[k])delete n[k];else n[k]=true;return n;});
+    const getChecked=(rowIdx)=>{const c={};Object.keys(checkedMap).forEach(k=>{const[r,j]=k.split("-");if(parseInt(r)===rowIdx)c[parseInt(j)]=true;});return c;};
+    const setExtraGame=(rowIdx,val)=>setExtraGameMap(p=>({...p,[rowIdx]:val}));
+    const setExtraActual=(rowIdx,val)=>setExtraActualMap(p=>({...p,[rowIdx]:val}));
+    const toggleAll=()=>{if(hideAll){setHiddenRows({});setHideAll(false);}else{const h={};rows.forEach((_,i)=>{h[i]=true;});setHiddenRows(h);setHideAll(true);}};
+    const visible=rows.map((dy,i)=>({dy,i,hidden:!!hiddenRows[i]})).filter(r=>!r.hidden);
+    const hiddenList=rows.map((dy,i)=>({dy,i,hidden:!!hiddenRows[i]})).filter(r=>r.hidden);
+    return(<div>
+    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
+      <Ps style={{marginBottom:0,flex:1}}>{intro}</Ps>
+      <button onClick={toggleAll} style={{border:`1px solid ${C.bdr}`,background:C.bgS,borderRadius:3,padding:"4px 12px",fontFamily:F.sans,fontSize:12,color:C.txS,cursor:"pointer",whiteSpace:"nowrap",marginLeft:12}}>{hideAll?"Expand all":"Collapse all"}</button>
+    </div>
+    <div style={{border:`1px solid ${C.bdr}`,borderRadius:4,overflow:"hidden"}}>
+      <table style={{width:"100%",borderCollapse:"collapse",fontFamily:F.sans,fontSize:13,tableLayout:"fixed"}}>
+        <colgroup><col style={{width:"15%"}}/><col style={{width:"30%"}}/><col style={{width:"27.5%"}}/><col style={{width:"27.5%"}}/></colgroup>
+        <thead><tr style={{background:C.bgS}}><TH>Date</TH><TH>Prediction</TH><TH>Game plan</TH><TH>What happened</TH></tr></thead>
+        <tbody>
+          {visible.map(r=><Row key={r.i} dy={r.dy} hidden={false} onToggle={()=>toggleHide(r.i)} checked={getChecked(r.i)} onCheck={(j)=>toggleCheck(r.i,j)} extraGame={extraGameMap[r.i]||""} onExtraGame={(v)=>setExtraGame(r.i,v)} extraActual={extraActualMap[r.i]||""} onExtraActual={(v)=>setExtraActual(r.i,v)}/>)}
+          {hiddenList.length>0&&<tr><td colSpan={4} style={{padding:"6px 10px",background:C.bgS,fontSize:11,color:C.txT,borderBottom:`1px solid ${C.bdr}`}}>Hidden ({hiddenList.length})</td></tr>}
+          {hiddenList.map(r=><Row key={r.i} dy={r.dy} hidden={true} onToggle={()=>toggleHide(r.i)} checked={getChecked(r.i)} onCheck={(j)=>toggleCheck(r.i,j)} extraGame={extraGameMap[r.i]||""} onExtraGame={(v)=>setExtraGame(r.i,v)} extraActual={extraActualMap[r.i]||""} onExtraActual={(v)=>setExtraActual(r.i,v)}/>)}
+        </tbody>
+      </table>
+    </div></div>);};
+  const march=[{d:"Mar 1",day:"Sun",t:"The calm before the wave",lv:"n",pred:"Mercury Rx in Pisces, mid-transit. Eclipse two days away.",game:"",actual:"- Deep in Golden Era dev\n- Iterating Angkhana's dashboard\n- Building Evalynn OS Dashboard"},{d:"Mar 3",day:"Tue",t:"Total lunar eclipse in Virgo 12\u00B054'",lv:"m",pred:"Blood Moon total lunar eclipse on your Ascendant sign.",game:"",actual:"- Intense building sprint\n- Evalynn OS expanding rapidly"},{d:"Mar 7",day:"Sat",t:"Mercury cazimi",lv:"s",pred:"Mercury Rx meets the Sun at 16\u00B052' Pisces. Extraordinary clarity.",game:"",actual:"- Shift to systems-level design\n- Insight: building is the method"},{d:"Mar 13",day:"Fri",t:"Mars conjunct North Node",lv:"s",pred:"Fated action point in your Sun sign, 6th house.",game:"",actual:"- Angkhana Day 15: TG 702 to 231 (-67%)\n- Literal fated action: health+service+work"},{d:"Mar 18",day:"Wed",t:"Birthday - New Moon in Pisces",lv:"m",pred:"Everything converging. New Moon on your birthday.",game:"",actual:"- Created Life Compass\n- Through-line: 'helping people come back to themselves'"},{d:"Mar 20",day:"Fri",t:"Mercury direct + Sun enters Aries",lv:"m",pred:"Two major shifts. The fog lifts. Astrological New Year.",game:"",actual:"- Full career roadmap crystallized\n- Decided: Specialist + Founder"},{d:"Mar 25",day:"Wed",t:"Saturn cazimi",lv:"m",pred:"Sun meets Saturn. The reality check day.",game:"",actual:""},{d:"Mar 31",day:"Tue",t:"New ground",lv:"n",pred:"Standing on completely different ground.",game:"",actual:""}];
+  const april=[{d:"Apr 1-2",day:"Wed-Thu",t:"Full Moon in Libra",lv:"s",pred:"Illuminates your 2nd house of income and self-worth.",game:"",actual:""},{d:"Apr 17",day:"Fri",t:"New Moon in Aries 27\u00B0",lv:"m",pred:"Partnership new moon on your Descendant.",game:"",actual:""},{d:"Apr 19",day:"Sun",t:"Mars conjunct Saturn",lv:"m",pred:"Disciplined action. Commitment required.",game:"",actual:""},{d:"Apr 25",day:"Sat",t:"Uranus enters Gemini",lv:"m",pred:"7-year career revolution begins on your MC.",game:"",actual:""}];
+  const may=[{d:"May 1",day:"Fri",t:"Full Moon in Scorpio",lv:"m",pred:"Deep truths surfacing in communication.",game:"",actual:""},{d:"May 20-21",day:"Wed-Thu",t:"Sun conjunct Uranus",lv:"m",pred:"First Sun-Uranus in Gemini in 84 years. Career catalyst.",game:"",actual:""},{d:"May 29-31",day:"Fri-Sun",t:"New Moon in Gemini",lv:"m",pred:"New beginnings in career and public visibility.",game:"",actual:""}];
+  return(<div>
+    <H1>2026</H1>
+    <Collapse title="2025 was demolition. 2026 is architecture." icon="\u2609" color={C.gold} open={false}>
+    <P style={{fontFamily:F.serif,fontSize:18,lineHeight:1.7,marginBottom:20}}>The structures that couldn't hold your weight anymore came down. 2026 is architecture. Building what should have been there all along.</P>
+    </Collapse>
+    {mo==="mar"&&<Tbl storageKey="mar" rows={march} intro="Mercury is retrograde in Pisces until March 20. The whole month is about revisiting, processing, and completing old cycles."/>}
+    {mo==="apr"&&<Tbl storageKey="apr" rows={april} intro="Sun moves through your 7th house then 8th. April 25: Uranus enters Gemini on your MC. The 7-year career revolution begins."/>}
+    {mo==="may"&&<Tbl storageKey="may" rows={may} intro="The first Sun-Uranus cazimi in Gemini in 84 years happens May 22. The new career direction becomes visible."/>}
+  </div>);}
+
+function UniversePage(){
+  const[tab,setTab]=useState("y2026");
+  const[sub2,setSub2]=useState("mar");
+  const tabs=[{k:"y2026",l:"2026 Calendar"},{k:"compass",l:"Life Compass"},{k:"who",l:"Who I Am"}];
+  return(<div>
+    <H1 style={{fontSize:28,margin:"0 0 4px"}}>My Universe</H1>
+    <div style={{display:"flex",gap:0,borderBottom:`1px solid ${C.bdr}`,marginBottom:20}}>
+      {tabs.map((t,i)=>(<button key={t.k} onClick={()=>setTab(t.k)} style={{padding:`8px 16px 8px ${i===0?0:16}px`,border:"none",background:"none",fontFamily:F.sans,fontSize:14,fontWeight:tab===t.k?600:400,color:tab===t.k?C.tx:C.txT,cursor:"pointer",borderBottom:tab===t.k?`2px solid ${C.tx}`:"2px solid transparent",marginBottom:-1}}>{t.l}</button>))}
+    </div>
+    {tab==="y2026"&&<div>
+      <div style={{display:"flex",gap:0,marginBottom:16}}>{[{k:"mar",l:"March"},{k:"apr",l:"April"},{k:"may",l:"May"}].map((m,i)=>(<button key={m.k} onClick={()=>setSub2(m.k)} style={{padding:"5px 12px",border:"none",background:sub2===m.k?C.bgS:"transparent",borderRadius:4,fontFamily:F.sans,fontSize:13,fontWeight:sub2===m.k?600:400,color:sub2===m.k?C.tx:C.txT,cursor:"pointer"}}>{m.l}</button>))}</div>
+      <Year2026 month={sub2}/>
+    </div>}
+    {tab==="compass"&&<LifeCompass/>}
+    {tab==="who"&&<WhoIAm/>}
+  </div>);
+}
+
+
+// ══════════════════════════════════════════════════════════════
+// MAIN APP - Left sidebar with all tabs
 // ══════════════════════════════════════════════════════════════
 
 const NAV_ITEMS = [
   { k: "goals", l: "Goals" },
   { k: "body", l: "Body" },
+  { k: "work", l: "Work" },
+  { k: "universe", l: "My Universe" },
 ];
 
 export default function App() {
@@ -1195,6 +1572,8 @@ function AppInner({ dark, toggle, theme }) {
       <main style={{ flex: 1, overflowY: "auto", padding: "32px 48px 60px" }}>
         {pg === "goals" && <GoalsTab />}
         {pg === "body" && <BodyPage />}
+        {pg === "work" && <WorkTab />}
+        {pg === "universe" && <UniversePage />}
       </main>
     </div>
   );
