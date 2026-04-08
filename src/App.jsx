@@ -1660,14 +1660,13 @@ function SkillMatrix(){
 
 function WorkTab(){
   const[view,setView]=useState("income");
-  const tabs=[{k:"income",l:"Income Stream"},{k:"skills",l:"Skill Matrix"},{k:"learn",l:"Growth Path"},{k:"career",l:"Career Compass"}];
+  const tabs=[{k:"income",l:"Income Stream"},{k:"skills",l:"Skill Matrix"},{k:"career",l:"Career Compass"}];
   return(<div>
     <H1 style={{margin:"0 0 8px"}}>Work</H1>
     <div style={{display:"flex",gap:0,borderBottom:`1px solid ${C.bdr}`,marginBottom:20}}>{tabs.map((t,i)=>(<button key={t.k} onClick={()=>setView(t.k)} style={{padding:`6px 14px 6px ${i===0?0:14}px`,border:"none",background:"none",fontFamily:F.sans,fontSize:14,fontWeight:view===t.k?600:400,color:view===t.k?C.tx:C.txT,cursor:"pointer",borderBottom:view===t.k?`2px solid ${C.tx}`:"2px solid transparent",marginBottom:-1}}>{t.l}</button>))}</div>
     {view==="career"&&<CompassCareer/>}
     {view==="income"&&<IncomeTracker/>}
     {view==="skills"&&<SkillMatrix/>}
-    {view==="learn"&&<LearningPlan/>}
   </div>);
 }
 
