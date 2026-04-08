@@ -1607,8 +1607,28 @@ const CONF_LEVELS=["confident","applied","learning","no idea"];
 const CONF_CFG={confident:{bg:C.greenBg,c:C.green},applied:{bg:C.blueBg,c:C.blue},learning:{bg:C.yellowBg,c:"#856d0a"},"no idea":{bg:C.bgS,c:C.txT}};
 const JD_CFG={core:{bg:C.redBg,c:C.red},expected:{bg:C.yellowBg,c:"#856d0a"},nice:{bg:C.bgS,c:C.txS}};
 
+const HS_PLAN=[
+  {key:"personal",label:"Me - Personal Growth",color:C.purple,bg:C.purpleBg,
+    goal:"Be sharp, credible, respected. Communicate clearly. Build peer relationships across language pods.",
+    skills:["English fluency in professional ops contexts","Direct, coherent speech under pressure","Escalation and timeline negotiation","Cross-pod peer relationship building","Problem-first thinking and communication"],
+    actions:["Shadow speaking practice (daily)","Build English phrase bank for ops contexts","Study communication patterns of strong operators","Practice escalation emails (weekly)","Record and review own speech (weekly)","Podcasts at 1.25x daily","Study Jad's email and Slack style","Introduce yourself to other pod leads in week 1","Continue CCA-F certification"]},
+  {key:"team",label:"Team - Contributors & Culture",color:C.green,bg:C.greenBg,
+    goal:"Attract the best people. Make them feel safe. Keep them. Deep enough bench that quality never trades for speed.",
+    skills:["Screening for language judgment, not just fluency","Cultural nuance assessment (registers, tonal awareness)","Feedback delivery (group patterns first, then individual)","Retention through respect and consistency","Sourcing in layers (trusted network > referrals > open)"],
+    actions:["Design screening test for Thai contributors","Categorize initial contributor pool by strength","Build contributor onboarding flow","Create information hub for self-service","Draft feedback templates (group + individual)","Set up contributor tracker","Define sourcing layers and wave 1 list","Note one strength per person in initial pool","Draft communication templates for contributors"]},
+  {key:"quality",label:"Quality & Operations",color:C.orange,bg:C.orangeBg,
+    goal:"Thai data so good that clients specifically request us. Standards set before projects. Issues caught in first hours.",
+    skills:["Quality standard-setting before project start","Early sampling and issue detection","Training that teaches judgment (why things work)","Process adaptation under timeline pressure","Data quality analytics and reporting"],
+    actions:["Build quality system framework","Design calibration task for new contributors","Create common error log template","Build training materials (whole before parts)","Create target sample library (excellent examples first)","Set up project delivery tracker","Draft activation playbook","Build templates for workflow change comms","Create FAQ and self-service documentation","Define quality benchmarks per project type"]},
+  {key:"boundaries",label:"Boundaries & Safety",color:C.blue,bg:C.blueBg,
+    goal:"Protect the pace. Keep safety net income. Stay grounded.",
+    skills:[],
+    actions:["Set working hours - 40 = 40","Define start/end/break rhythm","No Slack after hours","Protect weekends","Daily gut check: G / Y / R","Don't quit Scale/micro1/Turing yet","No LinkedIn update until month 3","Remove Open to work banner"]},
+];
+
 function SkillMatrix(){
   const[data,setData]=useState({skills:{},archived:[]});const[loaded,setLoaded]=useState(false);
+  const[hsChecked,setHsChecked]=useState({});
   useEffect(()=>{(async()=>{const d=await osLoad("skill-matrix",null);
     if(d){setData(d);}else{
       const seed={skills:{},archived:[]};
@@ -1619,22 +1639,31 @@ function SkillMatrix(){
       seed.skills.sk18="learning";seed.skills.sk19="learning";seed.skills.sk20="learning";
       seed.skills.sk21="no idea";seed.skills.sk22="no idea";seed.skills.sk23="no idea";
       setData(seed);osSave("skill-matrix",seed);
-    }setLoaded(true);})();},[]);
-  useEffect(()=>{if(!loaded)return;osSave("skill-matrix",data);},[data,loaded]);
+    }
+    const hc=await osLoad("hs-plan-checked",{});setHsChecked(hc);
+    setLoaded(true);})();},[]);
+  useEffect(()=>{if(!loaded)return;osSave("skill-matrix",data);osSave("hs-plan-checked",hsChecked);},[data,hsChecked,loaded]);
   const getConf=(id)=>data.skills[id]||"no idea";
   const cycleConf=(id)=>{const cur=getConf(id);const idx=CONF_LEVELS.indexOf(cur);const next=CONF_LEVELS[(idx+1)%CONF_LEVELS.length];setData(p=>({...p,skills:{...p.skills,[id]:next}}));};
   const archiveSkill=(id)=>{setData(p=>{const s={...p.skills};const conf=s[id]||"no idea";delete s[id];const allSkills=SKILL_SECTIONS_SEED.flatMap(sec=>sec.skills);const sk=allSkills.find(x=>x.id===id);return{...p,skills:s,archived:[...p.archived,{id,text:sk?.text||id,conf,date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})}]};});};
   const unarchive=(id)=>{setData(p=>{const item=p.archived.find(a=>a.id===id);const newArchived=p.archived.filter(a=>a.id!==id);return{...p,skills:{...p.skills,[id]:item?.conf||"no idea"},archived:newArchived};});};
-  const isArchived=(id)=>!data.skills.hasOwnProperty(id);
+  const toggleHs=(key)=>setHsChecked(p=>({...p,[key]:!p[key]}));
   const allSkills=SKILL_SECTIONS_SEED.flatMap(s=>s.skills);
   const activeSkills=allSkills.filter(s=>data.skills.hasOwnProperty(s.id));
   const confCount=(level)=>activeSkills.filter(s=>getConf(s.id)===level).length;
   const lineS={display:"flex",alignItems:"center",gap:8,padding:"7px 0",borderBottom:`1px solid ${C.bdr}`};
   const sectionColors={purple:{bg:C.purpleBg,c:C.purple},green:{bg:C.greenBg,c:C.green},blue:{bg:C.blueBg,c:C.blue},orange:{bg:C.orangeBg,c:C.orange},yellow:{bg:C.yellowBg,c:"#856d0a"},red:{bg:C.redBg,c:C.red}};
+  const chkBox=<svg width="7" height="5" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+
+  const hsTotalAll=HS_PLAN.reduce((s,sec)=>s+sec.actions.length+sec.skills.length,0);
+  const hsDoneAll=Object.values(hsChecked).filter(Boolean).length;
+
   return(<div>
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10,marginBottom:20}}>
       {[{l:"Total active",v:activeSkills.length,c:C.tx},{l:"Confident / applied",v:confCount("confident")+confCount("applied"),c:C.green},{l:"Learning",v:confCount("learning"),c:"#856d0a"},{l:"Gap",v:confCount("no idea"),c:C.red}].map((g,i)=>(<div key={i} style={{background:C.bgS,borderRadius:4,padding:"10px 12px"}}><div style={{fontSize:11,fontWeight:600,color:C.txT,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:3}}>{g.l}</div><div style={{fontSize:22,fontWeight:500,color:g.c}}>{g.v}</div></div>))}
     </div>
+
+    <div style={{fontSize:11,fontWeight:600,color:C.txT,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:8}}>JD Skills</div>
     {SKILL_SECTIONS_SEED.map(section=>{const sc=sectionColors[section.color]||sectionColors.purple;const sectionSkills=section.skills.filter(s=>data.skills.hasOwnProperty(s.id));if(sectionSkills.length===0)return null;return(<div key={section.key}>
       <div style={{padding:"6px 8px",fontSize:12,fontWeight:500,color:sc.c,background:sc.bg,borderBottom:`0.5px solid ${C.bdr}`,marginTop:8}}>{section.label}</div>
       {sectionSkills.map(sk=>{const conf=getConf(sk.id);const cc=CONF_CFG[conf]||CONF_CFG["no idea"];const jc=JD_CFG[sk.jd]||JD_CFG.nice;return(
@@ -1655,6 +1684,82 @@ function SkillMatrix(){
           <span onClick={()=>unarchive(a.id)} style={{cursor:"pointer",fontSize:12,color:C.blue,flexShrink:0}}>restore</span>
         </div>);})}
     </div>}
+
+    <div style={{marginTop:32,borderTop:`1px solid ${C.bdr}`,paddingTop:20}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+        <div style={{fontSize:15,fontWeight:600,color:C.tx}}>Handshake Plan</div>
+        <div style={{fontSize:12,color:C.txT}}>{hsDoneAll}/{hsTotalAll}</div>
+      </div>
+      <div style={{fontSize:13,color:C.txS,marginBottom:12}}>Project Lead, i18n - Thai Language Operations</div>
+
+      <div style={{background:C.greenBg,borderRadius:4,padding:"10px 14px",marginBottom:16}}>
+        <div style={{fontSize:13,fontWeight:500,color:C.green}}>Goal: Make Thai the highest quality language pod. Data so good that clients specifically request us.</div>
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10,marginBottom:20}}>
+        {HS_PLAN.map(sec=>{
+          const allItems=[...sec.actions.map((_,i)=>sec.key+"_a"+i),...sec.skills.map((_,i)=>sec.key+"_s"+i)];
+          const done=allItems.filter(k=>hsChecked[k]).length;
+          const pct=allItems.length>0?Math.round((done/allItems.length)*100):0;
+          return(<div key={sec.key} style={{background:C.bgS,borderRadius:4,padding:"10px 12px"}}>
+            <div style={{fontSize:11,fontWeight:600,color:sec.color,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:3}}>{sec.label.split(" - ")[0]}</div>
+            <div style={{fontSize:20,fontWeight:500,color:pct>=80?C.green:pct>=40?"#856d0a":C.txT}}>{pct}%</div>
+            <div style={{fontSize:12,color:C.txT}}>{done}/{allItems.length}</div>
+          </div>);
+        })}
+      </div>
+
+      {HS_PLAN.map(sec=>{
+        const actionKeys=sec.actions.map((_,i)=>sec.key+"_a"+i);
+        const skillKeys=sec.skills.map((_,i)=>sec.key+"_s"+i);
+        const todoA=sec.actions.map((a,i)=>({text:a,key:actionKeys[i]})).filter(x=>!hsChecked[x.key]);
+        const doneA=sec.actions.map((a,i)=>({text:a,key:actionKeys[i]})).filter(x=>hsChecked[x.key]);
+        const todoS=sec.skills.map((s,i)=>({text:s,key:skillKeys[i]})).filter(x=>!hsChecked[x.key]);
+        const doneS=sec.skills.map((s,i)=>({text:s,key:skillKeys[i]})).filter(x=>hsChecked[x.key]);
+        return(<div key={sec.key} style={{marginBottom:20}}>
+          <div style={{padding:"8px 12px",background:sec.bg,borderRadius:"4px 4px 0 0",borderBottom:`1px solid ${C.bdr}`}}>
+            <div style={{fontSize:14,fontWeight:600,color:sec.color}}>{sec.label}</div>
+            <div style={{fontSize:12,color:C.txS,marginTop:2}}>{sec.goal}</div>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:sec.skills.length>0?"1fr 1fr":"1fr",gap:20,padding:"10px 0",alignItems:"start"}}>
+            <div>
+              <div style={{fontSize:11,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em"}}>Actions ({doneA.length}/{sec.actions.length})</div>
+              {todoA.map(a=>(
+                <div key={a.key} style={lineS}>
+                  <div onClick={()=>toggleHs(a.key)} style={{width:14,height:14,borderRadius:3,border:`1.5px solid ${C.bdrH}`,cursor:"pointer",flexShrink:0}}/>
+                  <span style={{fontSize:13,color:C.tx,flex:1}}>{a.text}</span>
+                </div>
+              ))}
+              {doneA.length>0&&<div style={{background:C.bgS,borderRadius:4,padding:"6px 10px",marginTop:4}}>
+                {doneA.map(a=>(
+                  <div key={a.key} style={{padding:"4px 0",display:"flex",alignItems:"center",gap:6}}>
+                    <div onClick={()=>toggleHs(a.key)} style={{width:14,height:14,borderRadius:3,background:C.green,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0}}>{chkBox}</div>
+                    <span style={{fontSize:12,color:C.txT,textDecoration:"line-through",flex:1}}>{a.text}</span>
+                  </div>
+                ))}
+              </div>}
+            </div>
+            {sec.skills.length>0&&<div>
+              <div style={{fontSize:11,fontWeight:600,color:C.txT,marginBottom:6,textTransform:"uppercase",letterSpacing:"0.04em"}}>Skills ({doneS.length}/{sec.skills.length})</div>
+              {todoS.map(s=>(
+                <div key={s.key} style={lineS}>
+                  <div onClick={()=>toggleHs(s.key)} style={{width:14,height:14,borderRadius:3,border:`1.5px solid ${C.bdrH}`,cursor:"pointer",flexShrink:0}}/>
+                  <span style={{fontSize:13,color:C.tx,flex:1}}>{s.text}</span>
+                </div>
+              ))}
+              {doneS.length>0&&<div style={{background:C.bgS,borderRadius:4,padding:"6px 10px",marginTop:4}}>
+                {doneS.map(s=>(
+                  <div key={s.key} style={{padding:"4px 0",display:"flex",alignItems:"center",gap:6}}>
+                    <div onClick={()=>toggleHs(s.key)} style={{width:14,height:14,borderRadius:3,background:C.green,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0}}>{chkBox}</div>
+                    <span style={{fontSize:12,color:C.txT,textDecoration:"line-through",flex:1}}>{s.text}</span>
+                  </div>
+                ))}
+              </div>}
+            </div>}
+          </div>
+        </div>);
+      })}
+    </div>
   </div>);
 }
 
