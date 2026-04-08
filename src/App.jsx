@@ -1659,34 +1659,7 @@ function SkillMatrix(){
   const hsDoneAll=Object.values(hsChecked).filter(Boolean).length;
 
   return(<div>
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:10,marginBottom:20}}>
-      {[{l:"Total active",v:activeSkills.length,c:C.tx},{l:"Confident / applied",v:confCount("confident")+confCount("applied"),c:C.green},{l:"Learning",v:confCount("learning"),c:"#856d0a"},{l:"Gap",v:confCount("no idea"),c:C.red}].map((g,i)=>(<div key={i} style={{background:C.bgS,borderRadius:4,padding:"10px 12px"}}><div style={{fontSize:13,fontWeight:600,color:C.txT,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:3}}>{g.l}</div><div style={{fontSize:24,fontWeight:500,color:g.c}}>{g.v}</div></div>))}
-    </div>
-
-    <div style={{fontSize:13,fontWeight:600,color:C.txT,textTransform:"uppercase",letterSpacing:"0.04em",marginBottom:8}}>JD Skills</div>
-    {SKILL_SECTIONS_SEED.map(section=>{const sc=sectionColors[section.color]||sectionColors.purple;const sectionSkills=section.skills.filter(s=>data.skills.hasOwnProperty(s.id));if(sectionSkills.length===0)return null;return(<div key={section.key}>
-      <div style={{padding:"6px 8px",fontSize:14,fontWeight:500,color:sc.c,background:sc.bg,borderBottom:`0.5px solid ${C.bdr}`,marginTop:8}}>{section.label}</div>
-      {sectionSkills.map(sk=>{const conf=getConf(sk.id);const cc=CONF_CFG[conf]||CONF_CFG["no idea"];const jc=JD_CFG[sk.jd]||JD_CFG.nice;return(
-        <div key={sk.id} style={lineS}>
-          <span style={{fontSize:16,color:C.tx,flex:1}}>{sk.text}</span>
-          <span style={{fontSize:13,padding:"2px 8px",borderRadius:4,background:jc.bg,color:jc.c,flexShrink:0}}>{sk.jd}</span>
-          <span onClick={()=>cycleConf(sk.id)} style={{fontSize:13,fontWeight:500,padding:"2px 10px",borderRadius:4,background:cc.bg,color:cc.c,cursor:"pointer",flexShrink:0,minWidth:56,textAlign:"center"}}>{conf}</span>
-          <span onClick={()=>archiveSkill(sk.id)} style={{cursor:"pointer",fontSize:14,color:C.txT,flexShrink:0}}>x</span>
-        </div>);})}
-    </div>);})}
-    {data.archived.length>0&&<div style={{marginTop:20}}>
-      <div style={{padding:"6px 8px",fontSize:14,fontWeight:500,color:C.txT,background:C.bgS,borderBottom:`0.5px solid ${C.bdr}`}}>Archived ({data.archived.length})</div>
-      {data.archived.map((a,i)=>{const cc=CONF_CFG[a.conf]||CONF_CFG["no idea"];return(
-        <div key={a.id} style={{...lineS,opacity:0.5}}>
-          <span style={{fontSize:16,color:C.txT,flex:1,textDecoration:"line-through"}}>{a.text}</span>
-          <span style={{fontSize:13,color:C.txT,flexShrink:0}}>{a.date}</span>
-          <span style={{fontSize:13,padding:"2px 10px",borderRadius:4,background:cc.bg,color:cc.c,flexShrink:0}}>{a.conf}</span>
-          <span onClick={()=>unarchive(a.id)} style={{cursor:"pointer",fontSize:14,color:C.blue,flexShrink:0}}>restore</span>
-        </div>);})}
-    </div>}
-
-    <div style={{marginTop:32,borderTop:`1px solid ${C.bdr}`,paddingTop:20}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
         <div style={{fontSize:17,fontWeight:600,color:C.tx}}>Handshake Plan</div>
         <div style={{fontSize:14,color:C.txT}}>{hsDoneAll}/{hsTotalAll}</div>
       </div>
@@ -1765,7 +1738,7 @@ function SkillMatrix(){
 
 function WorkTab(){
   const[view,setView]=useState("income");
-  const tabs=[{k:"income",l:"Income Stream"},{k:"skills",l:"Skill Matrix"},{k:"career",l:"Career Compass"}];
+  const tabs=[{k:"income",l:"Income Stream"},{k:"skills",l:"Handshake"},{k:"career",l:"Career Compass"}];
   return(<div>
     <H1 style={{margin:"0 0 8px"}}>Work</H1>
     <div style={{display:"flex",gap:0,borderBottom:`1px solid ${C.bdr}`,marginBottom:20}}>{tabs.map((t,i)=>(<button key={t.k} onClick={()=>setView(t.k)} style={{padding:`6px 14px 6px ${i===0?0:14}px`,border:"none",background:"none",fontFamily:F.sans,fontSize:16,fontWeight:view===t.k?600:400,color:view===t.k?C.tx:C.txT,cursor:"pointer",borderBottom:view===t.k?`2px solid ${C.tx}`:"2px solid transparent",marginBottom:-1}}>{t.l}</button>))}</div>
