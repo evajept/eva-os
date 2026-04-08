@@ -1589,24 +1589,6 @@ function IncomeTracker(){
 // SKILL MATRIX - Handshake AI role skills + confidence tracking
 // ══════════════════════════════════════════════════════════════
 
-const SKILL_SECTIONS_SEED=[
-  {key:"ops",label:"Queue and operations management",color:"purple",skills:[
-    {id:"sk1",text:"Manage contributor queues across AI data workflows",jd:"core"},{id:"sk2",text:"Own quality, speed, and operational reliability",jd:"core"},{id:"sk3",text:"Identify quality issues, root cause, implement fixes",jd:"core"},{id:"sk4",text:"Build processes to prevent repeat errors",jd:"core"},{id:"sk5",text:"Escalate risks early, solve ops issues quickly",jd:"expected"}]},
-  {key:"people",label:"People and team building",color:"green",skills:[
-    {id:"sk6",text:"Recruit, screen, calibrate language contributors",jd:"core"},{id:"sk7",text:"Match contributors to right work, improve team quality",jd:"core"},{id:"sk8",text:"Give feedback, set expectations, drive accountability",jd:"expected"},{id:"sk9",text:"Scale the language team as demand grows",jd:"expected"},{id:"sk10",text:"Build language team into a strong, reliable function",jd:"core"}]},
-  {key:"comms",label:"Communication and coordination",color:"blue",skills:[
-    {id:"sk11",text:"Communicate workflow and policy changes to contributors",jd:"core"},{id:"sk12",text:"Strong written communication and attention to detail",jd:"expected"},{id:"sk13",text:"Work across multilingual / globally distributed teams",jd:"nice"}]},
-  {key:"domain",label:"Domain knowledge",color:"orange",skills:[
-    {id:"sk14",text:"RLHF workflows",jd:"nice"},{id:"sk15",text:"Evals and annotation workflows",jd:"nice"},{id:"sk16",text:"QA and localization workflows",jd:"nice"},{id:"sk17",text:"Thai language fluency + cultural judgment",jd:"core"}]},
-  {key:"tech",label:"Technical and analytical",color:"yellow",skills:[
-    {id:"sk18",text:"Analytical mindset (data-driven ops decisions)",jd:"expected"},{id:"sk19",text:"Python basics",jd:"nice"},{id:"sk20",text:"Ops metrics and reporting",jd:"expected"}]},
-  {key:"gaps",label:"Handshake-specific (onboarding)",color:"red",skills:[
-    {id:"sk21",text:"Handshake AI platform and tooling",jd:"core"},{id:"sk22",text:"Jad's operating style and team norms",jd:"core"},{id:"sk23",text:"Handshake-specific quality rubrics and workflows",jd:"core"}]},
-];
-const CONF_LEVELS=["confident","applied","learning","no idea"];
-const CONF_CFG={confident:{bg:C.greenBg,c:C.green},applied:{bg:C.blueBg,c:C.blue},learning:{bg:C.yellowBg,c:"#856d0a"},"no idea":{bg:C.bgS,c:C.txT}};
-const JD_CFG={core:{bg:C.redBg,c:C.red},expected:{bg:C.yellowBg,c:"#856d0a"},nice:{bg:C.bgS,c:C.txS}};
-
 const HS_PLAN=[
   {key:"personal",label:"Me - Personal Growth",color:C.purple,bg:C.purpleBg,
     goal:"Be sharp, credible, respected. Communicate clearly. Build peer relationships across language pods.",
@@ -1627,32 +1609,13 @@ const HS_PLAN=[
 ];
 
 function SkillMatrix(){
-  const[data,setData]=useState({skills:{},archived:[]});const[loaded,setLoaded]=useState(false);
-  const[hsChecked,setHsChecked]=useState({});
-  useEffect(()=>{(async()=>{const d=await osLoad("skill-matrix",null);
-    if(d){setData(d);}else{
-      const seed={skills:{},archived:[]};
-      seed.skills.sk1="confident";seed.skills.sk2="confident";seed.skills.sk3="confident";seed.skills.sk4="confident";seed.skills.sk5="confident";
-      seed.skills.sk6="confident";seed.skills.sk7="confident";seed.skills.sk8="confident";seed.skills.sk9="confident";seed.skills.sk10="applied";
-      seed.skills.sk11="confident";seed.skills.sk12="confident";seed.skills.sk13="confident";
-      seed.skills.sk14="applied";seed.skills.sk15="confident";seed.skills.sk16="applied";seed.skills.sk17="confident";
-      seed.skills.sk18="learning";seed.skills.sk19="learning";seed.skills.sk20="learning";
-      seed.skills.sk21="no idea";seed.skills.sk22="no idea";seed.skills.sk23="no idea";
-      setData(seed);osSave("skill-matrix",seed);
-    }
+  const[hsChecked,setHsChecked]=useState({});const[loaded,setLoaded]=useState(false);
+  useEffect(()=>{(async()=>{
     const hc=await osLoad("hs-plan-checked",{});setHsChecked(hc);
     setLoaded(true);})();},[]);
-  useEffect(()=>{if(!loaded)return;osSave("skill-matrix",data);osSave("hs-plan-checked",hsChecked);},[data,hsChecked,loaded]);
-  const getConf=(id)=>data.skills[id]||"no idea";
-  const cycleConf=(id)=>{const cur=getConf(id);const idx=CONF_LEVELS.indexOf(cur);const next=CONF_LEVELS[(idx+1)%CONF_LEVELS.length];setData(p=>({...p,skills:{...p.skills,[id]:next}}));};
-  const archiveSkill=(id)=>{setData(p=>{const s={...p.skills};const conf=s[id]||"no idea";delete s[id];const allSkills=SKILL_SECTIONS_SEED.flatMap(sec=>sec.skills);const sk=allSkills.find(x=>x.id===id);return{...p,skills:s,archived:[...p.archived,{id,text:sk?.text||id,conf,date:new Date().toLocaleDateString("en-US",{month:"short",day:"numeric"})}]};});};
-  const unarchive=(id)=>{setData(p=>{const item=p.archived.find(a=>a.id===id);const newArchived=p.archived.filter(a=>a.id!==id);return{...p,skills:{...p.skills,[id]:item?.conf||"no idea"},archived:newArchived};});};
+  useEffect(()=>{if(!loaded)return;osSave("hs-plan-checked",hsChecked);},[hsChecked,loaded]);
   const toggleHs=(key)=>setHsChecked(p=>({...p,[key]:!p[key]}));
-  const allSkills=SKILL_SECTIONS_SEED.flatMap(s=>s.skills);
-  const activeSkills=allSkills.filter(s=>data.skills.hasOwnProperty(s.id));
-  const confCount=(level)=>activeSkills.filter(s=>getConf(s.id)===level).length;
   const lineS={display:"flex",alignItems:"center",gap:8,padding:"7px 0",borderBottom:`1px solid ${C.bdr}`};
-  const sectionColors={purple:{bg:C.purpleBg,c:C.purple},green:{bg:C.greenBg,c:C.green},blue:{bg:C.blueBg,c:C.blue},orange:{bg:C.orangeBg,c:C.orange},yellow:{bg:C.yellowBg,c:"#856d0a"},red:{bg:C.redBg,c:C.red}};
   const chkBox=<svg width="7" height="5" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
 
   const hsTotalAll=HS_PLAN.reduce((s,sec)=>s+sec.actions.length+sec.skills.length,0);
