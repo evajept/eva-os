@@ -222,7 +222,7 @@ function GoalsTab(){
 
   const hdr=<div style={{marginBottom:12}}>
     <H1 style={{margin:"0 0 8px"}}>2026 Goals</H1>
-    <div style={{display:"flex",gap:0,borderBottom:`1px solid ${C.bdr}`}}>{[{k:"goals",l:"Goals"},{k:"plans",l:"Plans"}].map((t,i)=>(<button key={t.k} onClick={()=>{setView(t.k);if(t.k==="goals")setActiveGoal(null);if(t.k==="plans"&&!activeGoal&&firstGoal)setActiveGoal(firstGoal.n);}} style={{padding:`6px 14px 6px ${i===0?0:14}px`,border:"none",background:"none",fontFamily:F.sans,fontSize:16,fontWeight:view===t.k?600:400,color:view===t.k?C.tx:C.txT,cursor:"pointer",borderBottom:view===t.k?`2px solid ${C.tx}`:"2px solid transparent",marginBottom:-1}}>{t.l}</button>))}</div>
+    <div style={{display:"flex",gap:0,borderBottom:`1px solid ${C.bdr}`}}>{[{k:"goals",l:"Goals"},{k:"plans",l:"Plans"},{k:"reflect",l:"Reflect"}].map((t,i)=>(<button key={t.k} onClick={()=>{setView(t.k);if(t.k==="goals")setActiveGoal(null);if(t.k==="plans"&&!activeGoal&&firstGoal)setActiveGoal(firstGoal.n);}} style={{padding:`6px 14px 6px ${i===0?0:14}px`,border:"none",background:"none",fontFamily:F.sans,fontSize:16,fontWeight:view===t.k?600:400,color:view===t.k?C.tx:C.txT,cursor:"pointer",borderBottom:view===t.k?`2px solid ${C.tx}`:"2px solid transparent",marginBottom:-1}}>{t.l}</button>))}</div>
   </div>;
 
   const planGoal=activeG||(firstGoal?LIFE_GOALS.find(g=>g.n===firstGoal.n):null);
@@ -239,6 +239,8 @@ function GoalsTab(){
       </div>))}</div>
     <GoalDetail g={planGoal} data={data[planGoal.n]} setData={v=>setData(p=>({...p,[planGoal.n]:v}))}/>
   </div>);}
+
+  if(view==="reflect"){return(<div>{hdr}</div>);}
 
   return(<div>{hdr}
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,borderBottom:`1px solid ${C.bdr}`,marginBottom:12}}>{[{l:"Core",color:C.purple,cat:"core"},{l:"Project",color:C.gold,cat:"project"},{l:"Experience",color:C.ocean,cat:"experience"}].map(c=>(<div key={c.l} style={{display:"flex",alignItems:"center",gap:0}}><span style={{padding:"6px 0",fontFamily:F.sans,fontSize:16,fontWeight:600,color:c.color}}>{c.l}</span><span onClick={()=>addGoal(c.cat)} style={{cursor:"pointer",fontSize:17,color:c.color,padding:"6px 6px"}}>+</span></div>))}</div>
